@@ -15,16 +15,18 @@ import datetime
 
 
 # 确保logs目录存在
-if not os.path.exists('logs'):
-    os.makedirs('logs')
+if not os.path.exists("logs"):
+    os.makedirs("logs")
 
 # 配置文件处理器
 file_handler = logging.FileHandler(
-    os.path.join('logs', f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
-    encoding='utf-8'
+    os.path.join(
+        "logs", f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+    ),
+    encoding="utf-8",
 )
 file_handler.setFormatter(
-    logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 )
 
 # 配置控制台处理器
@@ -215,7 +217,6 @@ def simulate_login(user_account, user_password):
 
 
 def print_welcome():
-    logging.info("\n" * 30)
     logging.info(f"\n{'*' * 10} 曲阜师范大学教务系统模拟登录脚本 {'*' * 10}\n")
     logging.info("By W1ndys")
     logging.info("https://github.com/W1ndys")
