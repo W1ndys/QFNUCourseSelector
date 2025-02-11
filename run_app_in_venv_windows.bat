@@ -15,3 +15,4 @@ echo 已进入app目录
 :: 运行 Python 脚本
 python main.py
 
+pause
