@@ -11,8 +11,23 @@ from course_selector import get_jx0502zbid
 from search_course import search_course
 from session_manager import init_session, get_session
 import colorlog
+import datetime
 
-# 添加日志颜色配置
+
+# 确保logs目录存在
+if not os.path.exists('logs'):
+    os.makedirs('logs')
+
+# 配置文件处理器
+file_handler = logging.FileHandler(
+    os.path.join('logs', f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
+    encoding='utf-8'
+)
+file_handler.setFormatter(
+    logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+)
+
+# 配置控制台处理器
 handler = colorlog.StreamHandler()
 handler.setFormatter(
     colorlog.ColoredFormatter(
@@ -29,6 +44,7 @@ handler.setFormatter(
 
 logger = logging.getLogger()
 logger.addHandler(handler)
+logger.addHandler(file_handler)
 logger.setLevel(logging.DEBUG)
 
 load_dotenv()
