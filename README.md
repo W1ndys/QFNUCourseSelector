@@ -1,6 +1,6 @@
 # QFNUCourseSelector
 
-QFNU 抢课脚本
+QFNU抢课脚本 | 强智教务抢课脚本 | 强智教务2017
 
 ## 仍在开发中，目前只能抢公选课
 
