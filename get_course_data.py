@@ -1,11 +1,6 @@
 import os
 import logging
-from requests.exceptions import RequestException
-from session_manager import get_session
 import json
-from send_course_data import send_ggxxkxkOper_course_data
-
-
 def get_xsxkGgxxkxk_course_info(course):
     try:
         xsxkGgxxkxk_json_path = os.path.join(
