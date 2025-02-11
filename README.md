@@ -85,4 +85,8 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 ## 致谢
 
-感谢 naikai 大佬提供的[教务系统选课接口](https://github.com/naikai/QFNU-Course-Selector)
+感谢 [nakii](https://github.com/nakaii-002)、[上杉九月](https://github.com/sakurasep)两位师哥的讨论和指导
+
+感谢 超级大猫猫头头 师哥提供的测试环境
+
+感谢 [Cursor](https://www.cursor.com/) 提供的代码补全和辅助功能
