@@ -1,5 +1,11 @@
-from get_course_data import get_xsxkGgxxkxk_course_info
-from send_course_data import send_ggxxkxkOper_course_data, send_knjxkOper_course_data
+from get_course_data import get_course_jx02id_and_jx0404id
+from send_course_data import (
+    send_ggxxkxkOper_course_data,
+    send_knjxkOper_course_data,
+    send_bxqjhxkOper_course_data,
+    send_xxxkOper_course_data,
+    send_fawxkOper_course_data,
+)
 import logging
 
 
@@ -27,7 +33,7 @@ def find_course_data(response, course):
     return None
 
 
-def search_course(course):
+def search_and_select_course(course):
     """
     通过依次从公选课选课、本学期计划选课、选修选课、专业内跨年级选课、计划外选课、辅修选课搜索课程
 
@@ -39,6 +45,8 @@ def search_course(course):
             - week_day: 上课星期
             - class_period: 上课时间
             - course_time: 完整的课程时间信息
+            - jx02id: 课程jx02id
+            - jx0404id: 课程jx0404id
 
     Returns:
         bool: 如果成功找到并选择课程返回True，否则返回False
@@ -53,12 +61,24 @@ def search_course(course):
 
         # 已手动配置jx02id和jx0404id，直接跳过搜索
         if course.get("jx02id") and course.get("jx0404id"):
-            logging.info(f"已手动配置jx02id和jx0404id，跳过搜索: {course}")
+            logging.info(f"已手动配置jx02id和jx0404id，跳过搜索直接选课: {course}")
             # 依次尝试不同的选课方式，直到成功
-            if send_ggxxkxkOper_course_data(course["course_id_or_name"], course):
+            # 优先选择本学期计划选课
+            if send_bxqjhxkOper_course_data(course["course_id_or_name"], course):
                 return True
+            # 再尝试专业内跨年级选课
             if send_knjxkOper_course_data(course["course_id_or_name"], course):
                 return True
+            # 再尝试公选课选课请求
+            if send_ggxxkxkOper_course_data(course["course_id_or_name"], course):
+                return True
+            # 再尝试选修选课
+            if send_xxxkOper_course_data(course["course_id_or_name"], course):
+                return True
+            # 最后尝试计划外选课
+            if send_fawxkOper_course_data(course["course_id_or_name"], course):
+                return True
+            # 如果所有尝试都失败，则返回False
             return False
 
         course_id_or_name = course.get("course_id_or_name", "")
@@ -68,16 +88,37 @@ def search_course(course):
         course_time = course.get("course_time", "")
 
         # 寻找课程的jx02id和jx0404id
-        course_data = get_xsxkGgxxkxk_course_info(course)
+        course_jx02id_and_jx0404id = get_course_jx02id_and_jx0404id(course)
 
-        if course_data:
-            # 发送选课请求
-            send_ggxxkxkOper_course_data(course["course_id_or_name"], course_data)
-            return True
+        if course_jx02id_and_jx0404id:
+            # 依次尝试不同的选课方式，直到成功
+            # 优先选择本学期计划选课
+            if send_bxqjhxkOper_course_data(
+                course_id_or_name, course_jx02id_and_jx0404id
+            ):
+                return True
+            # 再尝试专业内跨年级选课
+            if send_knjxkOper_course_data(
+                course_id_or_name, course_jx02id_and_jx0404id
+            ):
+                return True
+            # 再尝试公选课选课请求
+            if send_ggxxkxkOper_course_data(
+                course_id_or_name, course_jx02id_and_jx0404id
+            ):
+                return True
+            # 再尝试选修选课
+            if send_xxxkOper_course_data(course_id_or_name, course_jx02id_and_jx0404id):
+                return True
+            # 最后尝试计划外选课
+            if send_fawxkOper_course_data(
+                course_id_or_name, course_jx02id_and_jx0404id
+            ):
+                return True
+            # 如果所有尝试都失败，则返回False
+            return False
         else:
-            logging.error(
-                f"未在公选课中找到课程: {course_id_or_name}-{teacher_name}-{week_day}-{class_period}，尝试在其他选课方式中搜索"
-            )
+            logging.error(f"未找到{course_id_or_name}的jx02id和jx0404id")
             return False
 
     except Exception as e:
