@@ -48,7 +48,6 @@ def get_jx0502zbid(session, select_course_id_or_name: str) -> Optional[str]:
                 logging.warning(f"解析行数据时出错: {str(e)}")
                 continue
 
-        logging.info(f"未找到匹配的选课轮次: {select_course_id_or_name}")
         return None
 
     except RequestException as e:

@@ -12,6 +12,7 @@ from session_manager import init_session, get_session
 import colorlog
 import logging
 import datetime
+import time
 
 
 def setup_logger():
@@ -310,18 +311,24 @@ def main():
                 logger.warning(f"访问选课页面失败，正在进行第{attempt + 2}次尝试")
                 continue
 
-        for attempt in range(3):
+        jx0502zbid = None
+        while True:
             try:
                 jx0502zbid = get_jx0502zbid(session, select_semester)
                 if jx0502zbid:
-                    logger.info(f"获取到选课轮次编号: {jx0502zbid}")
+                    logger.info(f"成功获取到选课轮次编号: {jx0502zbid}")
                     break
+                else:
+                    logger.warning(
+                        "获取选课轮次编号失败，正在重试。如果多次尝试失败，请检查配置文件或确认选课是否已开启"
+                    )
+                    time.sleep(1)  # 每次尝试间隔1秒
+                    continue
             except Exception as e:
-                if attempt == 2:  # 最后一次尝试
-                    logger.error(f"获取选课轮次编号失败: {str(e)}")
-                    raise
-                logger.warning(f"获取选课轮次编号失败，正在进行第{attempt + 2}次尝试")
-                continue
+                logger.warning(
+                    f"获取选课轮次编号失败: {str(e)}，正在重试。如果多次尝试失败，请检查配置文件或确认选课是否已开启"
+                )
+                time.sleep(1)
 
         if jx0502zbid:
             response = session.get(
