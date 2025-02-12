@@ -10,7 +10,11 @@
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
 </p>
 
-## 请给我一个 Star！⭐
+<div align="center">
+    <h1 >
+        ✨ 请给我一个 Star! ✨
+    </h1>
+</div>
 
 ## ⚠️ 注意事项
 
