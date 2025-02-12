@@ -5,13 +5,13 @@ from bs4 import BeautifulSoup
 from requests.exceptions import RequestException
 
 
-def get_jx0502zbid(session, select_course_id: str) -> Optional[str]:
+def get_jx0502zbid(session, select_course_id_or_name: str) -> Optional[str]:
     """
     获取教务系统中的选课轮次编号
     Args:
         session: 请求会话
         cookies: cookies信息
-        select_course_id: 选课名称，用于匹配正确的选课轮次
+        select_course_id_or_name: 选课名称，用于匹配正确的选课轮次
     Returns:
         Optional[str]: 选课轮次编号(jx0502zbid)，如果未找到返回None
     Raises:
@@ -19,7 +19,7 @@ def get_jx0502zbid(session, select_course_id: str) -> Optional[str]:
         RequestException: 当网络请求失败时
     """
     # 参数验证
-    if not select_course_id or not isinstance(select_course_id, str):
+    if not select_course_id_or_name or not isinstance(select_course_id_or_name, str):
         raise ValueError("选课名称不能为空且必须是字符串类型")
 
     url = "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list"
@@ -38,7 +38,7 @@ def get_jx0502zbid(session, select_course_id: str) -> Optional[str]:
                 if not cells or len(cells) < 2:
                     continue
 
-                if select_course_id in cells[1].text.strip():
+                if select_course_id_or_name in cells[1].text.strip():
                     link = row.find("a", href=True)
                     if link and "jx0502zbid" in link["href"]:
                         match = jx0502zbid_pattern.search(link["href"])
@@ -48,7 +48,7 @@ def get_jx0502zbid(session, select_course_id: str) -> Optional[str]:
                 logging.warning(f"解析行数据时出错: {str(e)}")
                 continue
 
-        logging.info(f"未找到匹配的选课轮次: {select_course_id}")
+        logging.info(f"未找到匹配的选课轮次: {select_course_id_or_name}")
         return None
 
     except RequestException as e:
