@@ -1,6 +1,6 @@
 import time
 import logging
-from session_manager import get_session
+from src.utils.session_manager import get_session
 
 
 def send_ggxxkxkOper_course_data(course_name, course_data):

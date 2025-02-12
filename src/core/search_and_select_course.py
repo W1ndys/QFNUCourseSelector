@@ -1,5 +1,5 @@
 from src.data.get_course_jx02id_and_jx0404id import get_course_jx02id_and_jx0404id
-from send_course_data import (
+from src.core.send_course_data import (
     send_ggxxkxkOper_course_data,
     send_knjxkOper_course_data,
     send_bxqjhxkOper_course_data,
@@ -7,7 +7,7 @@ from send_course_data import (
     send_fawxkOper_course_data,
 )
 import logging
-from dingtalk import dingtalk
+from src.utils.dingtalk import dingtalk
 
 
 def find_course_data(response, course):
