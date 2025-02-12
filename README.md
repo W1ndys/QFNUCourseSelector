@@ -59,11 +59,13 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
   "select_semester": "你的选课学期，例如：2024-2025-2学期2021级选课",
   "course": [
     {
-      "course_id": "课程id",
-      "teacher_name": "教师名称",
-      "week_day": "上课星期", // 填(1,2,3,4,5,6,7)
-      "class_period": "上课节次", // 填(1-2-,3-4-,5-6-,7-8-,9-10-11,12-13-)
-      "course_time": "完整的上课时间" // 例如：1-18周 星期六 1-2节
+      "course_id_or_name": "课程id", // 必填
+      "teacher_name": "教师名称", //必填
+      "week_day": "上课星期", // 填(1,2,3,4,5,6,7)，选填
+      "class_period": "上课节次", // 填(1-2-,3-4-,5-6-,7-8-,9-10-11,12-13-)，选填
+      "course_time": "完整的上课时间", // 例如：1-18周 星期六 1-2节，空着则不填
+      "jx02id": "jx02id", // 公选课的jx02id，选填
+      "jx0404id": "jx0404id" // 公选课的jx0404id，选填
     }
     //...
     // 可以添加多个课程
@@ -73,7 +75,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 解释：
 
-- `course_id`：课程 id，例如：g20062389,**必填**
+- `course_id_or_name`：课程 id，例如：g20062389,**必填**
 - `teacher_name`：教师名称，例如：张三,**必填**
 - `week_day`：上课星期，填(1,2,3,4,5,6,7)，选填
 - `class_period`：上课节次，填(1-2-,3-4-,5-6-,7-8-,9-10-11,12-13-),**别问我为什么后面要带个-，那个反人类的教务系统就是这么设计的**，选填
