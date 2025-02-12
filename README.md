@@ -77,6 +77,8 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
   "user_account": "你的学号",
   "user_password": "你的密码",
   "select_semester": "你的选课学期，例如：2024-2025-2学期2021级选课",
+  "dingtalk_webhook": "你的钉钉机器人webhook",
+  "dingtalk_secret": "你的钉钉机器人secret",
   "course": [
     {
       "course_id_or_name": "课程id", // 必填

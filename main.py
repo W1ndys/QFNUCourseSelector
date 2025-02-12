@@ -168,6 +168,8 @@ def get_user_config():
         user_account: 用户账号
         user_password: 用户密码
         select_semester: 选课学期
+        dingtalk_webhook: 钉钉机器人webhook
+        dingtalk_secret: 钉钉机器人secret
         courses: 课程列表
     """
     # 检查配置文件是否存在
@@ -177,6 +179,8 @@ def get_user_config():
             "user_account": "",
             "user_password": "",
             "select_semester": "",
+            "dingtalk_webhook": "",
+            "dingtalk_secret": "",
             "courses": [
                 {
                     "course_id_or_name": "",
@@ -184,7 +188,18 @@ def get_user_config():
                     "course_time": "",
                     "class_period": "",
                     "week_day": "",
-                }
+                    "jx02id": "",
+                    "jx0404id": "",
+                },
+                {
+                    "course_id_or_name": "",
+                    "teacher_name": "",
+                    "course_time": "",
+                    "class_period": "",
+                    "week_day": "",
+                    "jx02id": "",
+                    "jx0404id": "",
+                },
             ],
         }
         with open("config.json", "w", encoding="utf-8") as f:
