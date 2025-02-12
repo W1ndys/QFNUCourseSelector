@@ -3,9 +3,6 @@
         {
             "kkdw": "23",
             "kcxzm": "05",
-            "szkcflmc": null,
-            "parentjx0404id": null,
-            "fj_filename": null,
             "xnxq01id": "2024-2025-2",
             "zcxqjcList": [],
             "dwmc": "网络空间安全学院",
@@ -15,11 +12,8 @@
             "tzdlb": "1",
             "kcsx": "3",
             "kch": "307026",
-            "syrs": null,
             "kcdldm": "01",
-            "kxh": null,
             "fzmc": "分组01",
-            "cfbs": null,
             "sksj": "1-9周 星期四 5-6节  ",
             "kcmc": "知识图谱在NLP中的应用研究专题研讨",
             "jx0504id": 139629,
@@ -48,34 +42,23 @@
                     "kkdlb": "1"
                 }
             ],
-            "szkcfl": null,
-            "dyrsbl": null,
             "ctsm": "",
             "sklsid": "19970746",
             "skls": "周子力",
-            "kcjj": null,
             "xqid": "1",
             "sfkfxk": "1",
             "skdd": "格物楼B109",
             "xf": 1,
-            "txsfkxq": null,
             "kcxzmc": "专业选修课",
             "zxs": 18,
             "jx0404id": "202420252008096",
             "xqmc": "曲阜校区",
-            "jxdg_filename": null,
             "jx02id": "FB39E7BCF8114E43BFD80E7656AA3AFA",
-            "xxrs": 15,
-            "xbyq": null,
-            "xbyqmc": null,
-            "sftk": null
+            "xxrs": 15
         },
         {
             "kkdw": "23",
             "kcxzm": "05",
-            "szkcflmc": null,
-            "parentjx0404id": null,
-            "fj_filename": null,
             "xnxq01id": "2024-2025-2",
             "zcxqjcList": [],
             "dwmc": "网络空间安全学院",
@@ -85,11 +68,8 @@
             "tzdlb": "1",
             "kcsx": "3",
             "kch": "307026",
-            "syrs": null,
             "kcdldm": "01",
-            "kxh": null,
             "fzmc": "分组02",
-            "cfbs": null,
             "sksj": "1-9周 星期四 7-8节  ",
             "kcmc": "知识图谱在NLP中的应用研究专题研讨",
             "jx0504id": 139630,
@@ -118,27 +98,19 @@
                     "kkdlb": "1"
                 }
             ],
-            "szkcfl": null,
-            "dyrsbl": null,
             "ctsm": "",
             "sklsid": "19970746",
             "skls": "周子力",
-            "kcjj": null,
             "xqid": "1",
             "sfkfxk": "1",
             "skdd": "格物楼B109",
             "xf": 1,
-            "txsfkxq": null,
             "kcxzmc": "专业选修课",
             "zxs": 18,
             "jx0404id": "202420252008097",
             "xqmc": "曲阜校区",
-            "jxdg_filename": null,
             "jx02id": "FB39E7BCF8114E43BFD80E7656AA3AFA",
-            "xxrs": 15,
-            "xbyq": null,
-            "xbyqmc": null,
-            "sftk": null
+            "xxrs": 15
         }
     ],
     "sEcho": "1",
@@ -146,12 +118,10 @@
     "iTotalDisplayRecords": 2,
     "bbData": [
         {
-            "jsjj": null,
             "jg0101id": "19970746",
             "jgh": "19970746"
         },
         {
-            "jsjj": null,
             "jg0101id": "19970746",
             "jgh": "19970746"
         }
