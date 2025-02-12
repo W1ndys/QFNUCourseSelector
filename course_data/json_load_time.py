@@ -11,7 +11,7 @@ def test_json_read(parser_name="json"):
     start_time = time.time()
 
     # 读取文件
-    with open("0.json", "r", encoding="utf-8") as f:
+    with open("all_courses.json", "r", encoding="utf-8") as f:
         file_read_time = time.time()
         content = f.read()
         read_complete_time = time.time()
@@ -26,9 +26,9 @@ def test_json_read(parser_name="json"):
     total_duration = (parse_complete_time - start_time) * 1000
 
     print(f"使用 {parser_name}:")
-    print(f"文件读取耗时: {file_read_duration:.2f}ms")
-    print(f"JSON解析耗时: {parse_duration:.2f}ms")
-    print(f"总耗时: {total_duration:.2f}ms")
+    print(f"文件读取耗时: {file_read_duration}ms")
+    print(f"JSON解析耗时: {parse_duration}ms")
+    print(f"总耗时: {total_duration}ms")
     print("-" * 40)
 
 
