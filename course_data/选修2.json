@@ -1,0 +1,344 @@
+{
+    "aaData": [
+        {
+            "kkdw": "23",
+            "kcxzm": "05",
+            "szkcflmc": null,
+            "parentjx0404id": null,
+            "fj_filename": null,
+            "xnxq01id": "2024-2025-2",
+            "zcxqjcList": [
+                {
+                    "zc": "1",
+                    "xq": "4",
+                    "jc": "05"
+                },
+                {
+                    "zc": "1",
+                    "xq": "4",
+                    "jc": "06"
+                },
+                {
+                    "zc": "2",
+                    "xq": "4",
+                    "jc": "05"
+                },
+                {
+                    "zc": "2",
+                    "xq": "4",
+                    "jc": "06"
+                },
+                {
+                    "zc": "3",
+                    "xq": "4",
+                    "jc": "05"
+                },
+                {
+                    "zc": "3",
+                    "xq": "4",
+                    "jc": "06"
+                },
+                {
+                    "zc": "4",
+                    "xq": "4",
+                    "jc": "05"
+                },
+                {
+                    "zc": "4",
+                    "xq": "4",
+                    "jc": "06"
+                },
+                {
+                    "zc": "5",
+                    "xq": "4",
+                    "jc": "05"
+                },
+                {
+                    "zc": "5",
+                    "xq": "4",
+                    "jc": "06"
+                },
+                {
+                    "zc": "6",
+                    "xq": "4",
+                    "jc": "05"
+                },
+                {
+                    "zc": "6",
+                    "xq": "4",
+                    "jc": "06"
+                },
+                {
+                    "zc": "7",
+                    "xq": "4",
+                    "jc": "05"
+                },
+                {
+                    "zc": "7",
+                    "xq": "4",
+                    "jc": "06"
+                },
+                {
+                    "zc": "8",
+                    "xq": "4",
+                    "jc": "05"
+                },
+                {
+                    "zc": "8",
+                    "xq": "4",
+                    "jc": "06"
+                },
+                {
+                    "zc": "9",
+                    "xq": "4",
+                    "jc": "05"
+                },
+                {
+                    "zc": "9",
+                    "xq": "4",
+                    "jc": "06"
+                }
+            ],
+            "dwmc": "网络空间安全学院",
+            "ksfs": "3",
+            "pkrs": 15,
+            "ktmc": "22软工[1-4]班,22网安班",
+            "tzdlb": "1",
+            "kcsx": "3",
+            "kch": "307026",
+            "syrs": null,
+            "kcdldm": "01",
+            "kxh": null,
+            "fzmc": "分组01",
+            "cfbs": null,
+            "sksj": "1-9周 星期四 5-6节  ",
+            "kcmc": "知识图谱在NLP中的应用研究专题研讨",
+            "jx0504id": 139629,
+            "kkapList": [
+                {
+                    "jssj": "16:20",
+                    "jzwmc": "格物楼",
+                    "jgxm": "周子力",
+                    "skjcmc": "5-6",
+                    "skzcList": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9"
+                    ],
+                    "xq": "4",
+                    "kbjcmsid": "94786EE0ABE2D3B2E0531E64A8C09931",
+                    "kkzc": "1-9",
+                    "kssj": "14:30",
+                    "jsmc": "格物楼B109",
+                    "kkdlb": "1"
+                }
+            ],
+            "szkcfl": null,
+            "dyrsbl": null,
+            "ctsm": "",
+            "sklsid": "19970746",
+            "skls": "周子力",
+            "kcjj": null,
+            "xqid": "1",
+            "sfkfxk": "1",
+            "skdd": "格物楼B109",
+            "xf": 1,
+            "txsfkxq": null,
+            "kcxzmc": "专业选修课",
+            "zxs": 18,
+            "jx0404id": "202420252008096",
+            "xqmc": "曲阜校区",
+            "jxdg_filename": null,
+            "jx02id": "FB39E7BCF8114E43BFD80E7656AA3AFA",
+            "xxrs": 15,
+            "xbyq": null,
+            "xbyqmc": null,
+            "sftk": null
+        },
+        {
+            "kkdw": "23",
+            "kcxzm": "05",
+            "szkcflmc": null,
+            "parentjx0404id": null,
+            "fj_filename": null,
+            "xnxq01id": "2024-2025-2",
+            "zcxqjcList": [
+                {
+                    "zc": "1",
+                    "xq": "4",
+                    "jc": "07"
+                },
+                {
+                    "zc": "1",
+                    "xq": "4",
+                    "jc": "08"
+                },
+                {
+                    "zc": "2",
+                    "xq": "4",
+                    "jc": "07"
+                },
+                {
+                    "zc": "2",
+                    "xq": "4",
+                    "jc": "08"
+                },
+                {
+                    "zc": "3",
+                    "xq": "4",
+                    "jc": "07"
+                },
+                {
+                    "zc": "3",
+                    "xq": "4",
+                    "jc": "08"
+                },
+                {
+                    "zc": "4",
+                    "xq": "4",
+                    "jc": "07"
+                },
+                {
+                    "zc": "4",
+                    "xq": "4",
+                    "jc": "08"
+                },
+                {
+                    "zc": "5",
+                    "xq": "4",
+                    "jc": "07"
+                },
+                {
+                    "zc": "5",
+                    "xq": "4",
+                    "jc": "08"
+                },
+                {
+                    "zc": "6",
+                    "xq": "4",
+                    "jc": "07"
+                },
+                {
+                    "zc": "6",
+                    "xq": "4",
+                    "jc": "08"
+                },
+                {
+                    "zc": "7",
+                    "xq": "4",
+                    "jc": "07"
+                },
+                {
+                    "zc": "7",
+                    "xq": "4",
+                    "jc": "08"
+                },
+                {
+                    "zc": "8",
+                    "xq": "4",
+                    "jc": "07"
+                },
+                {
+                    "zc": "8",
+                    "xq": "4",
+                    "jc": "08"
+                },
+                {
+                    "zc": "9",
+                    "xq": "4",
+                    "jc": "07"
+                },
+                {
+                    "zc": "9",
+                    "xq": "4",
+                    "jc": "08"
+                }
+            ],
+            "dwmc": "网络空间安全学院",
+            "ksfs": "3",
+            "pkrs": 15,
+            "ktmc": "22软工[1-4]班,22网安班",
+            "tzdlb": "1",
+            "kcsx": "3",
+            "kch": "307026",
+            "syrs": null,
+            "kcdldm": "01",
+            "kxh": null,
+            "fzmc": "分组02",
+            "cfbs": null,
+            "sksj": "1-9周 星期四 7-8节  ",
+            "kcmc": "知识图谱在NLP中的应用研究专题研讨",
+            "jx0504id": 139630,
+            "kkapList": [
+                {
+                    "jssj": "18:20",
+                    "jzwmc": "格物楼",
+                    "jgxm": "周子力",
+                    "skjcmc": "7-8",
+                    "skzcList": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9"
+                    ],
+                    "xq": "4",
+                    "kbjcmsid": "94786EE0ABE2D3B2E0531E64A8C09931",
+                    "kkzc": "1-9",
+                    "kssj": "16:30",
+                    "jsmc": "格物楼B109",
+                    "kkdlb": "1"
+                }
+            ],
+            "szkcfl": null,
+            "dyrsbl": null,
+            "ctsm": "",
+            "sklsid": "19970746",
+            "skls": "周子力",
+            "kcjj": null,
+            "xqid": "1",
+            "sfkfxk": "1",
+            "skdd": "格物楼B109",
+            "xf": 1,
+            "txsfkxq": null,
+            "kcxzmc": "专业选修课",
+            "zxs": 18,
+            "jx0404id": "202420252008097",
+            "xqmc": "曲阜校区",
+            "jxdg_filename": null,
+            "jx02id": "FB39E7BCF8114E43BFD80E7656AA3AFA",
+            "xxrs": 15,
+            "xbyq": null,
+            "xbyqmc": null,
+            "sftk": null
+        }
+    ],
+    "sEcho": "1",
+    "iTotalRecords": 2,
+    "iTotalDisplayRecords": 2,
+    "bbData": [
+        {
+            "jsjj": null,
+            "jg0101id": "19970746",
+            "jgh": "19970746"
+        },
+        {
+            "jsjj": null,
+            "jg0101id": "19970746",
+            "jgh": "19970746"
+        }
+    ],
+    "flag": true,
+    "flag1": true,
+    "jfViewStr": ""
+}
