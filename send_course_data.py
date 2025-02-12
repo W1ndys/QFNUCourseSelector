@@ -115,7 +115,7 @@ def send_knjxkOper_course_data(course_name, course_data):
         return None
 
 
-def send_xsxkBxqjhxk_course_data(course_name, course_data):
+def send_bxqjhxkOper_course_data(course_name, course_data):
     """发送本学期计划选课请求"""
     try:
         session = get_session()
@@ -171,7 +171,7 @@ def send_xsxkBxqjhxk_course_data(course_name, course_data):
         return None
 
 
-def send_xsxkXxxk_course_data(course_name, course_data):
+def send_xxxkOper_course_data(course_name, course_data):
     """发送选修选课请求"""
     try:
         session = get_session()
@@ -226,7 +226,7 @@ def send_xsxkXxxk_course_data(course_name, course_data):
         return None
 
 
-def send_comeInFawxk_course_data(course_name, course_data):
+def send_fawxkOper_course_data(course_name, course_data):
     """发送计划外选课请求"""
     try:
         session = get_session()
