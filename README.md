@@ -5,7 +5,6 @@
 <p align="center">
     <img src="https://img.shields.io/github/stars/W1ndys/QFNUCourseSelector?style=flat-square" alt="Stars">
     <img src="https://img.shields.io/github/issues/W1ndys/QFNUCourseSelector?style=flat-square" alt="Issues">
-    <img src="https://img.shields.io/github/pulls/W1ndys/QFNUCourseSelector?style=flat-square" alt="Pull Requests">
     <img src="https://img.shields.io/badge/Python-3.12.3-blue.svg" alt="Python">
     <img src="https://img.shields.io/badge/状态-开发中-yellow.svg" alt="Status">
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
@@ -96,7 +95,13 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 | jx02id            | 公选课 jx02id                  | ❌       | -                                  |
 | jx0404id          | 公选课 jx0404id                | ❌       | -                                  |
 
-> 📝 **注意**：关于 jx02id 和 jx0404id 的获取方法，请参考[详细说明文档](./assets/docs/how_to_get_jx02id_and_jx0404id.md)
+> [!NOTE]
+>
+> 关于 jx02id 和 jx0404id 的获取方法，请参考[详细说明文档](./assets/docs/how_to_get_jx02id_and_jx0404id.md)
+>
+> jx02id 和 jx0404id 是教务系统中课程的唯一标识，在配置文件中选填，如果不填，脚本会根据本地数据自动获取，但是获取的准确性可能不如手动获取，并且抢课速度会慢 10-50ms
+>
+> 上课节次必须按照格式，后面的-不能省略（我也不知道为什么要这样写，教务系统设计的是这样的）
 
 ### 5. 运行脚本
 
@@ -107,7 +112,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 特别感谢以下贡献者：
 
 - [nakii](https://github.com/nakaii-002) - 技术指导
-- [上杉九月](https://github.com/sakurasep) - 技术支持
+- [上杉九月](https://github.com/sakurasep) - 技术指导
 - 超级大猫猫头头 - 测试支持
 - [Cursor](https://www.cursor.com/) - 开发工具支持
 
