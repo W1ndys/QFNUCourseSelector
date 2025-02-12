@@ -10,6 +10,8 @@
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
 </p>
 
+## 请给我一个 Star！⭐
+
 ## ⚠️ 注意事项
 
 **目前仅支持公选课抢课功能**
@@ -78,7 +80,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
       "course_time": "完整的上课时间", // 必填
       "jx02id": "jx02id", // 选填
       "jx0404id": "jx0404id" // 选填
-    },
+    }
     //...
     // 可以添加多个课程，脚本执行的时候从第一个开始依次执行
   ]
