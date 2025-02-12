@@ -38,7 +38,7 @@ def merge_json_files(directory):
     }
 
     # 保存合并后的数据
-    output_path = os.path.join(directory, "merged_courses.json")
+    output_path = os.path.join(directory, "all_courses.json")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
