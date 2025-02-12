@@ -1,6 +1,8 @@
 import os
 import logging
 import json
+
+
 def get_xsxkGgxxkxk_course_info(course):
     try:
         xsxkGgxxkxk_json_path = os.path.join(
@@ -10,7 +12,7 @@ def get_xsxkGgxxkxk_course_info(course):
             xsxkGgxxkxk_json_data = json.load(file)
         for course_item in xsxkGgxxkxk_json_data["aaData"]:
             if (
-                course_item["kch"] == course["course_id"]
+                course_item["kch"] == course["course_id_or_name"]
                 and course_item["skls"] == course["teacher_name"]
                 and course_item["sksj"].replace("&nbsp;", "") == course["course_time"]
             ):
@@ -21,7 +23,7 @@ def get_xsxkGgxxkxk_course_info(course):
 
                 if course_data["jx02id"] and course_data["jx0404id"]:
                     logging.info(
-                        f"找到课程: {course['course_id']}的jx02id: {course_data['jx02id']}, jx0404id: {course_data['jx0404id']}"
+                        f"找到课程: {course['course_id_or_name']}的jx02id: {course_data['jx02id']}, jx0404id: {course_data['jx0404id']}"
                     )
                     return course_data
 

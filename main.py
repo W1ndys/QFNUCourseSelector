@@ -178,7 +178,7 @@ def get_user_config():
             "select_semester": "",
             "course": [
                 {
-                    "course_id": "",
+                    "course_id_or_name": "",
                     "teacher_name": "",
                     "course_time": "",
                     "class_period": "",
