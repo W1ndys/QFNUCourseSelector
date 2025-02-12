@@ -7,7 +7,7 @@ import os
 import json
 from dotenv import load_dotenv
 from course_selector import get_jx0502zbid
-from search_course import search_course
+from search_and_select_course import search_and_select_course
 from session_manager import init_session, get_session
 import colorlog
 import logging
@@ -167,7 +167,7 @@ def get_user_config():
         user_account: 用户账号
         user_password: 用户密码
         select_semester: 选课学期
-        course: 课程列表
+        courses: 课程列表
     """
     # 检查配置文件是否存在
     if not os.path.exists("config.json"):
@@ -176,7 +176,7 @@ def get_user_config():
             "user_account": "",
             "user_password": "",
             "select_semester": "",
-            "course": [
+            "courses": [
                 {
                     "course_id_or_name": "",
                     "teacher_name": "",
@@ -200,7 +200,7 @@ def get_user_config():
         config["user_account"],
         config["user_password"],
         config["select_semester"],
-        config["course"],
+        config["courses"],
     )
 
 
@@ -264,7 +264,7 @@ def main():
     print_welcome()
 
     # 获取环境变量
-    user_account, user_password, select_semester, course = get_user_config()
+    user_account, user_password, select_semester, courses = get_user_config()
 
     # 模拟登录
     try:
@@ -329,9 +329,10 @@ def main():
             )
             logger.debug(f"选课页面响应状态码: {response.status_code}")
 
-            # 依次搜索课程
-            for course in course:
-                search_course(course)
+            # 依次搜索并选课
+            for course in courses:
+                search_and_select_course(course)
+
         else:
             logger.error(
                 "获取选课轮次编号失败，请检查配置文件或选课暂未开启，请重新运行脚本"
