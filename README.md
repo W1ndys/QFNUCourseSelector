@@ -75,7 +75,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
       "teacher_name": "教师名称", // 必填
       "week_day": "上课星期", // 选填(1-7)
       "class_period": "上课节次", // 选填
-      "course_time": "完整的上课时间", // 选填
+      "course_time": "完整的上课时间", // 必填
       "jx02id": "jx02id", // 选填
       "jx0404id": "jx0404id" // 选填
     }
@@ -91,7 +91,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 | teacher_name      | 教师姓名                       | ✅       | 张三                               |
 | week_day          | 上课星期                       | ❌       | 1-7 之间的数字                     |
 | class_period      | 上课节次                       | ❌       | 1-2-,3-4-,5-6-,7-8-,9-10-11,12-13- |
-| course_time       | 完整上课时间                   | ❌       | 1-18 周 星期六 1-2 节              |
+| course_time       | 完整上课时间                   | ✅       | 1-18 周 星期六 1-2 节              |
 | jx02id            | 公选课 jx02id                  | ❌       | -                                  |
 | jx0404id          | 公选课 jx0404id                | ❌       | -                                  |
 
@@ -102,6 +102,8 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 > jx02id 和 jx0404id 是教务系统中课程的唯一标识，在配置文件中选填，如果不填，脚本会根据本地数据自动获取，但是获取的准确性可能不如手动获取，并且抢课速度会慢 10-50ms
 >
 > 上课节次必须按照格式，后面的-不能省略（我也不知道为什么要这样写，教务系统设计的是这样的）
+>
+> 注意`course_time`的格式，周次，星期，节次，必须按照格式，不能省略空格，例如`1-18 周 星期六 1-2 节`，不能写成`1-18周星期六1-2节`
 
 ### 5. 运行脚本
 
