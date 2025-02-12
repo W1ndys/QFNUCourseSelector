@@ -15,7 +15,8 @@ def get_course_jx02id_and_jx0404id(course):
             if (
                 course_item["kch"] == course["course_id_or_name"]
                 and course_item["skls"] == course["teacher_name"]
-                and course_item["sksj"].replace("&nbsp;", "") == course["course_time"]
+                and course_item["sksj"].replace("&nbsp;", "").replace(" ", "")
+                == course["course_time"].replace(" ", "")
             ):
                 course_jx02id_and_jx0404id = {
                     "jx02id": course_item["jx02id"],
