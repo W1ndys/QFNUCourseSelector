@@ -1,5 +1,5 @@
 from get_course_data import get_xsxkGgxxkxk_course_info
-from send_course_data import send_ggxxkxkOper_course_data
+from send_course_data import send_ggxxkxkOper_course_data, send_knjxkOper_course_data
 import logging
 
 
@@ -16,7 +16,7 @@ def find_course_data(response, course):
     """
     for course_item in response:
         if (
-            course_item["kch"] == course["course_id"]
+            course_item["kch"] == course["course_id_or_name"]
             and course_item["skls"] == course["teacher_name"]
             and course_item["sksj"].replace("&nbsp;", "") == course["course_time"]
         ):
@@ -33,7 +33,7 @@ def search_course(course):
 
     Args:
         course (dict): 包含课程信息的字典，必须包含以下键：
-            - course_id: 课程编号
+            - course_id_or_name: 课程编号
             - teacher_name: 教师姓名
         可选键：
             - week_day: 上课星期
@@ -46,12 +46,22 @@ def search_course(course):
     try:
         logging.info(f"开始搜索课程: {course}")
         # 只检查必需的键
-        required_keys = ["course_id", "teacher_name"]
+        required_keys = ["course_id_or_name", "teacher_name"]
         if not all(key in course for key in required_keys):
             logging.error(f"课程信息缺少必要的字段，需要: {', '.join(required_keys)}")
             return False
 
-        course_id = course.get("course_id", "")
+        # 已手动配置jx02id和jx0404id，直接跳过搜索
+        if course.get("jx02id") and course.get("jx0404id"):
+            logging.info(f"已手动配置jx02id和jx0404id，跳过搜索: {course}")
+            # 依次尝试不同的选课方式，直到成功
+            if send_ggxxkxkOper_course_data(course["course_id_or_name"], course):
+                return True
+            if send_knjxkOper_course_data(course["course_id_or_name"], course):
+                return True
+            return False
+
+        course_id_or_name = course.get("course_id_or_name", "")
         teacher_name = course.get("teacher_name", "")
         week_day = course.get("week_day", "")
         class_period = course.get("class_period", "")
@@ -62,11 +72,11 @@ def search_course(course):
 
         if course_data:
             # 发送选课请求
-            send_ggxxkxkOper_course_data(course_data)
+            send_ggxxkxkOper_course_data(course["course_id_or_name"], course_data)
             return True
         else:
             logging.error(
-                f"未在公选课中找到课程: {course_id}-{teacher_name}-{week_day}-{class_period}，尝试在其他选课方式中搜索"
+                f"未在公选课中找到课程: {course_id_or_name}-{teacher_name}-{week_day}-{class_period}，尝试在其他选课方式中搜索"
             )
             return False
 
