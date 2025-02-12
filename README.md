@@ -115,7 +115,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 >
 > ~~注意`course_time`的格式，周次，星期，节次，必须按照格式，不能省略空格，例如`1-18 周 星期六 1-2 节`，不能写成`1-18周星期六1-2节`~~
 >
-> 在更新中，`course_time`的格式已自动过滤空格，所以加什么空格都不会影响运行
+> 在[da0fef1](https://github.com/W1ndys/QFNUCourseSelector/commit/da0fef12f843e7336b8229ebc1c8a271059e7420)中，`course_time`的格式已自动过滤空格，所以加什么空格都不会影响运行
 
 ### 5. 运行脚本
 
