@@ -1,4 +1,4 @@
-from get_course_data import get_course_jx02id_and_jx0404id
+from get_course_jx02id_and_jx0404id import get_course_jx02id_and_jx0404id
 from send_course_data import (
     send_ggxxkxkOper_course_data,
     send_knjxkOper_course_data,
