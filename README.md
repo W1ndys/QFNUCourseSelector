@@ -78,7 +78,9 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
       "course_time": "完整的上课时间", // 必填
       "jx02id": "jx02id", // 选填
       "jx0404id": "jx0404id" // 选填
-    }
+    },
+    //...
+    // 可以添加多个课程，脚本执行的时候从第一个开始依次执行
   ]
 }
 ```
