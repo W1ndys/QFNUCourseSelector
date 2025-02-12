@@ -30,29 +30,17 @@ def setup_logger():
     if logger.handlers:
         logger.handlers.clear()
 
-    # 配置文件处理器
-    file_handler = colorlog.StreamHandler(
-        open(
-            os.path.join(
-                "logs", f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
-            ),
-            "w",
-            encoding="utf-8",
-        )
+    # 配置文件处理器 - 使用普通的Formatter
+    file_handler = logging.FileHandler(
+        os.path.join(
+            "logs", f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+        ),
+        encoding="utf-8",
     )
-    file_formatter = colorlog.ColoredFormatter(
-        "%(asctime)s - %(log_color)s%(levelname)s - %(message)s%(reset)s",
-        log_colors={
-            "DEBUG": "cyan",
-            "INFO": "green",
-            "WARNING": "yellow",
-            "ERROR": "red",
-            "CRITICAL": "red,bg_white",
-        },
-    )
+    file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(file_formatter)
 
-    # 配置控制台处理器
+    # 配置控制台处理器 - 使用ColoredFormatter
     console_handler = colorlog.StreamHandler()
     console_formatter = colorlog.ColoredFormatter(
         "%(log_color)s%(levelname)s: %(message)s%(reset)s",
