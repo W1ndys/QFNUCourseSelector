@@ -3,7 +3,6 @@ from PIL import Image
 from io import BytesIO
 from bs4 import BeautifulSoup
 from captcha_ocr import get_ocr_res
-import logging
 import os
 import json
 from dotenv import load_dotenv
@@ -11,29 +10,38 @@ from course_selector import get_jx0502zbid
 from search_course import search_course
 from session_manager import init_session, get_session
 import colorlog
+import logging
 import datetime
 
 
-# 确保logs目录存在
-if not os.path.exists("logs"):
-    os.makedirs("logs")
+def setup_logger():
+    """
+    配置日志系统
+    """
+    # 确保logs目录存在
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
 
-# 配置文件处理器
-file_handler = logging.FileHandler(
-    os.path.join(
-        "logs", f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
-    ),
-    encoding="utf-8",
-)
-file_handler.setFormatter(
-    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-)
+    # 创建logger
+    logger = colorlog.getLogger()
+    logger.setLevel(logging.DEBUG)
 
-# 配置控制台处理器
-handler = colorlog.StreamHandler()
-handler.setFormatter(
-    colorlog.ColoredFormatter(
-        "%(log_color)s%(levelname)s:%(message)s",
+    # 清除可能存在的处理器
+    if logger.handlers:
+        logger.handlers.clear()
+
+    # 配置文件处理器
+    file_handler = colorlog.StreamHandler(
+        open(
+            os.path.join(
+                "logs", f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+            ),
+            "w",
+            encoding="utf-8",
+        )
+    )
+    file_formatter = colorlog.ColoredFormatter(
+        "%(asctime)s - %(log_color)s%(levelname)s - %(message)s%(reset)s",
         log_colors={
             "DEBUG": "cyan",
             "INFO": "green",
@@ -42,12 +50,31 @@ handler.setFormatter(
             "CRITICAL": "red,bg_white",
         },
     )
-)
+    file_handler.setFormatter(file_formatter)
 
-logger = logging.getLogger()
-logger.addHandler(handler)
-logger.addHandler(file_handler)
-logger.setLevel(logging.DEBUG)
+    # 配置控制台处理器
+    console_handler = colorlog.StreamHandler()
+    console_formatter = colorlog.ColoredFormatter(
+        "%(log_color)s%(levelname)s: %(message)s%(reset)s",
+        log_colors={
+            "DEBUG": "cyan",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "red,bg_white",
+        },
+    )
+    console_handler.setFormatter(console_formatter)
+
+    # 添加处理器到logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    return logger
+
+
+# 在文件开头调用setup_logger
+logger = setup_logger()
 
 load_dotenv()
 
@@ -81,13 +108,13 @@ def handle_captcha():
     response = session.get(RandCodeUrl)
 
     if response.status_code != 200:
-        logging.error(f"请求验证码失败，状态码: {response.status_code}")
+        logger.error(f"请求验证码失败，状态码: {response.status_code}")
         return None
 
     try:
         image = Image.open(BytesIO(response.content))
     except Exception as e:
-        logging.error(f"无法识别图像文件: {e}")
+        logger.error(f"无法识别图像文件: {e}")
         return None
 
     return get_ocr_res(image)
@@ -173,7 +200,7 @@ def get_user_config():
         }
         with open("config.json", "w", encoding="utf-8") as f:
             json.dump(default_config, f, ensure_ascii=False, indent=4)
-        logging.error(
+        logger.error(
             "配置文件不存在，已创建默认配置文件 config.json\n请填写相关信息后重新运行程序"
         )
         exit(0)
@@ -198,17 +225,17 @@ def simulate_login(user_account, user_password):
 
     for attempt in range(3):
         random_code = handle_captcha()
-        logging.info(f"验证码: {random_code}")
+        logger.info(f"验证码: {random_code}")
         encoded = generate_encoded_string(data_str, user_account, user_password)
         response = login(user_account, user_password, random_code, encoded)
 
         if response.status_code == 200:
             if "验证码错误!!" in response.text:
-                logging.warning(f"验证码识别错误，重试第 {attempt + 1} 次")
+                logger.warning(f"验证码识别错误，重试第 {attempt + 1} 次")
                 continue
             if "密码错误" in response.text:
                 raise Exception("用户名或密码错误")
-            logging.info("登录成功")
+            logger.info("登录成功")
             return True
         else:
             raise Exception("登录失败")
@@ -217,10 +244,29 @@ def simulate_login(user_account, user_password):
 
 
 def print_welcome():
-    logging.info(f"\n{'*' * 10} 曲阜师范大学教务系统模拟登录脚本 {'*' * 10}\n")
-    logging.info("By W1ndys")
-    logging.info("https://github.com/W1ndys")
-    logging.info("\n\n")
+    logger.info(f"\n{'*' * 10} 曲阜师范大学教务系统抢课脚本 {'*' * 10}\n")
+    logger.info("By W1ndys")
+    logger.info("https://github.com/W1ndys")
+    logger.info("\n\n")
+    logger.info(f"当前时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info("免责声明: ")
+    logger.info("1. 本脚本仅供学习和研究目的，用于了解网络编程和自动化技术的实现原理。")
+    logger.info(
+        "2. 使用本脚本可能违反学校相关规定。使用者应自行承担因使用本脚本而产生的一切后果，包括但不限于："
+    )
+    logger.info("   - 账号被封禁")
+    logger.info("   - 选课资格被取消")
+    logger.info("   - 受到学校纪律处分")
+    logger.info("   - 其他可能产生的不良影响")
+    logger.info("3. 严禁将本脚本用于：")
+    logger.info("   - 商业用途")
+    logger.info("   - 干扰教务系统正常运行")
+    logger.info("   - 影响其他同学正常选课")
+    logger.info("   - 其他任何非法或不当用途")
+    logger.info(
+        "4. 下载本脚本即视为您已完全理解并同意本免责声明。请在下载后 24 小时内删除。"
+    )
+    logger.info("5. 开发者对使用本脚本造成的任何直接或间接损失不承担任何责任。")
 
 
 def main():
@@ -235,38 +281,38 @@ def main():
     # 模拟登录
     try:
         if not simulate_login(user_account, user_password):
-            logging.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+            logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
             return
     except Exception as e:
-        logging.error(f"登录过程出错: {str(e)}")
+        logger.error(f"登录过程出错: {str(e)}")
         return
 
     session = get_session()
 
     if not session:
-        logging.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+        logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
         return
     try:
         response = session.get("http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp")
-        logging.debug(f"主页响应状态码: {response.status_code}")
+        logger.debug(f"主页响应状态码: {response.status_code}")
 
         response = session.get("http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list")
-        logging.debug(f"选课页面响应状态码: {response.status_code}")
+        logger.debug(f"选课页面响应状态码: {response.status_code}")
 
         jx0502zbid = get_jx0502zbid(session, select_semester)
-        logging.info(f"获取到选课轮次编号: {jx0502zbid}")
+        logger.info(f"获取到选课轮次编号: {jx0502zbid}")
 
         response = session.get(
             f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
         )
-        logging.debug(f"选课页面响应状态码: {response.status_code}")
+        logger.debug(f"选课页面响应状态码: {response.status_code}")
 
         # 依次搜索课程
         for course in course:
             search_course(course)
 
     except Exception as e:
-        logging.error(f"主函数选课过程出错: {str(e)}")
+        logger.error(f"主函数选课过程出错: {str(e)}")
         return
 
 
