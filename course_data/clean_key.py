@@ -12,8 +12,8 @@ def clean_zcxqjclist(file_path):
     def process_dict(d):
         if isinstance(d, dict):
             # 如果找到zcxqjcList键，将其值设为空列表
-            if "zcxqjcList" in d:
-                d["zcxqjcList"] = []
+            if "kkapList" in d:
+                d["kkapList"] = []
             # 递归处理所有值
             for value in d.values():
                 if isinstance(value, (dict, list)):
