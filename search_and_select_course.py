@@ -64,18 +64,18 @@ def search_and_select_course(course):
         if course.get("jx02id") and course.get("jx0404id"):
             logging.info(f"已手动配置jx02id和jx0404id，跳过搜索直接选课: {course}")
             # 依次尝试不同的选课方式，直到成功
-            # 优先选择本学期计划选课
-            if send_bxqjhxkOper_course_data(course["course_id_or_name"], course):
-                dingtalk(
-                    "选课成功",
-                    f"{course['course_id_or_name']}\n{course['teacher_name']}\n{course['course_time']}\n本学期计划选课成功",
-                )
-                return True
-            # 再尝试专业内跨年级选课
+            # 优先选择专业内跨年级选课
             if send_knjxkOper_course_data(course["course_id_or_name"], course):
                 dingtalk(
                     "选课成功",
                     f"{course['course_id_or_name']}\n{course['teacher_name']}\n{course['course_time']}\n专业内跨年级选课成功",
+                )
+                return True
+            # 再尝试本学期计划选课
+            if send_bxqjhxkOper_course_data(course["course_id_or_name"], course):
+                dingtalk(
+                    "选课成功",
+                    f"{course['course_id_or_name']}\n{course['teacher_name']}\n{course['course_time']}\n本学期计划选课成功",
                 )
                 return True
             # 再尝试公选课选课请求
@@ -113,18 +113,18 @@ def search_and_select_course(course):
 
         if course_jx02id_and_jx0404id:
             # 依次尝试不同的选课方式，直到成功
-            # 优先选择本学期计划选课
-            if send_bxqjhxkOper_course_data(course["course_id_or_name"], course):
-                dingtalk(
-                    "选课成功",
-                    f"{course['course_id_or_name']}\n{course['teacher_name']}\n{course['course_time']}\n本学期计划选课成功",
-                )
-                return True
-            # 再尝试专业内跨年级选课
+            # 优先选择专业内跨年级选课
             if send_knjxkOper_course_data(course["course_id_or_name"], course):
                 dingtalk(
                     "选课成功",
                     f"{course['course_id_or_name']}\n{course['teacher_name']}\n{course['course_time']}\n专业内跨年级选课成功",
+                )
+                return True
+            # 再尝试本学期计划选课
+            if send_bxqjhxkOper_course_data(course["course_id_or_name"], course):
+                dingtalk(
+                    "选课成功",
+                    f"{course['course_id_or_name']}\n{course['teacher_name']}\n{course['course_time']}\n本学期计划选课成功",
                 )
                 return True
             # 再尝试公选课选课请求
