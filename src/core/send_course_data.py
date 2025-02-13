@@ -44,7 +44,12 @@ def send_ggxxkxkOper_course_data(course_name, course_data):
                 return True
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
-            if response_json["success"]:
+            if isinstance(response_json["success"], list):
+                success = all(response_json["success"])
+            else:
+                success = response_json["success"]
+
+            if success:
                 logging.info(f"【{course_name}】的公选课选课成功: {message}")
                 return True
             else:
@@ -100,7 +105,12 @@ def send_knjxkOper_course_data(course_name, course_data):
                 return True
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
-            if response_json["success"]:
+            if isinstance(response_json["success"], list):
+                success = all(response_json["success"])
+            else:
+                success = response_json["success"]
+
+            if success:
                 logging.info(f"【{course_name}】的专业内跨年级选课成功: {message}")
                 return True
             else:
@@ -156,7 +166,12 @@ def send_bxqjhxkOper_course_data(course_name, course_data):
                 return True
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
-            if response_json["success"]:
+            if isinstance(response_json["success"], list):
+                success = all(response_json["success"])
+            else:
+                success = response_json["success"]
+
+            if success:
                 logging.info(f"【{course_name}】的本学期计划选课成功: {message}")
                 return True
             else:
@@ -211,7 +226,12 @@ def send_xxxkOper_course_data(course_name, course_data):
                 return True
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
-            if response_json["success"]:
+            if isinstance(response_json["success"], list):
+                success = all(response_json["success"])
+            else:
+                success = response_json["success"]
+
+            if success:
                 logging.info(f"【{course_name}】的选修选课成功: {message}")
                 return True
             else:
@@ -267,7 +287,12 @@ def send_fawxkOper_course_data(course_name, course_data):
                 return True
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
-            if response_json["success"]:
+            if isinstance(response_json["success"], list):
+                success = all(response_json["success"])
+            else:
+                success = response_json["success"]
+
+            if success:
                 logging.info(f"【{course_name}】的计划外选课成功: {message}")
                 return True
             else:
