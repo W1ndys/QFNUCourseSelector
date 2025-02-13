@@ -102,12 +102,6 @@ def search_and_select_course(course):
             # 如果所有尝试都失败，则返回False
             return False
 
-        course_id_or_name = course.get("course_id_or_name", "")
-        teacher_name = course.get("teacher_name", "")
-        week_day = course.get("week_day", "")
-        class_period = course.get("class_period", "")
-        course_time = course.get("course_time", "")
-
         # 寻找课程的jx02id和jx0404id
         course_jx02id_and_jx0404id = get_course_jx02id_and_jx0404id(course)
 
