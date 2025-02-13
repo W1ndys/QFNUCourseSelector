@@ -2,13 +2,13 @@ import requests
 from PIL import Image
 from io import BytesIO
 from bs4 import BeautifulSoup
-from captcha_ocr import get_ocr_res
+from src.utils.captcha_ocr import get_ocr_res
 import os
 import json
 from dotenv import load_dotenv
-from course_selector import get_jx0502zbid
-from search_and_select_course import search_and_select_course
-from session_manager import init_session, get_session
+from src.core.course_selector import get_jx0502zbid
+from src.core.search_and_select_course import search_and_select_course
+from src.utils.session_manager import init_session, get_session
 import colorlog
 import logging
 import datetime
