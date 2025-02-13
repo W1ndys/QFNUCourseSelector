@@ -6,9 +6,14 @@ import json
 def get_course_jx02id_and_jx0404id(course):
     """通过本地文件获取课程的jx02id和jx0404id"""
     try:
-        all_courses_json_path = os.path.join(
-            os.path.dirname(__file__), "course_data", "all_courses.json"
+        all_courses_json_path = os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__), "..", "..", "course_data", "all_courses.json"
+            )
         )
+        if not os.path.exists(all_courses_json_path):
+            logging.error(f"课程数据文件不存在: {all_courses_json_path}")
+            return None
         with open(all_courses_json_path, "r", encoding="utf-8") as file:
             all_courses_json_data = json.load(file)
         for course_item in all_courses_json_data["aaData"]:
