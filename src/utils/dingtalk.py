@@ -22,9 +22,18 @@ def dingtalk(title, content):
         dingtalk_webhook, dingtalk_secret = get_dingtalk_config()
 
         headers = {"Content-Type": "application/json"}
+        # 美化markdown消息格式
+        formatted_content = (
+            f"### {title}\n"
+            f"---\n"  # 添加分隔线
+            f"{content}\n"
+            f"---\n"  # 添加底部分隔线
+            f"*发送时间：{time.strftime('%Y-%m-%d %H:%M:%S')}*"  # 添加发送时间
+        )
+
         payload = {
             "msgtype": "markdown",
-            "markdown": {"title": title, "text": f"### {title}\n{content}"},
+            "markdown": {"title": title, "text": formatted_content},
         }
 
         if dingtalk_secret:
@@ -59,4 +68,6 @@ def dingtalk(title, content):
 
 
 if __name__ == "__main__":
-    dingtalk("test", "test")
+    dingtalk(
+        "测试消息", "这是一条测试消息，如果你看到这条消息，证明dingtalk的webhook无问题"
+    )
