@@ -26,7 +26,7 @@
 
 例如你想选`形势与政策`，找到你想选的课程，想选的老师、时间等，然后右键`选课`按钮，复制链接
 
-![image](../image/how_to_get_jx02id_and_jx0404id_1.png)
+![image](../images/how_to_get_jx02id_and_jx0404id_1.png)
 
 你会得到形如下面的内容
 
