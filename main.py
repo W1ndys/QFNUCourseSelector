@@ -1,7 +1,5 @@
-import requests
 from PIL import Image
 from io import BytesIO
-from bs4 import BeautifulSoup
 from src.utils.captcha_ocr import get_ocr_res
 import os
 import json
@@ -14,6 +12,7 @@ import logging
 import datetime
 import time
 import random
+
 
 def setup_logger():
     """
