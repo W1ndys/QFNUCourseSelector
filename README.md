@@ -123,6 +123,16 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 配置完成后，再次双击 `run_app_in_venv_windows.bat` 运行脚本
 
+## 关于网络环境
+
+直接点题：QFNU（这里指曲阜师范大学校园 WiFi 校园网），比其他网络更容易访问教务系统，需要注意的是，只有内网环境下的 QFNU 才能起到作用，外网环境下的 QFNU 和其他网络无差别
+
+如何判断是否是内网环境？
+
+cmd 命令行输入 `ping zhjw.qfnu.edu.cn`，如果返回的是内网 IP 地址，则说明是内网环境，否则是外网环境，图例如下：
+
+![image](./assets/images/ping_zhjw.qfnu.edu.cn.png)
+
 ## 🏆 战绩
 
 ![image](./assets/images/successful.png)
