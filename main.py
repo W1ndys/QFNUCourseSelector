@@ -13,7 +13,7 @@ import colorlog
 import logging
 import datetime
 import time
-
+import random
 
 def setup_logger():
     """
@@ -354,6 +354,8 @@ def main():
             # 依次搜索并选课
             for course in courses:
                 search_and_select_course(course)
+                # 停顿随机1-5秒
+                time.sleep(random.randint(1, 5))
 
         else:
             logger.error(
