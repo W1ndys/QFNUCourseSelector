@@ -123,6 +123,10 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 配置完成后，再次双击 `run_app_in_venv_windows.bat` 运行脚本
 
+## 🏆 战绩
+
+![image](./assets/images/successful.png)
+
 ## 🙏 致谢
 
 特别感谢以下贡献者：
