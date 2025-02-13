@@ -125,13 +125,17 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 ## 关于网络环境
 
-直接点题：QFNU（这里指曲阜师范大学校园 WiFi 校园网），比其他网络更容易访问教务系统，需要注意的是，只有内网环境下的 QFNU 才能起到作用，外网环境下的 QFNU 和其他网络无差别
+直接点题：QFNU（这里指曲阜师范大学校园 WiFi 校园网），比其他网络更容易访问教务系统
 
-如何判断是否是内网环境？
+cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 
-cmd 命令行输入 `ping zhjw.qfnu.edu.cn`，如果返回的是内网 IP 地址，则说明是内网环境，否则是外网环境，图例如下：
+![Windows10测试环境](./assets/images/wifi_test_win10.png)
 
-![image](./assets/images/ping_zhjw.qfnu.edu.cn.png)
+![手机测试环境](./assets/images/wifi_test_mobile.png)
+
+![Pad测试环境](./assets/images/wifi_test_pad.png)
+
+可以很明显的看到，QFNU 的网络环境比其他网络环境更容易访问教务系统
 
 ## 🏆 战绩
 
