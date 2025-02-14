@@ -186,7 +186,6 @@ def get_user_config():
                 {
                     "course_id_or_name": "",
                     "teacher_name": "",
-                    "course_time": "",
                     "class_period": "",
                     "week_day": "",
                     "jx02id": "",
@@ -195,7 +194,6 @@ def get_user_config():
                 {
                     "course_id_or_name": "",
                     "teacher_name": "",
-                    "course_time": "",
                     "class_period": "",
                     "week_day": "",
                     "jx02id": "",
@@ -204,7 +202,6 @@ def get_user_config():
                 {
                     "course_id_or_name": "",
                     "teacher_name": "",
-                    "course_time": "",
                     "class_period": "",
                     "week_day": "",
                     "jx02id": "",
@@ -213,7 +210,6 @@ def get_user_config():
                 {
                     "course_id_or_name": "",
                     "teacher_name": "",
-                    "course_time": "",
                     "class_period": "",
                     "week_day": "",
                     "jx02id": "",
@@ -222,7 +218,6 @@ def get_user_config():
                 {
                     "course_id_or_name": "",
                     "teacher_name": "",
-                    "course_time": "",
                     "class_period": "",
                     "week_day": "",
                     "jx02id": "",
