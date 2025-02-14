@@ -60,6 +60,8 @@
 git clone git@github.com:W1ndys/QFNUCourseSelector.git
 ```
 
+> 直接下载zip包也可以，但是需要把bat文件的行位序列改成CRLF，否则会报错
+
 ### 2. 安装依赖
 
 双击 `create_venv_windows.bat` 并等待安装完成
