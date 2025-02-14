@@ -31,6 +31,14 @@ def dingtalk(title, content):
             f"*发送时间：{time.strftime('%Y-%m-%d %H:%M:%S')}*"  # 添加发送时间
         )
 
+        # 使用钉钉的Markdown语法将"失败"显示为红色并加粗，"成功"显示为绿色并加粗
+        formatted_content = formatted_content.replace(
+            "失败", "<font color='red'>失败</font>"
+        )
+        formatted_content = formatted_content.replace(
+            "成功", "<font color='green'>成功</font>"
+        )
+
         payload = {
             "msgtype": "markdown",
             "markdown": {"title": title, "text": formatted_content},
