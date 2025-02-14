@@ -199,6 +199,33 @@ def get_user_config():
                     "jx02id": "",
                     "jx0404id": "",
                 },
+                {
+                    "course_id_or_name": "",
+                    "teacher_name": "",
+                    "course_time": "",
+                    "class_period": "",
+                    "week_day": "",
+                    "jx02id": "",
+                    "jx0404id": "",
+                },
+                {
+                    "course_id_or_name": "",
+                    "teacher_name": "",
+                    "course_time": "",
+                    "class_period": "",
+                    "week_day": "",
+                    "jx02id": "",
+                    "jx0404id": "",
+                },
+                {
+                    "course_id_or_name": "",
+                    "teacher_name": "",
+                    "course_time": "",
+                    "class_period": "",
+                    "week_day": "",
+                    "jx02id": "",
+                    "jx0404id": "",
+                },
             ],
         }
         with open("config.json", "w", encoding="utf-8") as f:
