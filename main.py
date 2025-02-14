@@ -354,7 +354,7 @@ def main():
             for course in courses:
                 search_and_select_course(course)
                 # 停顿随机1-5秒
-                time.sleep(random.randint(1, 5))
+                # time.sleep(random.randint(1, 5))
 
         else:
             logger.error(
