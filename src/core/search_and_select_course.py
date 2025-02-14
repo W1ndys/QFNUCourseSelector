@@ -66,6 +66,12 @@ def search_and_select_course(course):
         # 未手动配置jx02id和jx0404id的情况
         else:
             logging.critical(f"未手动配置jx02id和jx0404id，开始搜索课程: {course}")
+            # 检查class_period和week_day是否填写
+            if course.get("class_period") is None or course.get("week_day") is None:
+                logging.error(
+                    f"【{course['course_id_or_name']}】的课程信息缺少必要的字段，需要: {', '.join(required_keys)}"
+                )
+                return False
             course_jx02id_and_jx0404id = get_course_jx02id_and_jx0404id(course)
             if course_jx02id_and_jx0404id:
                 selection_methods = [
