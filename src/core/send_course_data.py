@@ -33,7 +33,7 @@ def send_ggxxkxkOper_course_jx02id_and_jx0404id(
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的公选课选课请求, 响应代码: {response.status_code}, 响应内容: {response.text}"
+            f"已发送【{course_name}】的公选课选课请求, 响应代码: {response.status_code}"
         )
 
         if "flag1" in response_json:
@@ -94,7 +94,7 @@ def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的专业内跨年级选课请求, 响应代码: {response.status_code}, 响应内容: {response.text}"
+            f"已发送【{course_name}】的专业内跨年级选课请求, 响应代码: {response.status_code}"
         )
 
         if "flag1" in response_json:
@@ -159,7 +159,7 @@ def send_bxqjhxkOper_course_jx02id_and_jx0404id(
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的本学期计划选课请求, 响应代码: {response.status_code}, 响应内容: {response.text}"
+            f"已发送【{course_name}】的本学期计划选课请求, 响应代码: {response.status_code}"
         )
 
         if "flag1" in response_json:
@@ -219,7 +219,7 @@ def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx04
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的选修选课请求, 响应代码: {response.status_code}, 响应内容: {response.text}"
+            f"已发送【{course_name}】的选修选课请求, 响应代码: {response.status_code}"
         )
 
         if "flag1" in response_json:
@@ -280,7 +280,7 @@ def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的计划外选课请求, 响应代码: {response.status_code}, 响应内容: {response.text}"
+            f"已发送【{course_name}】的计划外选课请求, 响应代码: {response.status_code}"
         )
 
         if "flag1" in response_json:
