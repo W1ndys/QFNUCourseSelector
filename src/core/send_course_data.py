@@ -4,16 +4,18 @@ from src.utils.session_manager import get_session
 from src.utils.dingtalk import dingtalk
 
 
-def send_ggxxkxkOper_course_data(course_name, course_data):
+def send_ggxxkxkOper_course_jx02id_and_jx0404id(
+    course_name, course_jx02id_and_jx0404id
+):
     """发送公选课选课请求"""
     try:
         session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/ggxxkxkOper"
         params = {
-            "kcid": course_data["jx02id"],
+            "kcid": course_jx02id_and_jx0404id["jx02id"],
             "cfbs": "null",
-            "jx0404id": course_data["jx0404id"],
+            "jx0404id": course_jx02id_and_jx0404id["jx0404id"],
             "xkzy": "",
             "trjf": "",
             "_": str(int(time.time() * 1000)),
@@ -65,16 +67,16 @@ def send_ggxxkxkOper_course_data(course_name, course_data):
         return None, error_msg
 
 
-def send_knjxkOper_course_data(course_name, course_data):
+def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0404id):
     """发送专业内跨年级选课请求"""
     try:
         session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/knjxkOper"
         params = {
-            "kcid": course_data["jx02id"],
+            "kcid": course_jx02id_and_jx0404id["jx02id"],
             "cfbs": "null",
-            "jx0404id": course_data["jx0404id"],
+            "jx0404id": course_jx02id_and_jx0404id["jx0404id"],
             "xkzy": "",
             "trjf": "",
             "_": str(int(time.time() * 1000)),
@@ -128,16 +130,18 @@ def send_knjxkOper_course_data(course_name, course_data):
         return None, error_msg
 
 
-def send_bxqjhxkOper_course_data(course_name, course_data):
+def send_bxqjhxkOper_course_jx02id_and_jx0404id(
+    course_name, course_jx02id_and_jx0404id
+):
     """发送本学期计划选课请求"""
     try:
         session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/bxqjhxkOper"
         params = {
-            "kcid": course_data["jx02id"],
+            "kcid": course_jx02id_and_jx0404id["jx02id"],
             "cfbs": "null",
-            "jx0404id": course_data["jx0404id"],
+            "jx0404id": course_jx02id_and_jx0404id["jx0404id"],
             "xkzy": "",
             "trjf": "",
             "_": str(int(time.time() * 1000)),
@@ -189,16 +193,16 @@ def send_bxqjhxkOper_course_data(course_name, course_data):
         return None, error_msg
 
 
-def send_xxxkOper_course_data(course_name, course_data):
+def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0404id):
     """发送选修选课请求"""
     try:
         session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xxxkOper"
         params = {
-            "kcid": course_data["jx02id"],
+            "kcid": course_jx02id_and_jx0404id["jx02id"],
             "cfbs": "null",
-            "jx0404id": course_data["jx0404id"],
+            "jx0404id": course_jx02id_and_jx0404id["jx0404id"],
             "xkzy": "",
             "trjf": "",
             "_": str(int(time.time() * 1000)),
@@ -249,16 +253,16 @@ def send_xxxkOper_course_data(course_name, course_data):
         return None, error_msg
 
 
-def send_fawxkOper_course_data(course_name, course_data):
+def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0404id):
     """发送计划外选课请求"""
     try:
         session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/fawxkOper"
         params = {
-            "kcid": course_data["jx02id"],
+            "kcid": course_jx02id_and_jx0404id["jx02id"],
             "cfbs": "null",
-            "jx0404id": course_data["jx0404id"],
+            "jx0404id": course_jx02id_and_jx0404id["jx0404id"],
             "xkzy": "",
             "trjf": "",
             "_": str(int(time.time() * 1000)),
