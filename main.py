@@ -180,6 +180,7 @@ def get_user_config():
             "select_semester": "",
             "dingtalk_webhook": "",
             "dingtalk_secret": "",
+            "mode": "",
             "courses": [
                 {
                     "course_id_or_name": "",
@@ -242,6 +243,7 @@ def get_user_config():
         config["user_account"],
         config["user_password"],
         config["select_semester"],
+        config["mode"],
         config["courses"],
     )
 
@@ -299,6 +301,32 @@ def print_welcome():
     logger.info("5. 开发者对使用本脚本造成的任何直接或间接损失不承担任何责任。")
 
 
+def select_courses(courses, mode):
+    if mode == "fast":
+        # 高速模式：以最快速度持续尝试选课
+        for course in courses:
+            search_and_select_course(course)
+    elif mode == "normal":
+        # 普通模式：正常速度选课，每次请求间隔较长
+        for course in courses:
+            search_and_select_course(course)
+            logger.info(
+                f"课程{course['course_id_or_name']}选课操作结束，等待5秒后继续选下一节课"
+            )
+            time.sleep(5)  # 每次请求间隔5秒
+    elif mode == "snipe":
+        # 截胡模式：每秒一次持续执行选课操作
+        while True:
+            for course in courses:
+                search_and_select_course(course)
+                logger.info(
+                    f"课程{course['course_id_or_name']}选课操作结束，等待5秒后继续选下一节课"
+                )
+                time.sleep(5)  # 每节课间隔5秒
+            logger.info("所有课程选课操作结束，等待1分钟后再继续")
+            time.sleep(60)  # 循环外间隔1分钟
+
+
 def main():
     """
     主函数，协调整个程序的执行流程
@@ -306,7 +334,7 @@ def main():
     print_welcome()
 
     # 获取环境变量
-    user_account, user_password, select_semester, courses = get_user_config()
+    user_account, user_password, select_semester, mode, courses = get_user_config()
 
     # 模拟登录
     try:
@@ -377,9 +405,7 @@ def main():
             )
             logger.debug(f"选课页面响应状态码: {response.status_code}")
 
-            # 依次搜索并选课
-            for course in courses:
-                search_and_select_course(course)
+            select_courses(courses, mode)
 
         else:
             logger.error(
