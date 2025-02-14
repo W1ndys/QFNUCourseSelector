@@ -338,86 +338,57 @@ def main():
     # 获取环境变量
     user_account, user_password, select_semester, mode, courses = get_user_config()
 
-    # 模拟登录
-    try:
-        if not simulate_login(user_account, user_password):
-            logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
-            return
-    except Exception as e:
-        logger.error(f"登录过程出错: {str(e)}")
-        return
+    while True:  # 添加外层循环
+        try:
+            # 模拟登录
+            if not simulate_login(user_account, user_password):
+                logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+                time.sleep(1)  # 添加重试间隔
+                continue  # 重试登录
 
-    session = get_session()
-
-    if not session:
-        logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
-        return
-    try:
-        # 添加重试逻辑
-        for attempt in range(3):
-            try:
-                response = session.get(
-                    "http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp"
-                )
-                logger.debug(f"主页响应状态码: {response.status_code}")
-                if response.status_code == 200:
-                    break
-            except Exception as e:
-                if attempt == 2:  # 最后一次尝试
-                    logger.error(f"访问主页失败: {str(e)}")
-                    raise
-                logger.warning(f"访问主页失败，正在进行第{attempt + 2}次尝试")
-                continue
-
-        for attempt in range(3):
-            try:
-                response = session.get("http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list")
-                logger.debug(f"选课页面响应状态码: {response.status_code}")
-                if response.status_code == 200:
-                    break
-            except Exception as e:
-                if attempt == 2:  # 最后一次尝试
-                    logger.error(f"访问选课页面失败: {str(e)}")
-                    raise
-                logger.warning(f"访问选课页面失败，正在进行第{attempt + 2}次尝试")
-                continue
-
-        jx0502zbid = None
-        while True:
-            try:
-                jx0502zbid = get_jx0502zbid(session, select_semester)
-                if jx0502zbid:
-                    logger.info(f"成功获取到选课轮次编号: {jx0502zbid}")
-                    break
-                else:
-                    logger.warning(
-                        "获取选课轮次编号失败，正在重试。如果多次尝试失败，请检查配置文件或确认选课是否已开启"
-                    )
-                    time.sleep(1)  # 每次尝试间隔1秒
-                    continue
-            except Exception as e:
-                logger.warning(
-                    f"获取选课轮次编号失败: {str(e)}，正在重试。如果多次尝试失败，请检查配置文件或确认选课是否已开启"
-                )
+            session = get_session()
+            if not session:
+                logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
                 time.sleep(1)
+                continue
 
-        if jx0502zbid:
-            response = session.get(
-                f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
-            )
-            logger.debug(f"选课页面响应状态码: {response.status_code}")
+            # 访问主页和选课页面
+            for page_url in [
+                "http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp",
+                "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list",
+            ]:
+                for attempt in range(3):
+                    try:
+                        response = session.get(page_url)
+                        logger.debug(f"页面响应状态码: {response.status_code}")
+                        if response.status_code == 200:
+                            break
+                    except Exception as e:
+                        if attempt == 2:
+                            logger.error(f"访问页面失败: {str(e)}")
+                            raise
+                        logger.warning(f"访问页面失败，正在进行第{attempt + 2}次尝试")
+                        continue
 
-            select_courses(courses, mode)
+            # 获取选课轮次编号
+            jx0502zbid = get_jx0502zbid(session, select_semester)
+            if jx0502zbid:
+                logger.info(f"成功获取到选课轮次编号: {jx0502zbid}")
+                response = session.get(
+                    f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
+                )
+                logger.debug(f"选课页面响应状态码: {response.status_code}")
+                select_courses(courses, mode)
+                break  # 成功后退出循环
+            else:
+                logger.warning("获取选课轮次编号失败，正在重新登录...")
+                time.sleep(1)
+                continue  # 重新登录
 
-        else:
-            logger.error(
-                "获取选课轮次编号失败，请检查配置文件或选课暂未开启，请重新运行脚本"
-            )
-            return
-
-    except Exception as e:
-        logger.error(f"主函数选课过程出错: {str(e)}")
-        return
+        except Exception as e:
+            logger.error(f"发生错误: {str(e)}，正在重新登录...")
+            time.sleep(1)
+            continue  # 重新登录
 
 
 if __name__ == "__main__":
