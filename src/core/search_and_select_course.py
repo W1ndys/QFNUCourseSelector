@@ -1,37 +1,13 @@
 from src.data.get_course_jx02id_and_jx0404id import get_course_jx02id_and_jx0404id
 from src.core.send_course_data import (
-    send_ggxxkxkOper_course_data,
-    send_knjxkOper_course_data,
-    send_bxqjhxkOper_course_data,
-    send_xxxkOper_course_data,
-    send_fawxkOper_course_data,
+    send_ggxxkxkOper_course_jx02id_and_jx0404id,
+    send_knjxkOper_course_jx02id_and_jx0404id,
+    send_bxqjhxkOper_course_jx02id_and_jx0404id,
+    send_xxxkOper_course_jx02id_and_jx0404id,
+    send_fawxkOper_course_jx02id_and_jx0404id,
 )
-import logging
 from src.utils.dingtalk import dingtalk
-
-
-def find_course_data(response, course):
-    """
-    从响应数据中查找指定课程的jx02id和jx0404id
-
-    Args:
-        response: 课程信息响应数据
-        course: 要查找的课程信息字典
-
-    Returns:
-        dict: 包含jx02id和jx0404id的字典，如果未找到则返回None
-    """
-    for course_item in response:
-        if (
-            course_item["kch"] == course["course_id_or_name"]
-            and course_item["skls"] == course["teacher_name"]
-            and course_item["sksj"].replace("&nbsp;", "") == course["course_time"]
-        ):
-            return {
-                "jx02id": course_item["jx02id"],
-                "jx0404id": course_item["jx0404id"],
-            }
-    return None
+import logging
 
 
 def search_and_select_course(course):
@@ -67,11 +43,11 @@ def search_and_select_course(course):
 
             # 依次尝试不同的选课方式
             selection_methods = [
-                ("专业内跨年级选课", send_knjxkOper_course_data),
-                ("本学期计划选课", send_bxqjhxkOper_course_data),
-                ("公选课选课", send_ggxxkxkOper_course_data),
-                ("选修选课", send_xxxkOper_course_data),
-                ("计划外选课", send_fawxkOper_course_data),
+                ("专业内跨年级选课", send_knjxkOper_course_jx02id_and_jx0404id),
+                ("本学期计划选课", send_bxqjhxkOper_course_jx02id_and_jx0404id),
+                ("公选课选课", send_ggxxkxkOper_course_jx02id_and_jx0404id),
+                ("选修选课", send_xxxkOper_course_jx02id_and_jx0404id),
+                ("计划外选课", send_fawxkOper_course_jx02id_and_jx0404id),
             ]
 
             for method_name, method_func in selection_methods:
@@ -92,11 +68,11 @@ def search_and_select_course(course):
             course_jx02id_and_jx0404id = get_course_jx02id_and_jx0404id(course)
             if course_jx02id_and_jx0404id:
                 selection_methods = [
-                    ("专业内跨年级选课", send_knjxkOper_course_data),
-                    ("本学期计划选课", send_bxqjhxkOper_course_data),
-                    ("公选课选课", send_ggxxkxkOper_course_data),
-                    ("选修选课", send_xxxkOper_course_data),
-                    ("计划外选课", send_fawxkOper_course_data),
+                    ("专业内跨年级选课", send_knjxkOper_course_jx02id_and_jx0404id),
+                    ("本学期计划选课", send_bxqjhxkOper_course_jx02id_and_jx0404id),
+                    ("公选课选课", send_ggxxkxkOper_course_jx02id_and_jx0404id),
+                    ("选修选课", send_xxxkOper_course_jx02id_and_jx0404id),
+                    ("计划外选课", send_fawxkOper_course_jx02id_and_jx0404id),
                 ]
 
                 for method_name, method_func in selection_methods:
