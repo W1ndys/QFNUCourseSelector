@@ -24,10 +24,10 @@ def dingtalk(title, content):
         headers = {"Content-Type": "application/json"}
         # 美化markdown消息格式
         formatted_content = (
-            f"### {title}\n"
-            f"---\n"  # 添加分隔线
-            f"{content}\n"
-            f"---\n"  # 添加底部分隔线
+            f"### {title}\n\n"
+            f"---\n\n"  # 添加分隔线
+            f"{content}\n\n"
+            f"---\n\n"  # 添加底部分隔线
             f"*发送时间：{time.strftime('%Y-%m-%d %H:%M:%S')}*"  # 添加发送时间
         )
 
