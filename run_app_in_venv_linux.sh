@@ -25,6 +25,6 @@ if [ ! -f "main.py" ]; then
 fi
 
 # 运行 Python 脚本
-python main.py
+python3 main.py
 
 read -p "按回车键退出..." 
