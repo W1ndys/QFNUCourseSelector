@@ -1,6 +1,7 @@
 import time
 import logging
 from src.utils.session_manager import get_session
+from src.utils.dingtalk import dingtalk
 
 
 def send_ggxxkxkOper_course_data(course_name, course_data):
@@ -35,13 +36,12 @@ def send_ggxxkxkOper_course_data(course_name, course_data):
 
         if "flag1" in response_json:
             if response_json["flag1"] == 3:
-                logging.warning(
-                    f"登录状态异常: {response_json.get('msgContent', '未知原因')}"
-                )
-                return None
+                message = response_json.get("msgContent", "未知原因")
+                logging.warning(f"登录状态异常: {message}")
+                return None, message
             elif response_json["flag1"] == 1:
                 logging.info(f"【{course_name}】的公选课选课成功")
-                return True
+                return True, None
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
@@ -51,17 +51,18 @@ def send_ggxxkxkOper_course_data(course_name, course_data):
 
             if success:
                 logging.info(f"【{course_name}】的公选课选课成功: {message}")
-                return True
+                return True, None
             else:
                 logging.warning(f"【{course_name}】的公选课选课失败: {message}")
-                return False
+                return False, message
 
         logging.warning(f"【{course_name}】的公选课选课失败: {response_json}")
-        return False
+        return False, str(response_json)
 
     except Exception as e:
-        logging.error(f"发送【{course_name}】的公选课选课请求数据失败: {str(e)}")
-        return None
+        error_msg = str(e)
+        logging.error(f"发送【{course_name}】的公选课选课请求数据失败: {error_msg}")
+        return None, error_msg
 
 
 def send_knjxkOper_course_data(course_name, course_data):
@@ -96,13 +97,12 @@ def send_knjxkOper_course_data(course_name, course_data):
 
         if "flag1" in response_json:
             if response_json["flag1"] == 3:
-                logging.warning(
-                    f"登录状态异常: {response_json.get('msgContent', '未知原因')}"
-                )
-                return None
+                message = response_json.get("msgContent", "未知原因")
+                logging.warning(f"登录状态异常: {message}")
+                return None, message
             elif response_json["flag1"] == 1:
                 logging.info(f"【{course_name}】的专业内跨年级选课成功")
-                return True
+                return True, None
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
@@ -112,17 +112,20 @@ def send_knjxkOper_course_data(course_name, course_data):
 
             if success:
                 logging.info(f"【{course_name}】的专业内跨年级选课成功: {message}")
-                return True
+                return True, None
             else:
                 logging.warning(f"【{course_name}】的专业内跨年级选课失败: {message}")
-                return False
+                return False, message
 
         logging.warning(f"【{course_name}】的专业内跨年级选课失败: {response_json}")
-        return False
+        return False, str(response_json)
 
     except Exception as e:
-        logging.error(f"发送【{course_name}】的专业内跨年级选课请求数据失败: {str(e)}")
-        return None
+        error_msg = str(e)
+        logging.error(
+            f"发送【{course_name}】的专业内跨年级选课请求数据失败: {error_msg}"
+        )
+        return None, error_msg
 
 
 def send_bxqjhxkOper_course_data(course_name, course_data):
@@ -157,13 +160,12 @@ def send_bxqjhxkOper_course_data(course_name, course_data):
 
         if "flag1" in response_json:
             if response_json["flag1"] == 3:
-                logging.warning(
-                    f"登录状态异常: {response_json.get('msgContent', '未知原因')}"
-                )
-                return None
+                message = response_json.get("msgContent", "未知原因")
+                logging.warning(f"登录状态异常: {message}")
+                return None, message
             elif response_json["flag1"] == 1:
                 logging.info(f"【{course_name}】的本学期计划选课成功")
-                return True
+                return True, None
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
@@ -173,17 +175,18 @@ def send_bxqjhxkOper_course_data(course_name, course_data):
 
             if success:
                 logging.info(f"【{course_name}】的本学期计划选课成功: {message}")
-                return True
+                return True, None
             else:
                 logging.warning(f"【{course_name}】的本学期计划选课失败: {message}")
-                return False
+                return False, message
 
         logging.warning(f"【{course_name}】的本学期计划选课失败: {response_json}")
-        return False
+        return False, str(response_json)
 
     except Exception as e:
-        logging.error(f"发送【{course_name}】的本学期计划选课请求数据失败: {str(e)}")
-        return None
+        error_msg = str(e)
+        logging.error(f"发送【{course_name}】的本学期计划选课请求数据失败: {error_msg}")
+        return None, error_msg
 
 
 def send_xxxkOper_course_data(course_name, course_data):
@@ -217,13 +220,12 @@ def send_xxxkOper_course_data(course_name, course_data):
 
         if "flag1" in response_json:
             if response_json["flag1"] == 3:
-                logging.warning(
-                    f"登录状态异常: {response_json.get('msgContent', '未知原因')}"
-                )
-                return None
+                message = response_json.get("msgContent", "未知原因")
+                logging.warning(f"登录状态异常: {message}")
+                return None, message
             elif response_json["flag1"] == 1:
                 logging.info(f"【{course_name}】的选修选课成功")
-                return True
+                return True, None
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
@@ -233,17 +235,18 @@ def send_xxxkOper_course_data(course_name, course_data):
 
             if success:
                 logging.info(f"【{course_name}】的选修选课成功: {message}")
-                return True
+                return True, None
             else:
                 logging.warning(f"【{course_name}】的选修选课失败: {message}")
-                return False
+                return False, message
 
         logging.warning(f"【{course_name}】的选修选课失败: {response_json}")
-        return False
+        return False, str(response_json)
 
     except Exception as e:
-        logging.error(f"发送【{course_name}】的选修选课请求数据失败: {str(e)}")
-        return None
+        error_msg = str(e)
+        logging.error(f"发送【{course_name}】的选修选课请求数据失败: {error_msg}")
+        return None, error_msg
 
 
 def send_fawxkOper_course_data(course_name, course_data):
@@ -278,13 +281,12 @@ def send_fawxkOper_course_data(course_name, course_data):
 
         if "flag1" in response_json:
             if response_json["flag1"] == 3:
-                logging.warning(
-                    f"登录状态异常: {response_json.get('msgContent', '未知原因')}"
-                )
-                return None
+                message = response_json.get("msgContent", "未知原因")
+                logging.warning(f"登录状态异常: {message}")
+                return None, message
             elif response_json["flag1"] == 1:
                 logging.info(f"【{course_name}】的计划外选课成功")
-                return True
+                return True, None
         elif "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
@@ -294,14 +296,15 @@ def send_fawxkOper_course_data(course_name, course_data):
 
             if success:
                 logging.info(f"【{course_name}】的计划外选课成功: {message}")
-                return True
+                return True, None
             else:
                 logging.warning(f"【{course_name}】的计划外选课失败: {message}")
-                return False
+                return False, message
 
         logging.warning(f"【{course_name}】的计划外选课失败: {response_json}")
-        return False
+        return False, str(response_json)
 
     except Exception as e:
-        logging.error(f"发送【{course_name}】的计划外选课请求数据失败: {str(e)}")
-        return None
+        error_msg = str(e)
+        logging.error(f"发送【{course_name}】的计划外选课请求数据失败: {error_msg}")
+        return None, error_msg
