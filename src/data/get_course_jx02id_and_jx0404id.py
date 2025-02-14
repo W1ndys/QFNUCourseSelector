@@ -46,18 +46,29 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 提取实际课程节次
             time_parts = course_time.split()
-            for part in time_parts:
+            found_match = False
+
+            # 遍历每个时间段
+            i = 0
+            while i < len(time_parts):
+                part = time_parts[i]
+                # 如果找到包含"节"的部分
                 if "节" in part:
                     actual_periods = part.split("节")[0]
                     if "-" in actual_periods:
                         actual_start, actual_end = map(int, actual_periods.split("-"))
                         actual_period_set = set(range(actual_start, actual_end + 1))
-                        # 检查是否有重叠的节次，&是交集
+                        # 检查是否有重叠的节次
                         if target_periods & actual_period_set:
-                            return {
-                                "jx02id": course_item.get("jx02id"),
-                                "jx0404id": course_item.get("jx0404id"),
-                            }
+                            found_match = True
+                            break
+                i += 1
+
+            if found_match:
+                return {
+                    "jx02id": course_item.get("jx02id"),
+                    "jx0404id": course_item.get("jx0404id"),
+                }
 
         return None
 
