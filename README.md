@@ -170,7 +170,7 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 
 特别感谢以下贡献者：
 
-- [nakii](https://github.com/nakaii-002) - 技术指导
+- [nakaii](https://github.com/nakaii-002) - 技术指导
 - [上杉九月](https://github.com/sakurasep) - 技术指导
 - 超级大猫猫头头 - 测试支持
 - [Cursor](https://www.cursor.com/) - 开发工具支持
