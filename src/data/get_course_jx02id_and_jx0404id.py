@@ -3,46 +3,64 @@ import json
 from src.utils.session_manager import get_session
 import logging
 
-# 添加一个全局缓存字典
-course_cache = {}
-# 添加一个全局变量用于缓存整个文件数据
-all_courses_data_cache = None
-
 
 def find_course_jx02id_and_jx0404id(course, course_data):
     """在课程数据中查找课程的jx02id和jx0404id"""
     try:
+        week_day_dict = {
+            "1": "星期一",
+            "2": "星期二",
+            "3": "星期三",
+            "4": "星期四",
+            "5": "星期五",
+            "6": "星期六",
+            "7": "星期日",
+        }
+
+        # 构建搜索条件
+        target_week_day = week_day_dict[course["week_day"]]
+
+        # 处理节次范围
+        period_range = course["class_period"].rstrip("-").split("-")
+        start_period = int(period_range[0])
+        end_period = int(period_range[1])
+        target_periods = set(range(start_period, end_period + 1))
+
         for course_item in course_data:
-            # 检查course_item是否为字典
             if not isinstance(course_item, dict):
-                logging.error(f"课程项不是字典: {course_item}")
                 continue
-            try:
-                if (
-                    # 检查课程编号或课程名称是否匹配
-                    (course_item.get("kch") or course_item.get("kcmc"))
-                    == course["course_id_or_name"]
-                    # 检查教师姓名是否匹配
-                    and course_item.get("skls") == course["teacher_name"]
-                    # 检查上课时间或上课节次是否匹配
-                    and (
-                        course_item.get("sksj", "")
-                        .replace("&nbsp;", "")
-                        .replace(" ", "")
-                        == course["course_time"].replace(" ", "")
-                        # 判断课程时间是否包含课程节次
-                        or course["class_period"].rstrip("-")  # 修剪字符串末尾的-
-                        in course_item.get("sksj")
-                    )
-                ):
-                    return {
-                        "jx02id": course_item.get("jx02id"),
-                        "jx0404id": course_item.get("jx0404id"),
-                    }
-            except (KeyError, AttributeError) as e:
-                logging.error(f"处理课程项时出错: {str(e)}")
+
+            # 1. 检查课程号或课程名称
+            course_match = (
+                course_item.get("kch") == course["course_id_or_name"]
+                or course_item.get("kcmc") == course["course_id_or_name"]
+            )
+
+            # 2. 检查教师姓名
+            teacher_match = course_item.get("skls") == course["teacher_name"]
+
+            # 3. 检查上课时间（星期和节次）
+            course_time = course_item.get("sksj", "")
+            if not (course_match and teacher_match and target_week_day in course_time):
                 continue
+
+            # 提取实际课程节次
+            time_parts = course_time.split()
+            for part in time_parts:
+                if "节" in part:
+                    actual_periods = part.split("节")[0]
+                    if "-" in actual_periods:
+                        actual_start, actual_end = map(int, actual_periods.split("-"))
+                        actual_period_set = set(range(actual_start, actual_end + 1))
+                        # 检查是否有重叠的节次，&是交集
+                        if target_periods & actual_period_set:
+                            return {
+                                "jx02id": course_item.get("jx02id"),
+                                "jx0404id": course_item.get("jx0404id"),
+                            }
+
         return None
+
     except Exception as e:
         logging.error(f"查找课程jx02id和jx0404id时发生错误: {str(e)}")
         return None
@@ -88,42 +106,27 @@ def get_course_jx02id_and_jx0404id_by_api(course):
 
 def get_course_jx02id_and_jx0404id_by_file(course):
     """通过本地文件获取课程的jx02id和jx0404id"""
-    global all_courses_data_cache
-
-    # 检查缓存中是否已有数据
-    cache_key = (
-        course["course_id_or_name"],
-        course["teacher_name"],
-        course["course_time"],
-    )
-    if cache_key in course_cache:
-        logging.info(f"从缓存中获取课程: {course['course_id_or_name']}")
-        return course_cache[cache_key]
-
     try:
-        # 如果全局缓存为空，则读取文件
-        if all_courses_data_cache is None:
-            all_courses_json_path = os.path.abspath(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    "..",
-                    "..",
-                    "course_data",
-                    "all_courses.json",
-                )
+        # 直接读取文件，不使用缓存
+        all_courses_json_path = os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "..",
+                "course_data",
+                "all_courses.json",
             )
-            if not os.path.exists(all_courses_json_path):
-                logging.error(f"课程数据文件不存在: {all_courses_json_path}")
-                return None
-            with open(all_courses_json_path, "r", encoding="utf-8") as file:
-                all_courses_data_cache = json.load(file)
+        )
+        if not os.path.exists(all_courses_json_path):
+            logging.error(f"课程数据文件不存在: {all_courses_json_path}")
+            return None
+        with open(all_courses_json_path, "r", encoding="utf-8") as file:
+            all_courses_data = json.load(file)
 
         course_jx02id_and_jx0404id = find_course_jx02id_and_jx0404id(
-            course, all_courses_data_cache["aaData"]
+            course, all_courses_data["aaData"]
         )
         if course_jx02id_and_jx0404id:
-            # 将结果存入缓存
-            course_cache[cache_key] = course_jx02id_and_jx0404id
             return course_jx02id_and_jx0404id
 
     except Exception as e:
