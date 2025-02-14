@@ -88,7 +88,6 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
       "teacher_name": "教师名称", // 必填
       "week_day": "上课星期", // 选填(1-7)
       "class_period": "上课节次", // 选填
-      "course_time": "完整的上课时间", // 必填
       "jx02id": "jx02id", // 选填
       "jx0404id": "jx0404id" // 选填
     }
@@ -114,15 +113,18 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 | ----------------- | ------------------------------ | -------- | ---------------------------------- |
 | course_id_or_name | 课程编号或名称（推荐使用编号） | ✅       | g20062389                          |
 | teacher_name      | 教师姓名                       | ✅       | 张三                               |
-| week_day          | 上课星期                       | ❌       | 1-7 之间的数字                     |
-| class_period      | 上课节次                       | ❌       | 1-2-,3-4-,5-6-,7-8-,9-10-11,12-13- |
-| course_time       | 完整上课时间                   | ✅       | 1-18 周 星期六 1-2 节              |
-| jx02id            | 公选课 jx02id                  | ❌       | -                                  |
-| jx0404id          | 公选课 jx0404id                | ❌       | -                                  |
+| week_day          | 上课星期                       | ⭕       | 1-7 之间的数字                     |
+| class_period      | 上课节次                       | ⭕       | 1-2-,3-4-,5-6-,7-8-,9-10-11,12-13- |
+| jx02id            | 公选课 jx02id                  | ⭕       | -                                  |
+| jx0404id          | 公选课 jx0404id                | ⭕       | -                                  |
 
 > [!WARNING]
 >
-> `course_id_or_name` 、 `teacher_name` 、 `course_time` 是必填项，将用于获取课程的 jx02id 和 jx0404id，
+> `course_id_or_name` 、 `teacher_name` 是必填项，将用于获取课程的 jx02id 和 jx0404id
+>
+> `class_period` 和 `week_day` 是选填项，如果你未填写 jx02id 和 jx0404id，则需要填写这两个字段，脚本会根据这两个字段搜索课程，并获取课程的 jx02id 和 jx0404id
+>
+> 如果填写了 jx02id 和 jx0404id，则不需要填写 `class_period` 和 `week_day`，脚本会根据这两个字段直接选课
 
 > [!NOTE]
 >
