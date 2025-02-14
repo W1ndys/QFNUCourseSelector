@@ -5,23 +5,17 @@ from bs4 import BeautifulSoup
 from requests.exceptions import RequestException
 
 
-def get_jx0502zbid(session, select_course_id_or_name: str) -> Optional[str]:
+def get_jx0502zbid(session, select_semester):
     """
     获取教务系统中的选课轮次编号
     Args:
         session: 请求会话
-        cookies: cookies信息
-        select_course_id_or_name: 选课名称，用于匹配正确的选课轮次
+        select_semester: 选课学期，如果为空则默认获取第一个可选课程
     Returns:
         Optional[str]: 选课轮次编号(jx0502zbid)，如果未找到返回None
     Raises:
-        ValueError: 当输入参数无效时
         RequestException: 当网络请求失败时
     """
-    # 参数验证
-    if not select_course_id_or_name or not isinstance(select_course_id_or_name, str):
-        raise ValueError("选课名称不能为空且必须是字符串类型")
-
     url = "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list"
     jx0502zbid_pattern = re.compile(r"jx0502zbid=([^&]+)")
 
@@ -32,13 +26,28 @@ def get_jx0502zbid(session, select_course_id_or_name: str) -> Optional[str]:
         soup = BeautifulSoup(response.text, "html.parser")
         rows = soup.find_all("tr")
 
+        # 如果没有指定学期，直接获取第一个有效的选课链接
+        if not select_semester:
+            for row in rows[1:]:  # 跳过表头行
+                try:
+                    link = row.find("a", href=True)
+                    if link and "jx0502zbid" in link["href"]:
+                        match = jx0502zbid_pattern.search(link["href"])
+                        if match:
+                            return match.group(1)
+                except (AttributeError, IndexError) as e:
+                    logging.warning(f"解析行数据时出错: {str(e)}")
+                    continue
+            return None
+
+        # 如果指定了学期，按学期匹配
         for row in rows:
             try:
                 cells = row.find_all("td")
                 if not cells or len(cells) < 2:
                     continue
 
-                if select_course_id_or_name in cells[1].text.strip():
+                if select_semester in cells[1].text.strip():
                     link = row.find("a", href=True)
                     if link and "jx0502zbid" in link["href"]:
                         match = jx0502zbid_pattern.search(link["href"])
