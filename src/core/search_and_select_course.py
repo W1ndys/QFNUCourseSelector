@@ -39,7 +39,7 @@ def search_and_select_course(course):
 
         # 已手动配置jx02id和jx0404id的情况
         if course.get("jx02id") is not None and course.get("jx0404id") is not None:
-            logging.info(f"已手动配置jx02id和jx0404id，跳过搜索直接选课: {course}")
+            logging.critical(f"已手动配置jx02id和jx0404id，跳过搜索直接选课: {course}")
 
             # 依次尝试不同的选课方式
             selection_methods = [
@@ -65,6 +65,7 @@ def search_and_select_course(course):
 
         # 未手动配置jx02id和jx0404id的情况
         else:
+            logging.critical(f"未手动配置jx02id和jx0404id，开始搜索课程: {course}")
             course_jx02id_and_jx0404id = get_course_jx02id_and_jx0404id(course)
             if course_jx02id_and_jx0404id:
                 selection_methods = [
