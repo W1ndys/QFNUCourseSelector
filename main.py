@@ -42,6 +42,7 @@ def setup_logger():
 
     # 配置控制台处理器 - 使用ColoredFormatter
     console_handler = colorlog.StreamHandler()
+    console_handler.setLevel(logging.INFO)  # 设置控制台处理器的日志级别为INFO
     console_formatter = colorlog.ColoredFormatter(
         "%(log_color)s%(levelname)s: %(message)s%(reset)s",
         log_colors={
