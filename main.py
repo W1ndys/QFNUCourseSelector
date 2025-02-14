@@ -327,8 +327,11 @@ def select_courses(courses, mode):
             logger.info("所有课程选课操作结束，等待1分钟后再继续")
             time.sleep(60)  # 循环外间隔1分钟
     else:
-        logger.error("模式错误，请检查配置文件的mode字段是否为fast、normal或snipe")
-        return
+        logger.warning(
+            "模式错误，请检查配置文件的mode字段是否为fast、normal或snipe，即将默认使用fast模式"
+        )
+        mode = "fast"
+        select_courses(courses, mode)
 
 
 def main():
