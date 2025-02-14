@@ -1,6 +1,6 @@
 # QFNUCourseSelector
 
-> QFNU 抢课脚本 | 强智教务抢课脚本 | 强智教务 2017
+> QFNU 抢课脚本 | 强智教务抢课脚本 | 强智教务 2017 | 大学抢课脚本 | 学院抢课脚本 | 光速抢课 |秒级
 
 <p align="center">
     <img src="https://img.shields.io/github/stars/W1ndys/QFNUCourseSelector?style=flat-square" alt="Stars">
