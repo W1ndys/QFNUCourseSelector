@@ -60,7 +60,7 @@
 git clone git@github.com:W1ndys/QFNUCourseSelector.git
 ```
 
-> 直接下载zip包也可以，但是需要把bat文件的行位序列改成CRLF，否则会报错
+> 直接下载 zip 包也可以，但是需要把 bat 文件的行位序列改成 CRLF，否则会报错
 
 ### 2. 安装依赖
 
@@ -147,7 +147,10 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 
 ## 🏆 战绩
 
-![image](./assets/images/successful.png)
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+    <img src="./assets/images/Achievement/1.png" style="max-width: 100%; height: auto;" alt="选课成功截图">
+    <img src="./assets/images/Achievement/2.png" style="max-width: 100%; height: auto;" alt="选课成功截图">
+</div>
 
 ## 🙏 致谢
 
