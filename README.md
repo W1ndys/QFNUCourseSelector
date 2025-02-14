@@ -120,23 +120,45 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 > [!WARNING]
 >
+> 你的配置一定是下面两种情况之一：
+>
+> 1. 你已经手动获取了 jx02id 和 jx0404id，则只需要填写 `course_id_or_name` 、 `teacher_name` 、 `jx02id` 、 `jx0404id` 这四个字段，脚本会根据这四个字段直接选课
+>
+> 2. 你未手动获取 jx02id 和 jx0404id，则需要填写 `course_id_or_name` 、 `teacher_name` 、 `class_period` 、 `week_day` 这四个字段，脚本会根据这四个字段搜索课程，并获取课程的 `jx02id` 和 `jx0404id`
+>
 > `course_id_or_name` 、 `teacher_name` 是必填项，将用于获取课程的 jx02id 和 jx0404id
 >
-> `class_period` 和 `week_day` 是选填项，如果你未填写 jx02id 和 jx0404id，则需要填写这两个字段，脚本会根据这两个字段搜索课程，并获取课程的 jx02id 和 jx0404id
+> `class_period` 和 `week_day` 是选填项，如果你未填写 `jx02id` 和 `jx0404id`，则需要填写这两个字段，脚本会根据这两个字段搜索课程，并获取课程的 `jx02id` 和 `jx0404id`
+>
+> `class_period` 必须按照格式，后面的-不能省略（我也不知道为什么要这样写，教务系统设计的是这样的），并且可选项只有 `1-2-`, `3-4-`, `5-6-`, `7-8-`, `9-10-11`, `12-13-`
+>
+> **注意！！如果你的节次是 9-10、9-11、9-12、10-10、10-11、10-12、11-11、11-12 或是白天三节课连着的等上面可填示例里没有的，只需要填一个有交集的节次即可，脚本算法会自动识别处理**
+>
+> 下面表格是一个可填的对应表
+>
+> | 节次  |   可填的节次    |
+> | :---: | :-------------: |
+> | 9-10  |     9-10-11     |
+> | 9-11  |     9-10-11     |
+> | 9-12  | 9-10-11、12-13- |
+> | 10-10 |     9-10-11     |
+> | 10-11 |     9-10-11     |
+> | 10-12 | 9-10-11、12-13- |
+> | 11-11 |     9-10-11     |
+> | 11-12 | 9-10-11、12-13- |
+> | 12-13 |     12-13-      |
 >
 > 如果填写了 jx02id 和 jx0404id，则不需要填写 `class_period` 和 `week_day`，脚本会根据这两个字段直接选课
 
 > [!NOTE]
 >
-> 关于 jx02id 和 jx0404id 的获取方法，请参考[详细说明文档](./assets/docs/how_to_get_jx02id_and_jx0404id.md)
+> 关于 jx02id 和 jx0404id 的**手动**获取方法，请参考 [详细说明文档](./assets/docs/how_to_get_jx02id_and_jx0404id.md)
 >
 > jx02id 和 jx0404id 是教务系统中课程的唯一标识，在配置文件中选填，如果不填，脚本会根据 API 或本地数据自动获取，但是获取的准确性可能不如手动获取，可能会遇到获取失败的情况，并且抢课速度会慢 10-50ms
+
+> ~~注意 `course_time` 的格式，周次，星期，节次，必须按照格式，不能省略空格，例如 `1-18 周 星期六 1-2 节`，不能写成 `1-18周星期六1-2节`~~
 >
-> 上课节次必须按照格式，后面的-不能省略（我也不知道为什么要这样写，教务系统设计的是这样的），并且可选项只有`1-2-`,`3-4-`,`5-6-`,`7-8-`,`9-10-11`,`12-13-`，如果你遇到 9-12 节的课，可以从`9-10-11`和`12-13-`中选择一个填，实测都能搜到
->
-> ~~注意`course_time`的格式，周次，星期，节次，必须按照格式，不能省略空格，例如`1-18 周 星期六 1-2 节`，不能写成`1-18周星期六1-2节`~~
->
-> 在[da0fef1](https://github.com/W1ndys/QFNUCourseSelector/commit/da0fef12f843e7336b8229ebc1c8a271059e7420)中，`course_time`的格式已自动过滤空格，所以加什么空格都不会影响运行
+> 在 [da0fef1](https://github.com/W1ndys/QFNUCourseSelector/commit/da0fef12f843e7336b8229ebc1c8a271059e7420) 中，`course_time` 的格式已自动过滤空格，所以加什么空格都不会影响运行
 >
 > **脚本运行过程中不要异地登录，否则会把脚本踢下线**
 
@@ -150,11 +172,11 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 
-![Windows10测试环境](./assets/images/wifi_test_win10.png)
+![Windows10 测试环境](./assets/images/wifi_test_win10.png)
 
 ![手机测试环境](./assets/images/wifi_test_mobile.png)
 
-![Pad测试环境](./assets/images/wifi_test_pad.png)
+![Pad 测试环境](./assets/images/wifi_test_pad.png)
 
 可以很明显的看到，QFNU 的网络环境比其他网络环境更容易访问教务系统
 
