@@ -22,13 +22,17 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             jx02id = data.get("jx02id")
             jx0404id = data.get("jx0404id")
 
+            # 基本信息匹配，先判断名称老师是否匹配，以防后面匹配周次强包容性无问题但名称老师不匹配
+            if (
+                data.get("kch") != course["course_id_or_name"]
+                or data.get("skls") != course["teacher_name"]
+            ):
+                continue
+
             # 从sksj中提取周次信息
             sksj = data.get("sksj", "")
 
-            # 判断是否匹配单双周
-            # 默认包容性，这地方写的太好了
-            # 默认全部匹配，失败优先原则，只考虑在明确判断不符合的情况下才false
-            # 数据异常、sksj数据有改动，都默认匹配
+            # 判断是否匹配周次
             weeks_match = True
             if week_type != "all" and "周" in sksj:
                 weeks_str = sksj.split("周")[0].strip()
