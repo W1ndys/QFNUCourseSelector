@@ -38,7 +38,12 @@ def search_and_select_course(course):
         error_messages = []  # 用于收集所有错误信息
 
         # 已手动配置jx02id和jx0404id的情况
-        if course.get("jx02id") is not None and course.get("jx0404id") is not None:
+        if (
+            course.get("jx02id")
+            and course.get("jx0404id")
+            and course["jx02id"].strip() != ""
+            and course["jx0404id"].strip() != ""
+        ):
             logging.critical(f"已手动配置jx02id和jx0404id，跳过搜索直接选课: {course}")
 
             # 依次尝试不同的选课方式
