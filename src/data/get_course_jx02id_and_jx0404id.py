@@ -17,17 +17,18 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             "7": "星期日",
         }
 
-        # 构建搜索条件
-        target_week_day = week_day_dict[course["week_day"]]
+        # 如果课程时间信息为空，则只匹配课程号/名称和教师
+        is_online = not course["class_period"] and not course["week_day"]
 
-        # 处理节次范围
-        period_range = course["class_period"].rstrip("-").split("-")
-        start_period = int(period_range[0])
-        end_period = int(period_range[1])
-        target_periods = set(range(start_period, end_period + 1))
-
-        # 获取目标周次
-        target_week = int(course.get("week", "1"))  # 如果未提供周次，默认为第1周
+        if not is_online:
+            target_week_day = week_day_dict[course["week_day"]]
+            # 处理节次范围
+            period_range = course["class_period"].rstrip("-").split("-")
+            start_period = int(period_range[0])
+            end_period = int(period_range[1])
+            target_periods = set(range(start_period, end_period + 1))
+            # 获取目标周次
+            target_week = int(course.get("week", "1"))
 
         for course_item in course_data:
             if not isinstance(course_item, dict):
@@ -41,6 +42,15 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 2. 检查教师姓名
             teacher_match = course_item.get("skls") == course["teacher_name"]
+
+            # 如果是在线课程，只需要匹配课程和教师
+            if is_online:
+                if course_match and teacher_match:
+                    return {
+                        "jx02id": course_item.get("jx02id"),
+                        "jx0404id": course_item.get("jx0404id"),
+                    }
+                continue
 
             # 3. 检查上课时间（星期和节次）
             course_time = course_item.get("sksj", "")
