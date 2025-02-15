@@ -234,22 +234,23 @@ def get_user_config():
         if not course.get("course_id_or_name") or not course.get("teacher_name"):
             raise ValueError("每个课程配置必须包含 course_id_or_name 和 teacher_name")
 
-        # 如果没有提供 jx02id 和 jx0404id，则检查是否提供了 week_day 和 class_period
-        if not (course.get("jx02id") and course.get("jx0404id")):
-            if not course.get("week_day") or not course.get("class_period"):
-                raise ValueError(
-                    f"课程 {course['course_id_or_name']} 缺少必要信息: "
-                    "如果未提供 jx02id 和 jx0404id，则必须提供 week_day、class_period、week_day和week"
-                )
+        # 验证 week_day 格式（如果提供）
+        if course.get("week_day") and not course["week_day"] in [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+        ]:
+            raise ValueError(
+                f"课程 {course['course_id_or_name']} 的 week_day 格式错误: "
+                "必须是 1-7 之间的数字"
+            )
 
-            # 验证 week_day 格式
-            if not course["week_day"] in ["1", "2", "3", "4", "5", "6", "7"]:
-                raise ValueError(
-                    f"课程 {course['course_id_or_name']} 的 week_day 格式错误: "
-                    "必须是 1-7 之间的数字"
-                )
-
-            # 验证 class_period 格式
+        # 验证 class_period 格式（如果提供）
+        if course.get("class_period"):
             valid_periods = ["1-2-", "3-4-", "5-6-", "7-8-", "9-10-11", "12-13-"]
             if course["class_period"] not in valid_periods:
                 raise ValueError(
