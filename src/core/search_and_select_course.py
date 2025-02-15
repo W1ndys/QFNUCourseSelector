@@ -7,6 +7,7 @@ from src.core.send_course_data import (
     send_fawxkOper_course_jx02id_and_jx0404id,
 )
 from src.utils.dingtalk import dingtalk
+from src.utils.feishu import feishu
 import logging
 
 
@@ -62,6 +63,10 @@ def search_and_select_course(course):
                         "选课成功 🎉 ✨ 🌟 🎊",
                         f"课程【{course['course_id_or_name']}】选课成功！",
                     )
+                    feishu(
+                        "选课成功 🎉 ✨ 🌟 🎊",
+                        f"课程【{course['course_id_or_name']}】选课成功！",
+                    )
                     return True
                 elif result is False:
                     error_messages.append(f"【{method_name}】失败: {message}")
@@ -96,6 +101,10 @@ def search_and_select_course(course):
                             "选课成功 🎉 ✨ 🌟 🎊",
                             f"课程【{course['course_id_or_name']}】选课成功！",
                         )
+                        feishu(
+                            "选课成功 🎉 ✨ 🌟 🎊",
+                            f"课程【{course['course_id_or_name']}】选课成功！",
+                        )
                         return True
                     elif result is False:
                         error_messages.append(f"【{method_name}】失败: {message}")
@@ -109,12 +118,17 @@ def search_and_select_course(course):
                 + "\n\n".join(error_messages)
             )
             dingtalk("选课失败 😭 😢 😔", error_summary)
+            feishu("选课失败 😭 😢 😔", error_summary)
         return False
 
     except Exception as e:
         error_msg = str(e)
         logging.error(f"搜索选课失败: {error_msg}")
         dingtalk(
+            "选课失败 😭 😢 😔",
+            f"课程【{course['course_id_or_name']}】选课过程发生异常：{error_msg}",
+        )
+        feishu(
             "选课失败 😭 😢 😔",
             f"课程【{course['course_id_or_name']}】选课过程发生异常：{error_msg}",
         )

@@ -81,6 +81,8 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
   "select_semester": "你的选课学期，例如：2024-2025-2学期2021级选课", // 选填
   "dingtalk_webhook": "你的钉钉机器人webhook", // 选填
   "dingtalk_secret": "你的钉钉机器人secret", // 选填
+  "feishu_webhook": "你的飞书机器人webhook", // 选填
+  "feishu_secret": "你的飞书机器人secret", // 选填
   "mode": "选课模式", // 选课模式，fast: 高速模式，normal: 普通模式，snipe: 截胡模式
   "course": [
     {

@@ -11,7 +11,6 @@ import colorlog
 import logging
 import datetime
 import time
-from src.utils.dingtalk import dingtalk
 
 
 def setup_logger():
@@ -180,6 +179,8 @@ def get_user_config():
             "select_semester": "",
             "dingtalk_webhook": "",
             "dingtalk_secret": "",
+            "feishu_webhook": "",
+            "feishu_secret": "",
             "mode": "",
             "courses": [
                 {
