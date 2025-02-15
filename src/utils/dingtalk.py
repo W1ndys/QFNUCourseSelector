@@ -77,5 +77,6 @@ def dingtalk(title, content):
 
 if __name__ == "__main__":
     dingtalk(
-        "测试消息", "这是一条测试消息，如果你看到这条消息，证明dingtalk的webhook无问题"
+        "测试消息",
+        "这是一条测试消息，如果你看到这条消息，证明dingtalk的webhook无问题成功失败",
     )
