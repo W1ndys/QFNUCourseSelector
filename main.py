@@ -168,8 +168,7 @@ def get_user_config():
         user_account: 用户账号
         user_password: 用户密码
         select_semester: 选课学期
-        dingtalk_webhook: 钉钉机器人webhook
-        dingtalk_secret: 钉钉机器人secret
+        mode: 选课模式
         courses: 课程列表
     """
     # 检查配置文件是否存在
@@ -188,6 +187,7 @@ def get_user_config():
                     "teacher_name": "",
                     "class_period": "",
                     "week_day": "",
+                    "week": "",
                     "jx02id": "",
                     "jx0404id": "",
                 },
@@ -196,6 +196,7 @@ def get_user_config():
                     "teacher_name": "",
                     "class_period": "",
                     "week_day": "",
+                    "week": "",
                     "jx02id": "",
                     "jx0404id": "",
                 },
@@ -204,6 +205,7 @@ def get_user_config():
                     "teacher_name": "",
                     "class_period": "",
                     "week_day": "",
+                    "week": "",
                     "jx02id": "",
                     "jx0404id": "",
                 },
@@ -219,12 +221,54 @@ def get_user_config():
     # 读取配置文件
     with open("config.json", "r", encoding="utf-8") as f:
         config = json.load(f)
+
+    # 验证必填字段
+    required_fields = ["user_account", "user_password", "select_semester"]
+    for field in required_fields:
+        if not config.get(field):
+            raise ValueError(f"配置文件中缺少必填字段: {field}")
+
+    # 验证课程配置
+    for course in config.get("courses", []):
+        # 检查必填字段
+        if not course.get("course_id_or_name") or not course.get("teacher_name"):
+            raise ValueError("每个课程配置必须包含 course_id_or_name 和 teacher_name")
+
+        # 如果没有提供 jx02id 和 jx0404id，则检查是否提供了 week_day 和 class_period
+        if not (course.get("jx02id") and course.get("jx0404id")):
+            if not course.get("week_day") or not course.get("class_period"):
+                raise ValueError(
+                    f"课程 {course['course_id_or_name']} 缺少必要信息: "
+                    "如果未提供 jx02id 和 jx0404id，则必须提供 week_day 和 class_period"
+                )
+
+            # 验证 week_day 格式
+            if not course["week_day"] in ["1", "2", "3", "4", "5", "6", "7"]:
+                raise ValueError(
+                    f"课程 {course['course_id_or_name']} 的 week_day 格式错误: "
+                    "必须是 1-7 之间的数字"
+                )
+
+            # 验证 class_period 格式
+            valid_periods = ["1-2-", "3-4-", "5-6-", "7-8-", "9-10-11", "12-13-"]
+            if course["class_period"] not in valid_periods:
+                raise ValueError(
+                    f"课程 {course['course_id_or_name']} 的 class_period 格式错误: "
+                    f"必须是以下值之一: {', '.join(valid_periods)}"
+                )
+
+    # 验证选课模式
+    valid_modes = ["fast", "normal", "snipe"]
+    if config.get("mode") and config["mode"] not in valid_modes:
+        logger.warning(f"无效的选课模式: {config['mode']}，将使用默认的 fast 模式")
+        config["mode"] = "fast"
+
     return (
         config["user_account"],
         config["user_password"],
         config["select_semester"],
-        config["mode"],
-        config["courses"],
+        config.get("mode", "fast"),
+        config.get("courses", []),
     )
 
 

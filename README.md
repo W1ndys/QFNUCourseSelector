@@ -88,6 +88,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
       "teacher_name": "教师名称", // 必填
       "week_day": "上课星期", // 选填(1-7)
       "class_period": "上课节次", // 选填
+      "week": "周次", // 选填
       "jx02id": "jx02id", // 选填
       "jx0404id": "jx0404id" // 选填
     }
@@ -115,6 +116,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 | teacher_name      | 教师姓名                       | ✅       | 张三                               |
 | week_day          | 上课星期                       | ⭕       | 1-7 之间的数字                     |
 | class_period      | 上课节次                       | ⭕       | 1-2-,3-4-,5-6-,7-8-,9-10-11,12-13- |
+| week              | 周次                           | ⭕       | 1                                  |
 | jx02id            | 公选课 jx02id                  | ⭕       | -                                  |
 | jx0404id          | 公选课 jx0404id                | ⭕       | -                                  |
 
@@ -124,13 +126,15 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 >
 > 1. 你已经手动获取了 jx02id 和 jx0404id，则只需要填写 `course_id_or_name` 、 `teacher_name` 、 `jx02id` 、 `jx0404id` 这四个字段，脚本会根据这四个字段直接选课
 >
-> 2. 你未手动获取 jx02id 和 jx0404id，则需要填写 `course_id_or_name` 、 `teacher_name` 、 `class_period` 、 `week_day` 这四个字段，脚本会根据这四个字段搜索课程，并获取课程的 `jx02id` 和 `jx0404id`
+> 2. 你未手动获取 jx02id 和 jx0404id，则需要填写 `course_id_or_name` 、 `teacher_name` 、 `class_period` 、 `week_day` 、 `week` 这五个字段，脚本会根据这五个字段搜索课程，并获取课程的 `jx02id` 和 `jx0404id`
 >
 > `course_id_or_name` 、 `teacher_name` 是必填项，将用于获取课程的 jx02id 和 jx0404id
 >
 > `class_period` 和 `week_day` 是选填项，如果你未填写 `jx02id` 和 `jx0404id`，则需要填写这两个字段，脚本会根据这两个字段搜索课程，并获取课程的 `jx02id` 和 `jx0404id`
 >
 > `class_period` 必须按照格式，后面的-不能省略（我也不知道为什么要这样写，教务系统设计的是这样的），并且可选项只有 `1-2-`, `3-4-`, `5-6-`, `7-8-`, `9-10-11`, `12-13-`
+>
+> `week` 用于区分同时间不同周次的课程，例如 24 级体育课，如果你是单周，只需要填一个周次内的奇数，例如`1`，如果你是双周，只需要填一个周次内的偶数，例如 `2`
 >
 > **注意！！如果你的节次是 9-10、9-11、9-12、10-10、10-11、10-12、11-11、11-12 或是白天三节课连着的等上面可填示例里没有的，只需要填一个有交集的节次即可，脚本算法会自动识别处理**
 >

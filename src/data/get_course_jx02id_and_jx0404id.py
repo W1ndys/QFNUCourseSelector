@@ -26,6 +26,9 @@ def find_course_jx02id_and_jx0404id(course, course_data):
         end_period = int(period_range[1])
         target_periods = set(range(start_period, end_period + 1))
 
+        # 获取目标周次
+        target_week = int(course.get("week", "1"))  # 如果未提供周次，默认为第1周
+
         for course_item in course_data:
             if not isinstance(course_item, dict):
                 continue
@@ -42,6 +45,20 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             # 3. 检查上课时间（星期和节次）
             course_time = course_item.get("sksj", "")
             if not (course_match and teacher_match and target_week_day in course_time):
+                continue
+
+            # 提取并检查周次
+            weeks_str = course_time.split("周")[0].strip()
+            weeks = []
+            for week_range in weeks_str.split(","):
+                if "-" in week_range:
+                    start, end = map(int, week_range.split("-"))
+                    weeks.extend(range(start, end + 1))
+                else:
+                    weeks.append(int(week_range))
+
+            # 检查目标周次是否在课程的周次范围内
+            if target_week not in weeks:
                 continue
 
             # 提取实际课程节次
