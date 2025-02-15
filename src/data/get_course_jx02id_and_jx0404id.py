@@ -44,6 +44,17 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 3. 检查上课时间（星期和节次）
             course_time = course_item.get("sksj", "")
+
+            # 处理在线课程的特殊情况
+            if course_time.strip() in ["&nbsp;", ""]:
+                # 如果是在线课程，只要课程名称和教师匹配就认为找到了
+                if course_match and teacher_match:
+                    return {
+                        "jx02id": course_item.get("jx02id"),
+                        "jx0404id": course_item.get("jx0404id"),
+                    }
+                continue
+
             if not (course_match and teacher_match and target_week_day in course_time):
                 continue
 
@@ -95,15 +106,15 @@ def find_course_jx02id_and_jx0404id(course, course_data):
         if matching_courses:
             if len(matching_courses) > 1:
                 # 记录找到多个匹配课程的情况
-                logger.info(f"找到多个匹配的课程:")
+                logging.info(f"找到多个匹配的课程:")
                 for idx, mc in enumerate(matching_courses, 1):
-                    logger.info(f"课程{idx}: {mc['course_time']}")
+                    logging.info(f"课程{idx}: {mc['course_time']}")
 
                 # 选择包含目标周次且周次范围最小的课程
                 best_match = min(
                     matching_courses, key=lambda x: len(x["weeks"])
                 )  # 选择周次范围最小的
-                logger.info(f"选择周次范围最小的课程: {best_match['course_time']}")
+                logging.info(f"选择周次范围最小的课程: {best_match['course_time']}")
 
                 return {
                     "jx02id": best_match["jx02id"],
