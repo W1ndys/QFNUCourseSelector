@@ -8,6 +8,9 @@
     <img src="https://img.shields.io/badge/Python-3.12.3-blue.svg" alt="Python">
     <img src="https://img.shields.io/badge/状态-开发完成-green.svg" alt="Status">
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
+    <img src="https://img.shields.io/github/forks/W1ndys/QFNUCourseSelector?style=flat-square" alt="Forks">
+    <img src="https://img.shields.io/github/watchers/W1ndys/QFNUCourseSelector?style=flat-square" alt="Watchers">
+    <img src="https://img.shields.io/github/last-commit/W1ndys/QFNUCourseSelector?style=flat-square" alt="Last Commit">
 </p>
 
 <div align="center">
@@ -192,6 +195,18 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
     <img src="./assets/images/Achievement/2.png" style="max-width: 100%; height: auto;" alt="选课成功截图">
 </div>
 
+## 🌟 Star History
+
+<!-- 添加 Star History -->
+<p align="center">
+  <a href="https://star-history.com/#W1ndys/QFNUCourseSelector&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=W1ndys/QFNUCourseSelector&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=W1ndys/QFNUCourseSelector&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=W1ndys/QFNUCourseSelector&type=Date" />
+    </picture>
+  </a>
+</p>
 ## 🙏 致谢
 
 特别感谢以下贡献者：
@@ -203,4 +218,4 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证
+本项目采用 [MIT 许可证](./LICENSE)
