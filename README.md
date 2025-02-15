@@ -124,6 +124,8 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 >
 > 你的配置一定是下面两种情况之一：
 >
+> **警告！！！：目前自动搜索有 bug 暂时未修复，无法获取同一时间单双周的课程，请使用手动获取**
+>
 > 1. 你已经手动获取了 jx02id 和 jx0404id，则只需要填写 `course_id_or_name` 、 `teacher_name` 、 `jx02id` 、 `jx0404id` 这四个字段，脚本会根据这四个字段直接选课
 >
 > 2. 你未手动获取 jx02id 和 jx0404id，则需要填写 `course_id_or_name` 、 `teacher_name` 、 `class_period` 、 `week_day` 、 `week` 这五个字段，脚本会根据这五个字段搜索课程，并获取课程的 `jx02id` 和 `jx0404id`
