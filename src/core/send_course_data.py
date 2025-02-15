@@ -1,7 +1,6 @@
 import time
 import logging
 from src.utils.session_manager import get_session
-from src.utils.dingtalk import dingtalk
 
 
 def send_ggxxkxkOper_course_jx02id_and_jx0404id(
