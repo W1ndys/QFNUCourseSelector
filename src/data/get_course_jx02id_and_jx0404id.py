@@ -17,18 +17,17 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             "7": "星期日",
         }
 
-        # 如果课程时间信息为空，则只匹配课程号/名称和教师
-        is_online = not course["class_period"] and not course["week_day"]
+        # 构建搜索条件
+        target_week_day = week_day_dict[course["week_day"]]
+        target_week = int(course["week"])
 
-        if not is_online:
-            target_week_day = week_day_dict[course["week_day"]]
-            # 处理节次范围
-            period_range = course["class_period"].rstrip("-").split("-")
-            start_period = int(period_range[0])
-            end_period = int(period_range[1])
-            target_periods = set(range(start_period, end_period + 1))
-            # 获取目标周次
-            target_week = int(course.get("week", "1"))
+        # 处理节次范围
+        period_range = course["class_period"].rstrip("-").split("-")
+        start_period = int(period_range[0])
+        end_period = int(period_range[1])
+        target_periods = set(range(start_period, end_period + 1))
+
+        matching_courses = []  # 存储所有匹配的课程
 
         for course_item in course_data:
             if not isinstance(course_item, dict):
@@ -43,15 +42,6 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             # 2. 检查教师姓名
             teacher_match = course_item.get("skls") == course["teacher_name"]
 
-            # 如果是在线课程，只需要匹配课程和教师
-            if is_online:
-                if course_match and teacher_match:
-                    return {
-                        "jx02id": course_item.get("jx02id"),
-                        "jx0404id": course_item.get("jx0404id"),
-                    }
-                continue
-
             # 3. 检查上课时间（星期和节次）
             course_time = course_item.get("sksj", "")
             if not (course_match and teacher_match and target_week_day in course_time):
@@ -59,13 +49,13 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 提取并检查周次
             weeks_str = course_time.split("周")[0].strip()
-            weeks = []
+            weeks = set()
             for week_range in weeks_str.split(","):
                 if "-" in week_range:
                     start, end = map(int, week_range.split("-"))
-                    weeks.extend(range(start, end + 1))
+                    weeks.update(range(start, end + 1))
                 else:
-                    weeks.append(int(week_range))
+                    weeks.add(int(week_range))
 
             # 检查目标周次是否在课程的周次范围内
             if target_week not in weeks:
@@ -92,9 +82,38 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                 i += 1
 
             if found_match:
+                matching_courses.append(
+                    {
+                        "jx02id": course_item.get("jx02id"),
+                        "jx0404id": course_item.get("jx0404id"),
+                        "weeks": weeks,  # 保存周次信息用于后续筛选
+                        "course_time": course_time,  # 保存完整的课程时间信息用于日志
+                    }
+                )
+
+        # 如果找到多个匹配的课程，选择周次范围最接近的那个
+        if matching_courses:
+            if len(matching_courses) > 1:
+                # 记录找到多个匹配课程的情况
+                logger.info(f"找到多个匹配的课程:")
+                for idx, mc in enumerate(matching_courses, 1):
+                    logger.info(f"课程{idx}: {mc['course_time']}")
+
+                # 选择包含目标周次且周次范围最小的课程
+                best_match = min(
+                    matching_courses, key=lambda x: len(x["weeks"])
+                )  # 选择周次范围最小的
+                logger.info(f"选择周次范围最小的课程: {best_match['course_time']}")
+
                 return {
-                    "jx02id": course_item.get("jx02id"),
-                    "jx0404id": course_item.get("jx0404id"),
+                    "jx02id": best_match["jx02id"],
+                    "jx0404id": best_match["jx0404id"],
+                }
+            else:
+                # 只有一个匹配的课程
+                return {
+                    "jx02id": matching_courses[0]["jx02id"],
+                    "jx0404id": matching_courses[0]["jx0404id"],
                 }
 
         return None
