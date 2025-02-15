@@ -223,7 +223,7 @@ def get_user_config():
         config = json.load(f)
 
     # 验证必填字段
-    required_fields = ["user_account", "user_password", "select_semester"]
+    required_fields = ["user_account", "user_password"]
     for field in required_fields:
         if not config.get(field):
             raise ValueError(f"配置文件中缺少必填字段: {field}")
@@ -239,7 +239,7 @@ def get_user_config():
             if not course.get("week_day") or not course.get("class_period"):
                 raise ValueError(
                     f"课程 {course['course_id_or_name']} 缺少必要信息: "
-                    "如果未提供 jx02id 和 jx0404id，则必须提供 week_day 和 class_period"
+                    "如果未提供 jx02id 和 jx0404id，则必须提供 week_day、class_period、week_day和week"
                 )
 
             # 验证 week_day 格式
