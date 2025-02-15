@@ -188,6 +188,7 @@ def get_user_config():
                     "teacher_name": "",
                     "class_period": "",
                     "week_day": "",
+                    "week_type": "",
                     "jx02id": "",
                     "jx0404id": "",
                 },
@@ -196,6 +197,7 @@ def get_user_config():
                     "teacher_name": "",
                     "class_period": "",
                     "week_day": "",
+                    "week_type": "",
                     "jx02id": "",
                     "jx0404id": "",
                 },
@@ -204,6 +206,7 @@ def get_user_config():
                     "teacher_name": "",
                     "class_period": "",
                     "week_day": "",
+                    "week_type": "",
                     "jx02id": "",
                     "jx0404id": "",
                 },
@@ -400,7 +403,7 @@ def main():
             # 获取选课轮次编号
             jx0502zbid = get_jx0502zbid(session, select_semester)
             if jx0502zbid:
-                logger.info(f"成功获取到选课轮次编号: {jx0502zbid}")
+                logger.info(f"成功获取到选课编号: {jx0502zbid}")
                 response = session.get(
                     f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
                 )

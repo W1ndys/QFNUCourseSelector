@@ -7,22 +7,47 @@ import logging
 def find_course_jx02id_and_jx0404id(course, course_data):
     """在课程数据中查找课程的jx02id和jx0404id"""
     try:
-        # 由于course_data只包含一条数据，直接获取第一条
-        data = course_data[0]
-
-        # 提取jx02id和jx0404id
-        jx02id = data.get("jx02id")
-        jx0404id = data.get("jx0404id")
-
-        # 确保两个ID都存在
-        if jx02id and jx0404id:
-            logging.critical(
-                f"找到课程 {course['course_id_or_name']} 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
-            )
-            return {"jx02id": jx02id, "jx0404id": jx0404id}
-        else:
-            logging.warning(f"课程数据中缺少jx02id或jx0404id: {data}")
+        # 如果course_data为空，直接返回None
+        if not course_data:
             return None
+
+        # 获取课程的单双周信息
+        week_type = course.get(
+            "week_type", "all"
+        )  # 可选值: "odd"单周, "even"双周, "all"不限
+
+        # 遍历所有匹配的课程数据
+        for data in course_data:
+            # 提取jx02id和jx0404id
+            jx02id = data.get("jx02id")
+            jx0404id = data.get("jx0404id")
+
+            # 从sksj中提取周次信息
+            sksj = data.get("sksj", "")
+
+            # 判断是否匹配单双周
+            # 默认包容性，这地方写的太好了
+            # 默认全部匹配，失败优先原则，只考虑在明确判断不符合的情况下才false
+            # 数据异常、sksj数据有改动，都默认匹配
+            weeks_match = True
+            if week_type != "all" and "周" in sksj:
+                weeks_str = sksj.split("周")[0].strip()
+                # 单周固定模式："1,3,5,7,9,11,13,15,17"
+                # 双周固定模式："2,4,6,8,10,12,14,16,18"
+                if week_type == "odd" and weeks_str != "1,3,5,7,9,11,13,15,17":
+                    weeks_match = False
+                elif week_type == "even" and weeks_str != "2,4,6,8,10,12,14,16,18":
+                    weeks_match = False
+
+            # 确保两个ID都存在且周次匹配
+            if jx02id and jx0404id and weeks_match:
+                logging.critical(
+                    f"找到课程 {course['course_id_or_name']} 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
+                )
+                return {"jx02id": jx02id, "jx0404id": jx0404id}
+
+        logging.warning(f"未找到匹配的课程数据")
+        return None
 
     except Exception as e:
         logging.error(f"查找课程jx02id和jx0404id时发生错误: {str(e)}")
