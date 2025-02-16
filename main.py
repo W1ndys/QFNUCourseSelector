@@ -337,7 +337,7 @@ def select_courses(courses, mode):
         for course in courses:
             search_and_select_course(course)
             logger.info(
-                f"课程{course['course_id_or_name']}选课操作结束，等待5秒后继续选下一节课"
+                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待5秒后继续选下一节课"
             )
             time.sleep(5)  # 每次请求间隔5秒
     elif mode == "snipe":
@@ -348,7 +348,7 @@ def select_courses(courses, mode):
                 time.sleep(0.5)  # 每节课间隔0.5秒
                 search_and_select_course(course)
                 logger.info(
-                    f"课程{course['course_id_or_name']}选课操作结束，等待5秒后继续选下一节课"
+                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待0.5秒后继续选下一节课"
                 )
             logger.info("所有课程选课操作结束，等待1秒后继续")
 
