@@ -354,9 +354,9 @@ def select_courses(courses, mode):
 
     else:
         logger.warning(
-            "模式错误，请检查配置文件的mode字段是否为fast、normal或snipe，即将默认使用fast模式"
+            "模式错误，请检查配置文件的mode字段是否为fast、normal或snipe，即将默认使用snipe模式"
         )
-        mode = "fast"
+        mode = "snipe"
         select_courses(courses, mode)
 
 
