@@ -40,7 +40,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             # 确保两个ID都存在且周次匹配
             if jx02id and jx0404id and weeks_match:
                 print(
-                    f"找到课程 {course['course_id_or_name']} 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
+                    f"找到课程【{course['course_id_or_name']}-{course['teacher_name']}】的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
                 )
                 return {"jx02id": jx02id, "jx0404id": jx0404id}
 

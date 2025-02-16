@@ -246,7 +246,7 @@ def get_user_config():
             "7",
         ]:
             raise ValueError(
-                f"课程 {course['course_id_or_name']} 的 week_day 格式错误: "
+                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 week_day 格式错误: "
                 "必须是 1-7 之间的数字"
             )
 
@@ -255,7 +255,7 @@ def get_user_config():
             valid_periods = ["1-2-", "3-4-", "5-6-", "7-8-", "9-10-11", "12-13-"]
             if course["class_period"] not in valid_periods:
                 raise ValueError(
-                    f"课程 {course['course_id_or_name']} 的 class_period 格式错误: "
+                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 class_period 格式错误: "
                     f"必须是以下值之一: {', '.join(valid_periods)}"
                 )
 

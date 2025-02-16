@@ -46,7 +46,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             # 确保两个ID都存在且周次匹配
             if jx02id and jx0404id and weeks_match:
                 logging.critical(
-                    f"找到课程 {course['course_id_or_name']} 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
+                    f"找到课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
                 )
                 return {"jx02id": jx02id, "jx0404id": jx0404id}
 
@@ -104,7 +104,7 @@ def get_course_jx02id_and_jx0404id(course):
             return result
 
         logging.warning(
-            f"未能找到课程: {course['course_id_or_name']}的jx02id和jx0404id"
+            f"未能找到课程: 【{course['course_id_or_name']}-{course['teacher_name']}】的jx02id和jx0404id"
         )
         return None
     except Exception as e:

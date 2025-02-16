@@ -61,11 +61,11 @@ def search_and_select_course(course):
                 if result is True:
                     dingtalk(
                         "选课成功 🎉 ✨ 🌟 🎊",
-                        f"课程【{course['course_id_or_name']}】选课成功！",
+                        f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课成功！",
                     )
                     feishu(
                         "选课成功 🎉 ✨ 🌟 🎊",
-                        f"课程【{course['course_id_or_name']}】选课成功！",
+                        f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课成功！",
                     )
                     return True
                 elif result is False:
@@ -79,7 +79,7 @@ def search_and_select_course(course):
             # 检查class_period和week_day是否填写
             if course.get("class_period") is None or course.get("week_day") is None:
                 logging.error(
-                    f"【{course['course_id_or_name']}】的课程信息缺少必要的字段，需要: {', '.join(required_keys)}"
+                    f"【{course['course_id_or_name']}-{course['teacher_name']}】的课程信息缺少必要的字段，需要: {', '.join(required_keys)}"
                 )
                 return False
             course_jx02id_and_jx0404id = get_course_jx02id_and_jx0404id(course)
@@ -99,11 +99,11 @@ def search_and_select_course(course):
                     if result is True:
                         dingtalk(
                             "选课成功 🎉 ✨ 🌟 🎊",
-                            f"课程【{course['course_id_or_name']}】选课成功！",
+                            f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课成功！",
                         )
                         feishu(
                             "选课成功 🎉 ✨ 🌟 🎊",
-                            f"课程【{course['course_id_or_name']}】选课成功！",
+                            f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课成功！",
                         )
                         return True
                     elif result is False:
@@ -114,7 +114,7 @@ def search_and_select_course(course):
         # 如果所有尝试都失败，发送错误汇总
         if error_messages:
             error_summary = (
-                f"课程【{course['course_id_or_name']}】选课失败，遇到以下错误：\n\n"
+                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课失败，遇到以下错误：\n\n"
                 + "\n\n".join(error_messages)
             )
             dingtalk("选课失败 😭 😢 😔", error_summary)
@@ -126,10 +126,10 @@ def search_and_select_course(course):
         logging.error(f"搜索选课失败: {error_msg}")
         dingtalk(
             "选课失败 😭 😢 😔",
-            f"课程【{course['course_id_or_name']}】选课过程发生异常：{error_msg}",
+            f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课过程发生异常：{error_msg}",
         )
         feishu(
             "选课失败 😭 😢 😔",
-            f"课程【{course['course_id_or_name']}】选课过程发生异常：{error_msg}",
+            f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课过程发生异常：{error_msg}",
         )
         return False
