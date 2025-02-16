@@ -343,14 +343,15 @@ def select_courses(courses, mode):
     elif mode == "snipe":
         # 截胡模式：每秒一次持续执行选课操作
         while True:
+            time.sleep(1)  # 循环外间隔1秒
             for course in courses:
+                time.sleep(0.5)  # 每节课间隔0.5秒
                 search_and_select_course(course)
                 logger.info(
                     f"课程{course['course_id_or_name']}选课操作结束，等待5秒后继续选下一节课"
                 )
-                time.sleep(5)  # 每节课间隔5秒
-            logger.info("所有课程选课操作结束，等待1分钟后再继续")
-            time.sleep(60)  # 循环外间隔1分钟
+            logger.info("所有课程选课操作结束，等待1秒后继续")
+
     else:
         logger.warning(
             "模式错误，请检查配置文件的mode字段是否为fast、normal或snipe，即将默认使用fast模式"
