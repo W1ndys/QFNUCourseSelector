@@ -35,13 +35,34 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             # 判断是否匹配周次
             weeks_match = True
             if week_type != "all" and "周" in sksj:
-                weeks_str = sksj.split("周")[0].strip()
-                # 单周固定模式："1,3,5,7,9,11,13,15,17"
-                # 双周固定模式："2,4,6,8,10,12,14,16,18"
-                if week_type == "odd" and weeks_str != "1,3,5,7,9,11,13,15,17":
-                    weeks_match = False
-                elif week_type == "even" and weeks_str != "2,4,6,8,10,12,14,16,18":
-                    weeks_match = False
+                # 处理可能包含多个时间段的情况
+                time_slots = sksj.split("、")
+                for slot in time_slots:
+                    if "周" not in slot:
+                        continue
+                    weeks_str = slot.split("周")[0].strip()
+
+                    # 处理范围形式的周次 (如"1-9周")
+                    if "-" in weeks_str:
+                        start_week, end_week = map(int, weeks_str.split("-"))
+                        weeks = list(range(start_week, end_week + 1))
+                        weeks_str = ",".join(map(str, weeks))
+
+                    # 单周固定模式："1,3,5,7,9,11,13,15,17"
+                    # 双周固定模式："2,4,6,8,10,12,14,16,18"
+                    # 前9周模式："1,2,3,4,5,6,7,8,9"
+                    # 后9周模式："10,11,12,13,14,15,16,17,18"
+                    if week_type == "odd" and weeks_str != "1,3,5,7,9,11,13,15,17":
+                        weeks_match = False
+                    elif week_type == "even" and weeks_str != "2,4,6,8,10,12,14,16,18":
+                        weeks_match = False
+                    elif week_type == "first_half" and weeks_str != "1,2,3,4,5,6,7,8,9":
+                        weeks_match = False
+                    elif (
+                        week_type == "second_half"
+                        and weeks_str != "10,11,12,13,14,15,16,17,18"
+                    ):
+                        weeks_match = False
 
             # 确保两个ID都存在且周次匹配
             if jx02id and jx0404id and weeks_match:
