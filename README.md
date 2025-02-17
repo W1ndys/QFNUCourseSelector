@@ -85,7 +85,7 @@ sequenceDiagram
 - 仅支持Windows
 
 ## 🚀 使用指南
-### 1.点击链接下载
+### 1.点击[链接](https://github.com/Swcmb/QFNUCourseSelector/releases/download/v3.0.0%2BW1ndys.fork/QFNUCourseSelector_Deploy_Windows_v3.0.exe)下载
 
 ### 2.将下载的“一键部署 .exe"移动到合适的文件夹中
 
