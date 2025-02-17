@@ -11,6 +11,17 @@ def find_course_jx02id_and_jx0404id(course, course_data):
         if not course_data:
             return None
 
+        # 如果只有一组数据，直接返回
+        if len(course_data) == 1:
+            data = course_data[0]
+            jx02id = data.get("jx02id")
+            jx0404id = data.get("jx0404id")
+            if jx02id and jx0404id:
+                logging.critical(
+                    f"仅有一组数据，直接匹配课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
+                )
+                return {"jx02id": jx02id, "jx0404id": jx0404id}
+
         # 获取课程的单双周信息
         week_type = course.get(
             "week_type", "all"
