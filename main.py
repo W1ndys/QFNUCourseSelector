@@ -327,7 +327,7 @@ def print_welcome():
     logger.info("5. 开发者对使用本脚本造成的任何直接或间接损失不承担任何责任。")
 
 
-def select_courses(courses, mode):
+def select_courses(courses, mode, select_semester):
     if mode == "fast":
         # 高速模式：以最快速度持续尝试选课
         for course in courses:
@@ -339,24 +339,39 @@ def select_courses(courses, mode):
             logger.info(
                 f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待5秒后继续选下一节课"
             )
-            time.sleep(5)  # 每次请求间隔5秒
+            time.sleep(5)
     elif mode == "snipe":
-        # 截胡模式：每秒一次持续执行选课操作
+        # 截胡模式：每次选课前刷新轮次，持续执行选课操作
+        session = get_session()
         while True:
+            # 每次选课前刷新选课轮次ID
+            current_jx0502zbid = get_jx0502zbid(session, select_semester)
+            if not current_jx0502zbid:
+                logger.warning("获取选课轮次失败，2秒后重试...")
+                time.sleep(2)
+                continue
+
+            logger.critical(f"当前选课轮次ID: {current_jx0502zbid}")
+            response = session.get(
+                f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
+            )
+            logger.debug(f"选课页面响应状态码: {response.status_code}")
+            # 执行选课操作
             for course in courses:
                 search_and_select_course(course)
                 logger.info(
                     f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待2秒后继续选下一节课"
                 )
-            logger.info("所有课程选课操作结束，等待2秒后继续")
-            time.sleep(2)  # 循环结束后间隔2秒
+                time.sleep(2)
 
+            logger.info("本轮选课操作完成，2秒后开始新一轮选课...")
+            time.sleep(2)
     else:
         logger.warning(
             "模式错误，请检查配置文件的mode字段是否为fast、normal或snipe，即将默认使用snipe模式"
         )
         mode = "snipe"
-        select_courses(courses, mode)
+        select_courses(courses, mode, select_semester)
 
 
 def main():
@@ -403,12 +418,12 @@ def main():
             # 获取选课轮次编号
             jx0502zbid = get_jx0502zbid(session, select_semester)
             if jx0502zbid:
-                logger.info(f"成功获取到选课编号: {jx0502zbid}")
+                logger.critical(f"成功获取到选课轮次ID: {jx0502zbid}")
                 response = session.get(
                     f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
                 )
                 logger.debug(f"选课页面响应状态码: {response.status_code}")
-                select_courses(courses, mode)
+                select_courses(courses, mode, select_semester)
                 break  # 成功后退出循环
             else:
                 logger.warning("获取选课轮次编号失败，正在重新登录...")
