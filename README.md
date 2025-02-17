@@ -1,11 +1,12 @@
-<div align="center">
-
 # ⚡ QFNUCourseSelector (增强版) ⚡
 
 🔗 **Forked from [W1ndys/QFNUCourseSelector](https://github.com/W1ndys/QFNUCourseSelector)**  
 🎯 新增定时抢课 | 整合部署 | 多平台通知 | 智能配置验证
 
-[![Stars](https://img.shields.io/github/stars/Swcmb/QFNUCourseSelector?style=for-the-badge)](https://github.com/Swcmb/QFNUCourseSelector/stargazers)[![Forks](https://img.shields.io/github/forks/Swcmb/QFNUCourseSelector?style=for-the-badge)](https://github.com/Swcmb/QFNUCourseSelector/network/members)![Python](https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge)![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+[![Stars](https://img.shields.io/github/stars/Swcmb/QFNUCourseSelector?style=for-the-badge)](https://github.com/Swcmb/QFNUCourseSelector/stargazers)
+[![Forks](https://img.shields.io/github/forks/Swcmb/QFNUCourseSelector?style=for-the-badge)](https://github.com/Swcmb/QFNUCourseSelector/network/members)
+![Python](https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 > 🚨 **重要声明**：本项目基于 [W1ndys/QFNUCourseSelector](https://github.com/W1ndys/QFNUCourseSelector) 进行功能增强，核心选课逻辑归功于原项目开发者
 
@@ -75,7 +76,6 @@ sequenceDiagram
     end
 ```
 
-
 ## 🔧 环境要求
 
 - 一个懂的百度的大脑（不是
@@ -85,14 +85,19 @@ sequenceDiagram
 - 仅支持Windows
 
 ## 🚀 使用指南
-
 ### 1.点击链接下载
 
-### 2.点击“一键部署 .exe"
+### 2.将下载的“一键部署 .exe"移动到合适的文件夹中
 
-### 3.填写配置文件
+### 3.双击“一键部署 .exe"运行
 
-### 4.点击”开始抢课.exe"
+### 4.填写配置文件
+
+### 5.双击”开始抢课.exe"
+
+### 6. 运行脚本
+
+配置完成后，再次双击”开始抢课.exe"运行脚本
 
 ## 📋 配置文件示例
 ```json
@@ -122,8 +127,7 @@ sequenceDiagram
       "jx02id": "12345",           // 【选填】教务系统课程ID（特定系统需要）
       "jx0404id": "67890"          // 【选填】教务系统课程ID（特定系统需要）
     },
-    //...
-    // 可以添加多个课程，脚本执行的时候从第一个开始依次执行
+    // 更多课程配置（建议不超过3门，按优先级排列）
   ]
 }
 ```
@@ -135,26 +139,17 @@ sequenceDiagram
 | Windows 一键部署    | ❌   | ✅     |
 
 #### 选课模式说明：
-
 | 模式     | 值       | 说明                                                                   |
 | -------- | -------- | ---------------------------------------------------------------------- |
 | 高速模式 | "fast"   | 以最快速度持续尝试选课，适用于系统即将开放选课时抢课，抢课耗时几乎为 0 |
 | 普通模式 | "normal" | 每 5 秒一次选课，适用于害怕高速抢课被 ban 的用户                       |
 | 截胡模式 | "snipe"  | 每 2 秒一次持续选课，适用于截胡别人的退课或退课和选课的临界时间        |
 
-> 如果不填填错，脚本会默认使用高速模式
-
 #### 配置项说明：
-
 | 字段              | 说明                           | 是否必填 | 示例                                  |
 | ----------------- | ------------------------------ | -------- | ------------------------------------- |
 | course_id_or_name | 课程编号或名称（推荐使用编号） | ✅       | g20062389                             |
 | teacher_name      | 教师姓名                       | ✅       | 张三                                  |
-| week_day          | 上课星期                       | ⭕       | 1-7 之间的数字                        |
-| week_type         | 单双周                         | ⭕       | odd 单周, even 双周, all 不限或者不填 |
-| class_period      | 上课节次                       | ⭕       | 1-2-,3-4-,5-6-,7-8-,9-10-11,12-13-    |
-| jx02id            | 公选课 jx02id                  | ⭕       | -                                     |
-| jx0404id          | 公选课 jx0404id                | ⭕       | -                                     |
 
 > [!WARNING]
 >
@@ -197,50 +192,26 @@ sequenceDiagram
 >
 > **脚本运行过程中不要异地登录，否则会把脚本踢下线**
 
-### 5. 运行脚本
-
-配置完成后，再次双击 `run_app_in_venv_windows.bat` 运行脚本
-
 ## 关于用啥选的快
 
-直接点题：QFNU（这里指曲阜师范大学校园 WiFi 校园网），比其他网络更容易访问教务系统
+QFNU（这里指曲阜师范大学校园 WiFi 校园网），比其他网络更容易访问教务系统
 
 cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 
 ![Windows10 测试环境](./assets/images/wifi_test_win10.png)
 
-![手机测试环境](./assets/images/wifi_test_mobile.png)
-
-![Pad 测试环境](./assets/images/wifi_test_pad.png)
-
-可以很明显的看到，QFNU 的网络环境比其他网络环境更容易访问教务系统
-
-以上环境是在网络通畅的情况下测试，所以几十毫秒的差距对正常使用来说几乎无感，在网络拥堵的情况下差距将进一步扩大
-
-但是当选课服务器接近崩溃的时候，两者的差距几乎可以忽略不计，就变成大家都进不去
-
 ## 🏆 战绩
-
-<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
     <img src="./assets/images/Achievement/1.png" style="max-width: 100%; height: auto;" alt="选课成功截图">
-    <img src="./assets/images/Achievement/2.png" style="max-width: 100%; height: auto;" alt="选课成功截图">
 </div>
 
 ## 🙏 特别致谢
-- **原始开发者**: [W1ndys](https://github.com/W1ndys) - 核心选课逻辑实现
+- **原始开发者**: [W1ndys](https://github.com/W1ndys)
 - 技术指导: [nakaii](https://github.com/nakaii-002)  
-- 测试支持: 超级大猫猫头头
 
----
 
-<div align="center">
-    <h3 >
-        👏 如果本项目对您有帮助，请给 <a href="https://github.com/W1ndys/QFNUCourseSelector">原项目</a> 和 本仓库 Star！
-    </h3>
-    <a href="https://github.com/Swcmb/QFNUCourseSelector">
-        <img src="https://api.star-history.com/svg?repos=Swcmb/QFNUCourseSelector&type=Date" alt="Star History">
-    </a>
-</div>
+------------------------
+
 # ⚠️ 法律声明与使用协议
 
 ## 1. 项目性质声明
@@ -253,7 +224,6 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 ```
 
 ## 2. 使用者责任
-
 使用者应充分知晓并承诺：
 ```bash
 # 已知风险清单
