@@ -94,7 +94,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
       "course_id_or_name": "课程id", // 必填
       "teacher_name": "教师名称", // 必填
       "week_day": "上课星期", // 选填(1-7)
-      "week_type": "单双周", // 选填(odd: 单周, even: 双周, all: 不限或不填)
+      "week_type": "上课周次", // 选填(odd: 单周, even: 双周, all: 不限或不填，first_half: 前9周, second_half: 后9周)
       "class_period": "上课节次", // 选填
       "jx02id": "jx02id", // 选填
       "jx0404id": "jx0404id" // 选填
