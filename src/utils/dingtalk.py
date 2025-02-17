@@ -11,15 +11,26 @@ import logging
 
 # 读取config.json获取钉钉webhook和secret
 def get_dingtalk_config():
-    with open("config.json", "r", encoding="utf-8") as f:
-        config = json.load(f)
-    return config["dingtalk_webhook"], config["dingtalk_secret"]
+    try:
+        with open("config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
+        webhook = config.get("dingtalk_webhook")
+        secret = config.get("dingtalk_secret")
+        if not webhook:
+            logging.info("未配置钉钉 webhook，跳过发送通知")
+            return None, None
+        return webhook, secret
+    except FileNotFoundError:
+        logging.info("未找到配置文件，跳过发送通知")
+        return None, None
 
 
 # 推送到钉钉
 def dingtalk(title, content):
     try:
         dingtalk_webhook, dingtalk_secret = get_dingtalk_config()
+        if not dingtalk_webhook:
+            return None
 
         headers = {"Content-Type": "application/json"}
         # 美化markdown消息格式
@@ -57,6 +68,8 @@ def dingtalk(title, content):
             )
             dingtalk_webhook = f"{dingtalk_webhook}&timestamp={timestamp}&sign={sign}"
 
+        if not isinstance(dingtalk_webhook, str):
+            return {"error": "钉钉webhook未配置"}
         response = requests.post(
             dingtalk_webhook, headers=headers, data=json.dumps(payload)
         )

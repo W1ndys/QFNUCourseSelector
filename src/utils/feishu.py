@@ -4,13 +4,23 @@ import hashlib
 import base64
 import requests
 import json
+import logging
 
 
 # 读取config.json获取飞书webhook和secret
 def get_feishu_config():
-    with open("config.json", "r", encoding="utf-8") as f:
-        config = json.load(f)
-    return config["feishu_webhook"], config["feishu_secret"]
+    try:
+        with open("config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
+        webhook = config.get("feishu_webhook")
+        secret = config.get("feishu_secret")
+        if not webhook:
+            logging.info("未配置飞书 webhook，跳过发送通知")
+            return None, None
+        return webhook, secret
+    except FileNotFoundError:
+        logging.info("未找到配置文件，跳过发送通知")
+        return None, None
 
 
 def feishu(title: str, content: str) -> dict:
@@ -27,7 +37,6 @@ def feishu(title: str, content: str) -> dict:
         dict: 接口返回结果
     """
     feishu_webhook, feishu_secret = get_feishu_config()
-
     timestamp = str(int(time.time()))
 
     # 计算签名
@@ -57,6 +66,8 @@ def feishu(title: str, content: str) -> dict:
 
     # 发送请求
     try:
+        if not isinstance(feishu_webhook, str):
+            return {"error": "飞书webhook未配置"}
         response = requests.post(feishu_webhook, headers=headers, data=json.dumps(msg))
         return response.json()
     except Exception as e:
