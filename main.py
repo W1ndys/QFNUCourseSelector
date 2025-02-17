@@ -343,13 +343,13 @@ def select_courses(courses, mode):
     elif mode == "snipe":
         # 截胡模式：每秒一次持续执行选课操作
         while True:
-            time.sleep(2)  # 循环外间隔2秒
             for course in courses:
                 search_and_select_course(course)
                 logger.info(
                     f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待2秒后继续选下一节课"
                 )
             logger.info("所有课程选课操作结束，等待2秒后继续")
+            time.sleep(2)  # 循环结束后间隔2秒
 
     else:
         logger.warning(
