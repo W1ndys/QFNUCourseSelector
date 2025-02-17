@@ -1,425 +1,306 @@
 from PIL import Image
 from io import BytesIO
-from src.utils.captcha_ocr import get_ocr_res
 import os
 import json
+import time
+import logging
+import datetime
+import colorlog
+from typing import Tuple, List, Dict
+from dataclasses import dataclass
+from functools import wraps
 from dotenv import load_dotenv
+from src.utils.captcha_ocr import get_ocr_res
 from src.core.course_selector import get_jx0502zbid
 from src.core.search_and_select_course import search_and_select_course
 from src.utils.session_manager import init_session, get_session
-import colorlog
-import logging
-import datetime
-import time
+
+# 常量配置
+BASE_URL = "http://zhjw.qfnu.edu.cn"
+URLS = {
+    "rand_code": f"{BASE_URL}/verifycode.servlet",
+    "login": f"{BASE_URL}/Logon.do?method=logonLdap",
+    "init_data": f"{BASE_URL}/Logon.do?method=logon&flag=sess",
+    "main_page": f"{BASE_URL}/jsxsd/framework/xsMain.jsp",
+    "course_selection": f"{BASE_URL}/jsxsd/xsxk/xklc_list",
+}
+
+RETRY_ATTEMPTS = 3
+RETRY_DELAY = 1
+REQUEST_TIMEOUT = 10
 
 
-def setup_logger():
-    """
-    配置日志系统
-    """
-    # 确保logs目录存在
+@dataclass
+class CourseConfig:
+    course_id_or_name: str
+    teacher_name: str
+    week_day: str = ""
+    class_period: str = ""
+    week_type: str = ""
+    jx02id: str = ""
+    jx0404id: str = ""
+
+
+@dataclass
+class UserConfig:
+    user_account: str
+    user_password: str
+    select_semester: str
+    mode: str = "fast"
+    courses: List[CourseConfig] = None
+
+
+def setup_logger() -> logging.Logger:
+    """配置日志系统"""
     if not os.path.exists("logs"):
         os.makedirs("logs")
 
-    # 创建logger
     logger = colorlog.getLogger()
     logger.setLevel(logging.DEBUG)
 
-    # 清除可能存在的处理器
-    if logger.handlers:
-        logger.handlers.clear()
+    # 清除现有处理器
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
 
-    # 配置文件处理器 - 使用普通的Formatter
-    file_handler = logging.FileHandler(
-        os.path.join(
-            "logs", f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
-        ),
-        encoding="utf-8",
+    # 配置文件处理器
+    filename = f"logs/app_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    file_handler = logging.FileHandler(filename, encoding="utf-8")
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     )
-    file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    file_handler.setFormatter(file_formatter)
 
-    # 配置控制台处理器 - 使用ColoredFormatter
+    # 控制台处理器
     console_handler = colorlog.StreamHandler()
-    console_handler.setLevel(logging.INFO)  # 设置控制台处理器的日志级别为INFO
-    console_formatter = colorlog.ColoredFormatter(
-        "%(log_color)s%(levelname)s: %(message)s%(reset)s",
-        log_colors={
-            "DEBUG": "cyan",
-            "INFO": "green",
-            "WARNING": "yellow",
-            "ERROR": "red",
-            "CRITICAL": "red,bg_white",
-        },
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(
+        colorlog.ColoredFormatter(
+            "%(log_color)s%(levelname)s: %(message)s",
+            log_colors={
+                "DEBUG": "cyan",
+                "INFO": "green",
+                "WARNING": "yellow",
+                "ERROR": "red",
+                "CRITICAL": "red,bg_white",
+            },
+        )
     )
-    console_handler.setFormatter(console_formatter)
 
-    # 添加处理器到logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
-
     return logger
 
 
-# 在文件开头调用setup_logger
 logger = setup_logger()
-
 load_dotenv()
 
 
-# 设置基本的URL和数据
+def retry(exceptions=Exception, attempts=3, delay=1):
+    """通用重试装饰器"""
 
-# 验证码请求URL
-RandCodeUrl = "http://zhjw.qfnu.edu.cn/verifycode.servlet"
-# 登录请求URL
-loginUrl = "http://zhjw.qfnu.edu.cn/Logon.do?method=logonLdap"
-# 初始数据请求URL
-dataStrUrl = "http://zhjw.qfnu.edu.cn/Logon.do?method=logon&flag=sess"
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for _ in range(attempts):
+                try:
+                    return func(*args, **kwargs)
+                except exceptions as e:
+                    logger.warning(f"操作失败: {str(e)}, 剩余重试次数: {attempts - _ - 1}")
+                    time.sleep(delay)
+            raise Exception(f"操作超过最大重试次数 ({attempts})")
+
+        return wrapper
+
+    return decorator
 
 
-def get_initial_session():
-    """
-    创建会话并获取初始数据
-    返回: 初始数据字符串
-    """
-    session = init_session()  # 初始化全局session
-    response = session.get(dataStrUrl)
+def load_config() -> UserConfig:
+    """加载并验证配置文件"""
+    config_path = "config.json"
+    if not os.path.exists(config_path):
+        create_default_config(config_path)
+        logger.error("配置文件不存在，已创建默认配置")
+        exit(1)
+
+    with open(config_path, "r", encoding="utf-8") as f:
+        raw_config = json.load(f)
+
+    validate_required_fields(raw_config)
+    courses = [
+        CourseConfig(**course) for course in raw_config.get("courses", [])
+    ]
+    validate_courses(courses)
+
+    return UserConfig(
+        user_account=raw_config["user_account"],
+        user_password=raw_config["user_password"],
+        select_semester=raw_config.get("select_semester", ""),
+        mode=raw_config.get("mode", "fast"),
+        courses=courses
+    )
+
+
+def create_default_config(path: str):
+    """创建默认配置文件"""
+    default_config = {
+        "user_account": "",
+        "user_password": "",
+        "select_semester": "",
+        "mode": "fast",
+        "courses": [{"course_id_or_name": "", "teacher_name": ""} for _ in range(3)]
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(default_config, f, indent=4)
+
+
+def validate_required_fields(config: dict):
+    """验证必填字段"""
+    required = ["schedule_time","user_account", "user_password"]
+    missing = [field for field in required if not config.get(field)]
+    if missing:
+        raise ValueError(f"缺少必填字段: {', '.join(missing)}")
+
+
+def validate_courses(courses: List[CourseConfig]):
+    """验证课程配置"""
+    for course in courses:
+        if not course.course_id_or_name or not course.teacher_name:
+            raise ValueError("课程必须包含 course_id_or_name 和 teacher_name")
+        if course.week_day and course.week_day not in list("1234567"):
+            raise ValueError(f"课程 {course.course_id_or_name} 的 week_day 无效")
+
+
+@retry(Exception, attempts=RETRY_ATTEMPTS, delay=RETRY_DELAY)
+def get_initial_session() -> str:
+    """初始化会话并获取初始数据"""
+    session = init_session()
+    response = session.get(URLS["init_data"], timeout=REQUEST_TIMEOUT)
+    response.raise_for_status()
     return response.text
 
 
-def handle_captcha():
-    """
-    获取并识别验证码
-    返回: 识别出的验证码字符串
-    """
+@retry(Exception, attempts=3, delay=1)
+def handle_captcha() -> str:
+    """处理验证码识别"""
     session = get_session()
-    response = session.get(RandCodeUrl)
-
-    if response.status_code != 200:
-        logger.error(f"请求验证码失败，状态码: {response.status_code}")
-        return None
+    response = session.get(URLS["rand_code"], timeout=REQUEST_TIMEOUT)
+    response.raise_for_status()
 
     try:
         image = Image.open(BytesIO(response.content))
+        return get_ocr_res(image)
     except Exception as e:
-        logger.error(f"无法识别图像文件: {e}")
-        return None
-
-    return get_ocr_res(image)
+        logger.error(f"验证码处理失败: {str(e)}")
+        raise
 
 
-def generate_encoded_string(data_str, user_account, user_password):
-    """
-    生成登录所需的encoded字符串
-    参数:
-        data_str: 初始数据字符串
-        user_account: 用户账号
-        user_password: 用户密码
-    返回: encoded字符串
-    """
-    res = data_str.split("#")
-    code, sxh = res[0], res[1]
-    data = f"{user_account}%%%{user_password}"
-    encoded = ""
-    b = 0
+def generate_encoded_string(data_str: str, account: str, password: str) -> str:
+    """生成加密字符串"""
+    code, sxh = data_str.split("#")[:2]
+    data = f"{account}%%%{password}"
+    encoded = []
+    code_idx = 0
 
-    for a in range(len(code)):
-        if a < 20:
-            encoded += data[a]
-            for _ in range(int(sxh[a])):
-                encoded += code[b]
-                b += 1
-        else:
-            encoded += data[a:]
-            break
-    return encoded
+    for i in range(min(20, len(data))):
+        encoded.append(data[i])
+        encoded.extend([code[code_idx + j] for j in range(int(sxh[i]))])
+        code_idx += int(sxh[i])
+
+    if len(data) > 20:
+        encoded.append(data[20:])
+
+    return "".join(encoded)
 
 
-def login(user_account, user_password, random_code, encoded):
-    """
-    执行登录操作
-    返回: 登录响应结果
-    """
+@retry(Exception, attempts=3, delay=1)
+def login(account: str, password: str, code: str, encoded: str) -> bool:
+    """执行登录操作"""
     session = get_session()
     headers = {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
-        "Origin": "http://zhjw.qfnu.edu.cn",
-        "Referer": "http://zhjw.qfnu.edu.cn/",
-        "Upgrade-Insecure-Requests": "1",
+        "Referer": BASE_URL,
+        "Origin": BASE_URL,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"
     }
-
     data = {
-        "userAccount": user_account,
-        "userPassword": user_password,
-        "RANDOMCODE": random_code,
-        "encoded": encoded,
+        "userAccount": account,
+        "userPassword": password,
+        "RANDOMCODE": code,
+        "encoded": encoded
     }
 
-    return session.post(loginUrl, headers=headers, data=data, timeout=1000)
+    response = session.post(URLS["login"], headers=headers, data=data, timeout=REQUEST_TIMEOUT)
+    response.raise_for_status()
 
-
-def get_user_config():
-    """
-    获取用户配置
-    返回:
-        user_account: 用户账号
-        user_password: 用户密码
-        select_semester: 选课学期
-        mode: 选课模式
-        courses: 课程列表
-    """
-    # 检查配置文件是否存在
-    if not os.path.exists("config.json"):
-        # 创建默认配置文件
-        default_config = {
-            "user_account": "",
-            "user_password": "",
-            "select_semester": "",
-            "dingtalk_webhook": "",
-            "dingtalk_secret": "",
-            "feishu_webhook": "",
-            "feishu_secret": "",
-            "mode": "",
-            "courses": [
-                {
-                    "course_id_or_name": "",
-                    "teacher_name": "",
-                    "class_period": "",
-                    "week_day": "",
-                    "week_type": "",
-                    "jx02id": "",
-                    "jx0404id": "",
-                },
-                {
-                    "course_id_or_name": "",
-                    "teacher_name": "",
-                    "class_period": "",
-                    "week_day": "",
-                    "week_type": "",
-                    "jx02id": "",
-                    "jx0404id": "",
-                },
-                {
-                    "course_id_or_name": "",
-                    "teacher_name": "",
-                    "class_period": "",
-                    "week_day": "",
-                    "week_type": "",
-                    "jx02id": "",
-                    "jx0404id": "",
-                },
-            ],
-        }
-        with open("config.json", "w", encoding="utf-8") as f:
-            json.dump(default_config, f, ensure_ascii=False, indent=4)
-        logger.error(
-            "配置文件不存在，已创建默认配置文件 config.json\n请填写相关信息后重新运行程序"
-        )
-        exit(0)
-
-    # 读取配置文件
-    with open("config.json", "r", encoding="utf-8") as f:
-        config = json.load(f)
-
-    # 验证必填字段
-    required_fields = ["user_account", "user_password"]
-    for field in required_fields:
-        if not config.get(field):
-            raise ValueError(f"配置文件中缺少必填字段: {field}")
-
-    # 验证课程配置
-    for course in config.get("courses", []):
-        # 检查必填字段
-        if not course.get("course_id_or_name") or not course.get("teacher_name"):
-            raise ValueError("每个课程配置必须包含 course_id_or_name 和 teacher_name")
-
-        # 验证 week_day 格式（如果提供）
-        if course.get("week_day") and not course["week_day"] in [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-        ]:
-            raise ValueError(
-                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 week_day 格式错误: "
-                "必须是 1-7 之间的数字"
-            )
-
-        # 验证 class_period 格式（如果提供）
-        if course.get("class_period"):
-            valid_periods = ["1-2-", "3-4-", "5-6-", "7-8-", "9-10-11", "12-13-"]
-            if course["class_period"] not in valid_periods:
-                raise ValueError(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 class_period 格式错误: "
-                    f"必须是以下值之一: {', '.join(valid_periods)}"
-                )
-
-    # 验证选课模式
-    valid_modes = ["fast", "normal", "snipe"]
-    if config.get("mode") and config["mode"] not in valid_modes:
-        logger.warning(f"无效的选课模式: {config['mode']}，将使用默认的 fast 模式")
-        config["mode"] = "fast"
-
-    return (
-        config["user_account"],
-        config["user_password"],
-        config["select_semester"],
-        config.get("mode", "fast"),
-        config.get("courses", []),
-    )
-
-
-def simulate_login(user_account, user_password):
-    """
-    模拟登录过程
-    返回: 是否登录成功
-    """
-    data_str = get_initial_session()
-
-    for attempt in range(3):
-        random_code = handle_captcha()
-        logger.info(f"验证码: {random_code}")
-        encoded = generate_encoded_string(data_str, user_account, user_password)
-        response = login(user_account, user_password, random_code, encoded)
-
-        if response.status_code == 200:
-            if "验证码错误!!" in response.text:
-                logger.warning(f"验证码识别错误，重试第 {attempt + 1} 次")
-                continue
-            if "密码错误" in response.text:
-                raise Exception("用户名或密码错误")
-            logger.info("登录成功")
-            return True
-        else:
-            raise Exception("登录失败")
-
-    raise Exception("验证码识别错误，请重试")
+    if "验证码错误" in response.text:
+        raise ValueError("验证码错误")
+    if "密码错误" in response.text:
+        raise PermissionError("用户名或密码错误")
+    return True
 
 
 def print_welcome():
+    """打印欢迎信息"""
     logger.info(f"\n{'*' * 10} 曲阜师范大学教务系统抢课脚本 {'*' * 10}\n")
-    logger.info("By W1ndys")
-    logger.info("https://github.com/W1ndys")
-    logger.info("\n\n")
+    logger.info("By W1ndys | https://github.com/W1ndys")
     logger.info(f"当前时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info("免责声明: ")
-    logger.info("1. 本脚本仅供学习和研究目的，用于了解网络编程和自动化技术的实现原理。")
-    logger.info(
-        "2. 使用本脚本可能违反学校相关规定。使用者应自行承担因使用本脚本而产生的一切后果，包括但不限于："
-    )
-    logger.info("   - 账号被封禁")
-    logger.info("   - 选课资格被取消")
-    logger.info("   - 受到学校纪律处分")
-    logger.info("   - 其他可能产生的不良影响")
-    logger.info("3. 严禁将本脚本用于：")
-    logger.info("   - 商业用途")
-    logger.info("   - 干扰教务系统正常运行")
-    logger.info("   - 影响其他同学正常选课")
-    logger.info("   - 其他任何非法或不当用途")
-    logger.info(
-        "4. 下载本脚本即视为您已完全理解并同意本免责声明。请在下载后 24 小时内删除。"
-    )
-    logger.info("5. 开发者对使用本脚本造成的任何直接或间接损失不承担任何责任。")
+    logger.info("免责声明: 本脚本仅供学习研究用途，使用者需自行承担风险")
 
 
-def select_courses(courses, mode):
-    if mode == "fast":
-        # 高速模式：以最快速度持续尝试选课
-        for course in courses:
-            search_and_select_course(course)
-    elif mode == "normal":
-        # 普通模式：正常速度选课，每次请求间隔较长
-        for course in courses:
-            search_and_select_course(course)
-            logger.info(
-                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待5秒后继续选下一节课"
-            )
-            time.sleep(5)  # 每次请求间隔5秒
-    elif mode == "snipe":
-        # 截胡模式：每秒一次持续执行选课操作
-        while True:
-            for course in courses:
-                search_and_select_course(course)
-                logger.info(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待2秒后继续选下一节课"
-                )
-            logger.info("所有课程选课操作结束，等待2秒后继续")
-            time.sleep(2)  # 循环结束后间隔2秒
+def select_courses_strategy(courses: List[CourseConfig], mode: str):
+    """选课策略分发"""
+    strategies = {
+        "fast": lambda: [search_and_select_course(course) for course in courses],
+        "normal": lambda: [search_and_select_course(course) or time.sleep(5) for course in courses],
+        "snipe": lambda: (search_and_select_course(course) for course in courses) or time.sleep(2)
+    }
 
-    else:
-        logger.warning(
-            "模式错误，请检查配置文件的mode字段是否为fast、normal或snipe，即将默认使用snipe模式"
-        )
-        mode = "snipe"
-        select_courses(courses, mode)
+    strategy = strategies.get(mode, strategies["snipe"])
+    while True:
+        strategy()
+        logger.info(f"{mode}模式执行完成，等待下次循环")
 
 
-def main():
-    """
-    主函数，协调整个程序的执行流程
-    """
+def main_flow(config: UserConfig):
+    """主业务流程"""
     print_welcome()
 
-    # 获取环境变量
-    user_account, user_password, select_semester, mode, courses = get_user_config()
+    # 初始化会话
+    data_str = get_initial_session()
+    encoded = generate_encoded_string(data_str, config.user_account, config.user_password)
 
-    while True:  # 添加外层循环
+    # 登录流程
+    for _ in range(RETRY_ATTEMPTS):
         try:
-            # 模拟登录
-            if not simulate_login(user_account, user_password):
-                logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
-                time.sleep(1)  # 添加重试间隔
-                continue  # 重试登录
-
-            session = get_session()
-            if not session:
-                logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
-                time.sleep(1)
-                continue
-
-            # 访问主页和选课页面
-            for page_url in [
-                "http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp",
-                "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list",
-            ]:
-                for attempt in range(3):
-                    try:
-                        response = session.get(page_url)
-                        logger.debug(f"页面响应状态码: {response.status_code}")
-                        if response.status_code == 200:
-                            break
-                    except Exception as e:
-                        if attempt == 2:
-                            logger.error(f"访问页面失败: {str(e)}")
-                            raise
-                        logger.warning(f"访问页面失败，正在进行第{attempt + 2}次尝试")
-                        continue
-
-            # 获取选课轮次编号
-            jx0502zbid = get_jx0502zbid(session, select_semester)
-            if jx0502zbid:
-                logger.info(f"成功获取到选课编号: {jx0502zbid}")
-                response = session.get(
-                    f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
-                )
-                logger.debug(f"选课页面响应状态码: {response.status_code}")
-                select_courses(courses, mode)
-                break  # 成功后退出循环
-            else:
-                logger.warning("获取选课轮次编号失败，正在重新登录...")
-                time.sleep(1)
-                continue  # 重新登录
-
+            captcha = handle_captcha()
+            logger.info(f"验证码识别结果: {captcha}")
+            if login(config.user_account, config.user_password, captcha, encoded):
+                logger.info("登录成功")
+                break
         except Exception as e:
-            logger.error(f"发生错误: {str(e)}，正在重新登录...")
-            time.sleep(1)
-            continue  # 重新登录
+            logger.error(f"登录失败: {str(e)}")
+            time.sleep(RETRY_DELAY)
+    else:
+        raise Exception("登录超过最大重试次数")
+
+    # 访问必要页面
+    session = get_session()
+    for url in [URLS["main_page"], URLS["course_selection"]]:
+        response = session.get(url, timeout=REQUEST_TIMEOUT)
+        response.raise_for_status()
+
+    # 获取选课编号并执行选课
+    jx0502zbid = get_jx0502zbid(session, config.select_semester)
+    if not jx0502zbid:
+        raise ValueError("获取选课编号失败")
+
+    logger.info(f"选课编号: {jx0502zbid}")
+    session.get(f"{BASE_URL}/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}")
+    select_courses_strategy(config.courses, config.mode)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        config = load_config()
+        main_flow(config)
+    except Exception as e:
+        logger.critical(f"程序异常终止: {str(e)}")
+        exit(1)
