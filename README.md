@@ -174,6 +174,16 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 配置完成后，再次双击 `run_app_in_venv_windows.bat` 运行脚本
 
+## ⚠️ 异常情况
+
+### 报错下面内容
+
+```
+TypeError:DdddOcr.__init__()got an unexpected keyword argument 'show_ad'
+```
+
+解决办法：https://github.com/W1ndys/QFNUCourseSelector/issues/8
+
 ## 关于用啥选的快
 
 直接点题：QFNU（这里指曲阜师范大学校园 WiFi 校园网），比其他网络更容易访问教务系统
