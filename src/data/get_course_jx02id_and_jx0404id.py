@@ -3,7 +3,6 @@ import json
 from src.utils.session_manager import get_session
 import logging
 
-
 def find_course_jx02id_and_jx0404id(course, course_data):
     """在课程数据中查找课程的jx02id和jx0404id"""
     try:
@@ -27,6 +26,26 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             "week_type", "all"
         )  # 可选值: "odd"单周, "even"双周, "all"不限
 
+        # 处理周次信息
+        def parse_weeks(weeks_str):
+            weeks = set()
+            # 处理多个周次范围（用逗号分隔）
+            for part in weeks_str.split(','):
+                part = part.strip()
+                if '-' in part:
+                    start, end = map(int, part.split('-'))
+                    weeks.update(range(start, end + 1))
+                else:
+                    weeks.add(int(part))
+            return weeks
+
+        def check_weeks_match(target_weeks, actual_weeks):
+            """检查实际周次是否匹配目标周次"""
+            target_set = parse_weeks(target_weeks)
+            actual_set = actual_weeks
+            # 判断实际周次是否完全包含目标周次
+            return target_set.issubset(actual_set)
+
         # 遍历所有匹配的课程数据
         for data in course_data:
             # 提取jx02id和jx0404id
@@ -42,45 +61,25 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 从sksj中提取周次信息
             sksj = data.get("sksj", "")
-
+            
             # 判断是否匹配周次
             weeks_match = True
-            if week_type != "all" and "周" in sksj:
-                # 处理可能包含多个时间段的情况（支持、和<br>分隔）
+            if "weeks" in course and "周" in sksj:  # 使用新的weeks字段
+                # 处理可能包含多个时间段的情况
                 time_slots = []
                 for part in sksj.split("<br>"):
                     time_slots.extend(part.strip().split("、"))
 
+                # 合并所有时间段的周次
+                actual_weeks = set()
                 for slot in time_slots:
-                    if "周" not in slot:
+                    if "周" not in slot or "锁定" in slot:
                         continue
                     weeks_str = slot.split("周")[0].strip()
+                    actual_weeks.update(parse_weeks(weeks_str))
 
-                    # 处理范围形式的周次 (如"1-9周")
-                    if "-" in weeks_str:
-                        start_week, end_week = map(int, weeks_str.split("-"))
-                        weeks = list(range(start_week, end_week + 1))
-                        weeks_str = ",".join(map(str, weeks))
-
-                    # 检查周次是否匹配
-                    current_match = False
-                    if week_type == "odd" and weeks_str == "1,3,5,7,9,11,13,15,17":
-                        current_match = True
-                    elif week_type == "even" and weeks_str == "2,4,6,8,10,12,14,16,18":
-                        current_match = True
-                    elif week_type == "first_half" and weeks_str == "1,2,3,4,5,6,7,8,9":
-                        current_match = True
-                    elif (
-                        week_type == "second_half"
-                        and weeks_str == "10,11,12,13,14,15,16,17,18"
-                    ):
-                        current_match = True
-
-                    # 只要有一个时间段匹配即可
-                    if current_match:
-                        weeks_match = True
-                        break
-                    weeks_match = False
+                # 检查是否匹配目标周次
+                weeks_match = check_weeks_match(course["weeks"], actual_weeks)
 
             # 确保两个ID都存在且周次匹配
             if jx02id and jx0404id and weeks_match:
@@ -95,7 +94,6 @@ def find_course_jx02id_and_jx0404id(course, course_data):
     except Exception as e:
         logging.error(f"查找课程jx02id和jx0404id时发生错误: {str(e)}")
         return None
-
 
 def get_course_jx02id_and_jx0404id_by_api(course):
     """通过教务系统API获取课程的jx02id和jx0404id"""
