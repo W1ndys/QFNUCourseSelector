@@ -3,6 +3,7 @@ import json
 from src.utils.session_manager import get_session
 import logging
 
+
 def find_course_jx02id_and_jx0404id(course, course_data):
     """在课程数据中查找课程的jx02id和jx0404id"""
     try:
@@ -21,19 +22,14 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                 )
                 return {"jx02id": jx02id, "jx0404id": jx0404id}
 
-        # 获取课程的单双周信息
-        week_type = course.get(
-            "week_type", "all"
-        )  # 可选值: "odd"单周, "even"双周, "all"不限
-
         # 处理周次信息
         def parse_weeks(weeks_str):
             weeks = set()
             # 处理多个周次范围（用逗号分隔）
-            for part in weeks_str.split(','):
+            for part in weeks_str.split(","):
                 part = part.strip()
-                if '-' in part:
-                    start, end = map(int, part.split('-'))
+                if "-" in part:
+                    start, end = map(int, part.split("-"))
                     weeks.update(range(start, end + 1))
                 else:
                     weeks.add(int(part))
@@ -61,7 +57,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 从sksj中提取周次信息
             sksj = data.get("sksj", "")
-            
+
             # 判断是否匹配周次
             weeks_match = True
             if "weeks" in course and "周" in sksj:  # 使用新的weeks字段
@@ -73,7 +69,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                 # 合并所有时间段的周次
                 actual_weeks = set()
                 for slot in time_slots:
-                    if "周" not in slot or "锁定" in slot:
+                    if "周" not in slot:
                         continue
                     weeks_str = slot.split("周")[0].strip()
                     actual_weeks.update(parse_weeks(weeks_str))
@@ -94,6 +90,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
     except Exception as e:
         logging.error(f"查找课程jx02id和jx0404id时发生错误: {str(e)}")
         return None
+
 
 def get_course_jx02id_and_jx0404id_by_api(course):
     """通过教务系统API获取课程的jx02id和jx0404id"""

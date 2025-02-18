@@ -8,10 +8,36 @@ def find_course_jx02id_and_jx0404id(course, course_data):
         if not course_data:
             return None
 
-        # 获取课程的单双周信息
-        week_type = course.get(
-            "week_type", "all"
-        )  # 可选值: "odd"单周, "even"双周, "all"不限
+        # 如果只有一组数据，直接返回
+        if len(course_data) == 1:
+            data = course_data[0]
+            jx02id = data.get("jx02id")
+            jx0404id = data.get("jx0404id")
+            if jx02id and jx0404id:
+                logging.critical(
+                    f"仅有一组数据，直接匹配课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
+                )
+                return {"jx02id": jx02id, "jx0404id": jx0404id}
+
+        # 处理周次信息
+        def parse_weeks(weeks_str):
+            weeks = set()
+            # 处理多个周次范围（用逗号分隔）
+            for part in weeks_str.split(","):
+                part = part.strip()
+                if "-" in part:
+                    start, end = map(int, part.split("-"))
+                    weeks.update(range(start, end + 1))
+                else:
+                    weeks.add(int(part))
+            return weeks
+
+        def check_weeks_match(target_weeks, actual_weeks):
+            """检查实际周次是否匹配目标周次"""
+            target_set = parse_weeks(target_weeks)
+            actual_set = actual_weeks
+            # 判断实际周次是否完全包含目标周次
+            return target_set.issubset(actual_set)
 
         # 遍历所有匹配的课程数据
         for data in course_data:
@@ -31,35 +57,22 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 判断是否匹配周次
             weeks_match = True
-            if week_type != "all" and "周" in sksj:
+            if "weeks" in course and "周" in sksj:  # 使用新的weeks字段
                 # 处理可能包含多个时间段的情况
-                time_slots = sksj.split("、")
+                time_slots = []
+                for part in sksj.split("<br>"):
+                    time_slots.extend(part.strip().split("、"))
+
+                # 合并所有时间段的周次
+                actual_weeks = set()
                 for slot in time_slots:
                     if "周" not in slot:
                         continue
                     weeks_str = slot.split("周")[0].strip()
+                    actual_weeks.update(parse_weeks(weeks_str))
 
-                    # 处理范围形式的周次 (如"1-9周")
-                    if "-" in weeks_str:
-                        start_week, end_week = map(int, weeks_str.split("-"))
-                        weeks = list(range(start_week, end_week + 1))
-                        weeks_str = ",".join(map(str, weeks))
-
-                    # 单周固定模式："1,3,5,7,9,11,13,15,17"
-                    # 双周固定模式："2,4,6,8,10,12,14,16,18"
-                    # 前9周模式："1,2,3,4,5,6,7,8,9"
-                    # 后9周模式："10,11,12,13,14,15,16,17,18"
-                    if week_type == "odd" and weeks_str != "1,3,5,7,9,11,13,15,17":
-                        weeks_match = False
-                    elif week_type == "even" and weeks_str != "2,4,6,8,10,12,14,16,18":
-                        weeks_match = False
-                    elif week_type == "first_half" and weeks_str != "1,2,3,4,5,6,7,8,9":
-                        weeks_match = False
-                    elif (
-                        week_type == "second_half"
-                        and weeks_str != "10,11,12,13,14,15,16,17,18"
-                    ):
-                        weeks_match = False
+                # 检查是否匹配目标周次
+                weeks_match = check_weeks_match(course["weeks"], actual_weeks)
 
             # 确保两个ID都存在且周次匹配
             if jx02id and jx0404id and weeks_match:
@@ -80,76 +93,100 @@ if __name__ == "__main__":
     # 测试数据集
     test_cases = [
         {
-            "name": "测试1：匹配单周课程",
+            "name": "测试1：单周课程周次匹配",
             "course": {
                 "course_id_or_name": "530009",
                 "teacher_name": "李大新",
                 "class_period": "3-4",
                 "week_day": "3",
-                "week_type": "odd",
+                "weeks": "1,3,5,7,9,11,13,15,17",  # 新增weeks字段
             },
             "expected_sksj": "1,3,5,7,9,11,13,15,17周 星期三 3-4节",
             "expected_jx0404id": "202420252014272",
         },
         {
-            "name": "测试2：匹配双周课程",
+            "name": "测试2：双周课程周次匹配",
             "course": {
                 "course_id_or_name": "530009",
                 "teacher_name": "李大新",
                 "class_period": "3-4",
                 "week_day": "3",
-                "week_type": "even",
+                "weeks": "2,4,6,8,10,12,14,16,18",  # 新增weeks字段
             },
             "expected_sksj": "2,4,6,8,10,12,14,16,18周 星期三 3-4节",
             "expected_jx0404id": "202420252014273",
         },
         {
-            "name": "测试3：匹配全周课程",
+            "name": "测试3：连续周次范围匹配",
             "course": {
                 "course_id_or_name": "530009",
                 "teacher_name": "张三",
                 "class_period": "1-2",
                 "week_day": "1",
-                "week_type": "all",
+                "weeks": "1-18",  # 新增weeks字段
             },
             "expected_sksj": "1-18周 星期一 1-2节",
             "expected_jx0404id": "202420252014274",
         },
         {
-            "name": "测试4：匹配前八周课程",
+            "name": "测试4：前半学期周次匹配",
             "course": {
                 "course_id_or_name": "530010",
                 "teacher_name": "李四",
                 "class_period": "5-6",
                 "week_day": "2",
-                "week_type": "all",
+                "weeks": "1-8",  # 新增weeks字段
             },
             "expected_sksj": "1-8周 星期二 5-6节",
             "expected_jx0404id": "202420252014275",
         },
         {
-            "name": "测试5：匹配后八周课程",
+            "name": "测试5：后半学期周次匹配",
             "course": {
                 "course_id_or_name": "530011",
                 "teacher_name": "王五",
                 "class_period": "7-8",
                 "week_day": "4",
-                "week_type": "all",
+                "weeks": "11-18",  # 新增weeks字段
             },
             "expected_sksj": "11-18周 星期四 7-8节",
             "expected_jx0404id": "202420252014276",
         },
         {
-            "name": "测试6：匹配中间周课程",
+            "name": "测试6：中间周次范围匹配",
             "course": {
                 "course_id_or_name": "530012",
                 "teacher_name": "赵六",
                 "class_period": "9-10",
                 "week_day": "5",
-                "week_type": "all",
+                "weeks": "6-13",  # 新增weeks字段
             },
             "expected_sksj": "6-13周 星期五 9-10节",
             "expected_jx0404id": "202420252014277",
+        },
+        {
+            "name": "测试7：部分周次匹配（子集）",
+            "course": {
+                "course_id_or_name": "530009",
+                "teacher_name": "李大新",
+                "class_period": "3-4",
+                "week_day": "3",
+                "weeks": "1,3,5",  # 只匹配部分单周
+            },
+            "expected_sksj": "1,3,5,7,9,11,13,15,17周 星期三 3-4节",
+            "expected_jx0404id": "202420252014272",
+        },
+        {
+            "name": "测试8：混合周次格式匹配",
+            "course": {
+                "course_id_or_name": "530013",
+                "teacher_name": "钱七",
+                "class_period": "1-2",
+                "week_day": "1",
+                "weeks": "1-4,6,8-10",
+            },
+            "expected_sksj": "1-4,6,8-10周 星期一 1-2节",
+            "expected_jx0404id": "202420252014278",
         },
     ]
 
@@ -214,6 +251,86 @@ if __name__ == "__main__":
             "skdd": "教学楼D-404",
             "jx0404id": "202420252014277",
             "jx02id": "7I266FF04741913JF6J6G4G2G7G1G5I7",
+        },
+        {
+            # 混合周次格式课程
+            "kch": "530013",
+            "kcmc": "高等数学B",
+            "skls": "钱七",
+            "sksj": "1-4,6,8-10周 星期一 1-2节",
+            "skdd": "教学楼E-505",
+            "jx0404id": "202420252014278",
+            "jx02id": "8J377GG15852024KG7K7H5H3H8H2H6J8",
+        },
+        # 添加干扰数据：相同课程号不同老师
+        {
+            "kch": "530009",
+            "kcmc": "体育-定向运动提高课",
+            "skls": "王教练",  # 不同老师
+            "sksj": "1,3,5,7,9,11,13,15,17周 星期三 3-4节",
+            "skdd": "体育场",
+            "jx0404id": "202420252014279",
+            "jx02id": "9K488HH26963135LH8L8I6I4I9I3I7K9",
+        },
+        # 添加干扰数据：相同老师不同课程号
+        {
+            "kch": "530099",  # 不同课程号
+            "kcmc": "体育-篮球提高课",
+            "skls": "李大新",
+            "sksj": "1,3,5,7,9,11,13,15,17周 星期三 3-4节",
+            "skdd": "体育馆",
+            "jx0404id": "202420252014280",
+            "jx02id": "0L599II37074246MI9M9J7J5J0J4J8L0",
+        },
+        # 添加干扰数据：相同课程号相同老师但不同节次
+        {
+            "kch": "530009",
+            "kcmc": "体育-定向运动提高课",
+            "skls": "李大新",
+            "sksj": "1,3,5,7,9,11,13,15,17周 星期三 5-6节",  # 不同节次
+            "skdd": "体育场",
+            "jx0404id": "202420252014281",
+            "jx02id": "1M600JJ48185357NJ0N0K8K6K1K5K9M1",
+        },
+        # 添加干扰数据：相同课程号相同老师但不同周次
+        {
+            "kch": "530009",
+            "kcmc": "体育-定向运动提高课",
+            "skls": "李大新",
+            "sksj": "2,4,6,8,10,12,14,16周 星期三 3-4节",  # 不同周次
+            "skdd": "体育场",
+            "jx0404id": "202420252014282",
+            "jx02id": "2N711KK59296468OK1O1L9L7L2L6L0N2",
+        },
+        # 添加干扰数据：部分重叠的周次
+        {
+            "kch": "530010",
+            "kcmc": "高等数学",
+            "skls": "李四",
+            "sksj": "1-10周 星期二 5-6节",  # 与1-8周部分重叠
+            "skdd": "教学楼B-202",
+            "jx0404id": "202420252014283",
+            "jx02id": "3O822LL60307579PL2P2M0M8M3M7M1O3",
+        },
+        # 添加干扰数据：完全不同的时间但相同课程和老师
+        {
+            "kch": "530011",
+            "kcmc": "大学物理",
+            "skls": "王五",
+            "sksj": "1-8周 星期二 1-2节",  # 完全不同的时间
+            "skdd": "教学楼C-303",
+            "jx0404id": "202420252014284",
+            "jx02id": "4P933MM71418680QM3Q3N1N9N4N8N2P4",
+        },
+        # 添加干扰数据：多时间段课程
+        {
+            "kch": "530013",
+            "kcmc": "高等数学B",
+            "skls": "钱七",
+            "sksj": "1-4周 星期一 1-2节<br>6-8周 星期一 1-2节",  # 多时间段
+            "skdd": "教学楼E-505",
+            "jx0404id": "202420252014285",
+            "jx02id": "5Q044NN82529791RN4R4O2O0O5O9O3Q5",
         },
     ]
 
