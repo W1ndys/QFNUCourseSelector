@@ -94,7 +94,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
       "course_id_or_name": "课程id", // 必填
       "teacher_name": "教师名称", // 必填
       "week_day": "上课星期", // 选填(1-7)
-      "week_type": "上课周次", // 选填(odd: 单周, even: 双周, all: 不限或不填，first_half: 前9周, second_half: 后9周)
+      "weeks": "上课周次", // 选填，支持多种格式，例如："1-12"、"1-12,13-14"、"1,3,5,7,9,11,13,15,17"
       "class_period": "上课节次", // 选填
       "jx02id": "jx02id", // 选填
       "jx0404id": "jx0404id" // 选填
@@ -122,7 +122,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 | course_id_or_name | 课程编号或名称（推荐使用编号） | ✅       | g20062389                             |
 | teacher_name      | 教师姓名                       | ✅       | 张三                                  |
 | week_day          | 上课星期                       | ⭕       | 1-7 之间的数字                        |
-| week_type         | 单双周                         | ⭕       | odd 单周, even 双周, all 不限或者不填 |
+| weeks             | 上课周次                       | ⭕       | "1-12"、"1-12,13-14"、"1,3,5,7,9,11,13,15,17" |
 | class_period      | 上课节次                       | ⭕       | 1-2-,3-4-,5-6-,7-8-,9-10-11,12-13-    |
 | jx02id            | 公选课 jx02id                  | ⭕       | -                                     |
 | jx0404id          | 公选课 jx0404id                | ⭕       | -                                     |
@@ -133,7 +133,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 >
 > 1. 你已经手动获取了 jx02id 和 jx0404id，则只需要填写 `course_id_or_name` 、 `teacher_name` 、 `jx02id` 、 `jx0404id` 这四个字段，脚本会根据这四个字段直接选课
 >
-> 2. 你未手动获取 jx02id 和 jx0404id，则需要填写 `course_id_or_name` 、 `teacher_name` 、 `class_period` 、 `week_day` 、 `week_type` 这五个字段，脚本会根据这五个字段搜索课程，并获取课程的 `jx02id` 和 `jx0404id`
+> 2. 你未手动获取 jx02id 和 jx0404id，则需要填写 `course_id_or_name` 、 `teacher_name` 、 `class_period` 、 `week_day` 、 `weeks` 这五个字段，脚本会根据这五个字段搜索课程，并获取课程的 `jx02id` 和 `jx0404id`
 >
 > `course_id_or_name` 、 `teacher_name` 是必填项，将用于获取课程的 jx02id 和 jx0404id
 >
@@ -141,9 +141,10 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 >
 > `class_period` 必须按照格式，后面的-不能省略（我也不知道为什么要这样写，教务系统设计的是这样的），并且可选项只有 `1-2-`, `3-4-`, `5-6-`, `7-8-`, `9-10-11`, `12-13-`
 >
-> `week_type` 主要用于区分单双周（主要是 24 级改革后的体育课），可选值为 `odd` 单周, `even` 双周, `all` 不限，如果你的课没有单双周之分，也可以不填
->
-> `week_type` 还可以用于区分前 9 周和后 9 周，可选值为 `first_half` 前 9 周, `second_half` 后 9 周, `all` 不限，如果你的课没有前 9 周和后 9 周之分，也可以不填
+> `weeks` 支持多种格式的周次配置：
+> - 连续周次：如 "1-12"、"1-18" 等
+> - 多个周次范围：如 "1-12,13-14"、"1-9,11-18" 等
+> - 不连续周次：如 "1,3,5,7,9,11,13,15,17"（单周）、"2,4,6,8,10,12,14,16,18"（双周）等
 >
 > **注意！！如果你的节次是 9-10、9-11、9-12、10-10、10-11、10-12、11-11、11-12 或是白天三节课连着的等上面可填示例里没有的，只需要填一个有交集的节次即可，脚本算法会自动识别处理**
 >
