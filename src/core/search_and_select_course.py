@@ -21,10 +21,11 @@ def search_and_select_course(course):
             - teacher_name: 教师姓名
         可选键：
             - week_day: 上课星期
-            - class_period: 上课时间
-            - course_time: 完整的课程时间信息
+            - class_period: 上课节次
+            - weeks: 上课周次
             - jx02id: 课程jx02id
             - jx0404id: 课程jx0404id
+
 
     Returns:
         bool: 如果成功找到并选择课程返回True，否则返回False

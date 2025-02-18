@@ -188,7 +188,7 @@ def get_user_config():
                     "teacher_name": "",
                     "class_period": "",
                     "week_day": "",
-                    "week_type": "",
+                    "weeks": "",
                     "jx02id": "",
                     "jx0404id": "",
                 },
@@ -197,7 +197,7 @@ def get_user_config():
                     "teacher_name": "",
                     "class_period": "",
                     "week_day": "",
-                    "week_type": "",
+                    "weeks": "",
                     "jx02id": "",
                     "jx0404id": "",
                 },
@@ -206,7 +206,7 @@ def get_user_config():
                     "teacher_name": "",
                     "class_period": "",
                     "week_day": "",
-                    "week_type": "",
+                    "weeks": "",
                     "jx02id": "",
                     "jx0404id": "",
                 },
@@ -347,8 +347,8 @@ def select_courses(courses, mode, select_semester):
             # 每次选课前刷新选课轮次ID
             current_jx0502zbid = get_jx0502zbid(session, select_semester)
             if not current_jx0502zbid:
-                logger.warning("获取选课轮次失败，2秒后重试...")
-                time.sleep(2)
+                logger.warning("获取选课轮次失败，1秒后重试...")
+                time.sleep(1)
                 continue
 
             logger.critical(f"当前选课轮次ID: {current_jx0502zbid}")
