@@ -41,23 +41,29 @@ def get_jx0502zbid(session, select_semester):
             return None
 
         # 如果指定了学期，按学期匹配
-        for row in rows:
+        first_valid_id = None  # 保存第一个有效的选课链接
+        for row in rows[1:]:  # 跳过表头行
             try:
                 cells = row.find_all("td")
                 if not cells or len(cells) < 2:
                     continue
 
-                if select_semester in cells[1].text.strip():
-                    link = row.find("a", href=True)
-                    if link and "jx0502zbid" in link["href"]:
-                        match = jx0502zbid_pattern.search(link["href"])
-                        if match:
+                link = row.find("a", href=True)
+                if link and "jx0502zbid" in link["href"]:
+                    match = jx0502zbid_pattern.search(link["href"])
+                    if match:
+                        # 保存第一个有效的选课链接
+                        if first_valid_id is None:
+                            first_valid_id = match.group(1)
+                        # 如果找到指定学期，直接返回
+                        if select_semester in cells[1].text.strip():
                             return match.group(1)
             except (AttributeError, IndexError) as e:
                 logging.warning(f"解析行数据时出错: {str(e)}")
                 continue
 
-        return None
+        # 如果没有找到指定学期，返回第一个有效的选课链接
+        return first_valid_id
 
     except RequestException as e:
         logging.error(f"请求选课页面失败: {str(e)}")
