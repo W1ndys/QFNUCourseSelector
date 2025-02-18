@@ -141,6 +141,8 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 >
 > `class_period` 是上课节次，可以与教务系统对应，例如：1-2,1-3,1-4,9-10,9-11
 >
+> > 此处配置旧版脚本强制要求为 1-2- 等固定格式，由于 2025 年 2 月 18 日晚上发现非正常发包，即直接发课程节次也可以正常搜索，所以[新版脚本](https://github.com/W1ndys/QFNUCourseSelector/commit/f42d9dd4fddafa27cd95dfdd7f46898efabfe9a1)已支持直接发课程节次
+>
 > `weeks` 支持多种格式的周次配置：
 >
 > - 连续周次：如 "1-12"、"1-18" 等
