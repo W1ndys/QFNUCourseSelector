@@ -360,9 +360,8 @@ def select_courses(courses, mode, select_semester):
             for course in courses:
                 search_and_select_course(course)
                 logger.info(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待2秒后继续选下一节课"
+                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束"
                 )
-                time.sleep(2)
 
             logger.info("本轮选课操作完成，2秒后开始新一轮选课...")
             time.sleep(2)
