@@ -21,11 +21,11 @@
 
 > 我看谁在这里用我脚本不给我 Star
 
-## ⚠️ 注意事项
+## ✨ 功能
 
-~~**目前仅支持公选课抢课功能**~~
-
-**目前支持全部选课功能（选修选课、专业内跨年级选课、本学期计划选课、公选课选课、计划外选课）**
+- 支持全部选课功能（选修选课、专业内跨年级选课、本学期计划选课、公选课选课、计划外选课）
+- 支持钉钉、飞书通知
+- 支持高速模式、普通模式、截胡模式
 
 ## 📝 免责声明
 
@@ -163,6 +163,18 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 配置完成后，再次双击 `run_app_in_venv_windows.bat` 运行脚本
 
+## 🔧 扩展使用
+
+### ⏰ 定时执行
+
+Linux 系统可以使用 `crontab` 命令，Windows 系统可以使用 `任务计划程序` 来实现，但不建议使用 Windows
+
+Windows 性能好的情况下可以考虑使用命令行 Linux 虚拟机实现定时执行
+
+### 👥 多账号执行
+
+Windows 可以使用 bat 脚本调用执行每个配置文件，Linux 可以使用 shell 脚本调用执行每个配置文件
+
 ## ⚠️ 异常情况
 
 ### 报错下面内容
@@ -173,7 +185,7 @@ TypeError:DdddOcr.__init__()got an unexpected keyword argument 'show_ad'
 
 解决办法：https://github.com/W1ndys/QFNUCourseSelector/issues/8
 
-## 关于用啥选的快
+## 🌐 关于用啥选的快
 
 直接点题：QFNU（这里指曲阜师范大学校园 WiFi 校园网），比其他网络更容易访问教务系统
 
