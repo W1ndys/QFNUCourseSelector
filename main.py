@@ -328,22 +328,47 @@ def print_welcome():
 
 
 def select_courses(courses, mode, select_semester):
+    # 创建一个字典来跟踪每个课程的选课状态
+    course_status = {f"{c['course_id_or_name']}-{c['teacher_name']}": False for c in courses}
+    
     if mode == "fast":
         # 高速模式：以最快速度持续尝试选课
         for course in courses:
-            search_and_select_course(course)
+            result = search_and_select_course(course)
+            if result:
+                course_status[f"{course['course_id_or_name']}-{course['teacher_name']}"] = True
+            
+            # 检查是否所有课程都已选上
+            if all(course_status.values()):
+                logger.info("所有课程已选择成功，程序即将退出...")
+                exit(0)
+                
     elif mode == "normal":
         # 普通模式：正常速度选课，每次请求间隔较长
         for course in courses:
-            search_and_select_course(course)
+            result = search_and_select_course(course)
+            if result:
+                course_status[f"{course['course_id_or_name']}-{course['teacher_name']}"] = True
+                
+            # 检查是否所有课程都已选上
+            if all(course_status.values()):
+                logger.info("所有课程已选择成功，程序即将退出...")
+                exit(0)
+                
             logger.info(
                 f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待5秒后继续选下一节课"
             )
             time.sleep(5)
+            
     elif mode == "snipe":
         # 截胡模式：每次选课前刷新轮次，持续执行选课操作
         session = get_session()
         while True:
+            # 检查是否所有课程都已选上
+            if all(course_status.values()):
+                logger.info("所有课程已选择成功，程序即将退出...")
+                exit(0)
+                
             # 每次选课前刷新选课轮次ID
             current_jx0502zbid = get_jx0502zbid(session, select_semester)
             if not current_jx0502zbid:
@@ -351,14 +376,20 @@ def select_courses(courses, mode, select_semester):
                 time.sleep(1)
                 continue
 
-            logger.critical(f"当前选课轮次ID: {current_jx0502zbid}")
             response = session.get(
                 f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
             )
             logger.debug(f"选课页面响应状态码: {response.status_code}")
+            
             # 执行选课操作
             for course in courses:
-                search_and_select_course(course)
+                # 如果该课程已经选上，则跳过
+                if course_status[f"{course['course_id_or_name']}-{course['teacher_name']}"]:
+                    continue
+                    
+                result = search_and_select_course(course)
+                if result:
+                    course_status[f"{course['course_id_or_name']}-{course['teacher_name']}"] = True
                 logger.info(
                     f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束"
                 )
