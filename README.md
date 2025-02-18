@@ -1,4 +1,4 @@
-# ⚡ QFNUCourseSelector (增强版) ⚡
+# ⚡ QFNUCourseSelector Pro ⚡
 
 🔗 **Forked from [W1ndys/QFNUCourseSelector](https://github.com/W1ndys/QFNUCourseSelector)**  
 🎯 新增定时抢课 | 整合部署 | 多平台通知 | 智能配置验证
