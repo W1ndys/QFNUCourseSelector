@@ -95,36 +95,57 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 def get_course_jx02id_and_jx0404id_by_api(course):
     """通过教务系统API获取课程的jx02id和jx0404id"""
     try:
-        # 依次从专业内跨年级选课、本学期计划选课、选修选课、公选课选课、计划外选课、辅修选课搜索课程
-        result = get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course)
-        if result:
-            result = find_course_jx02id_and_jx0404id(course, result["aaData"])
-            if result:
-                return result
+        # 定义最大重试次数
+        max_retries = 3
+        retry_count = 0
 
-        result = get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course)
-        if result:
-            result = find_course_jx02id_and_jx0404id(course, result["aaData"])
-            if result:
-                return result
+        while retry_count < max_retries:
+            try:
+                # 依次从专业内跨年级选课、本学期计划选课、选修选课、公选课选课、计划外选课、辅修选课搜索课程
+                result = get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course)
+                if result:
+                    result = find_course_jx02id_and_jx0404id(course, result["aaData"])
+                    if result:
+                        return result
 
-        result = get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course)
-        if result:
-            result = find_course_jx02id_and_jx0404id(course, result["aaData"])
-            if result:
-                return result
+                result = get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course)
+                if result:
+                    result = find_course_jx02id_and_jx0404id(course, result["aaData"])
+                    if result:
+                        return result
 
-        result = get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course)
-        if result:
-            result = find_course_jx02id_and_jx0404id(course, result["aaData"])
-            if result:
-                return result
+                result = get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course)
+                if result:
+                    result = find_course_jx02id_and_jx0404id(course, result["aaData"])
+                    if result:
+                        return result
 
-        result = get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course)
-        if result:
-            result = find_course_jx02id_and_jx0404id(course, result["aaData"])
-            if result:
-                return result
+                result = get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course)
+                if result:
+                    result = find_course_jx02id_and_jx0404id(course, result["aaData"])
+                    if result:
+                        return result
+
+                result = get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course)
+                if result:
+                    result = find_course_jx02id_and_jx0404id(course, result["aaData"])
+                    if result:
+                        return result
+
+                # 如果所有请求都成功但没有找到结果，跳出循环
+                break
+
+            except Exception as e:
+                if "404" in str(e):
+                    retry_count += 1
+                    if retry_count < max_retries:
+                        logging.warning(
+                            f"获取课程信息失败(404)，正在进行第{retry_count}次重试..."
+                        )
+                        continue
+                logging.error(f"获取课程的jx02id和jx0404id失败: {e}")
+
+        return None
     except Exception as e:
         logging.error(f"获取课程的jx02id和jx0404id失败: {e}")
         return None
@@ -154,24 +175,27 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
         teacher_name = course["teacher_name"]
         class_period = course["class_period"]
         week_day = course["week_day"]
+
         # 选修选课页面
         response = session.get(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/comeInXxxk",
         )
+        if response.status_code == 404:
+            raise Exception("404 Not Found")
         logging.info(f"获取公选选课页面响应值: {response.status_code}")
 
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkGgxxkxk",
             params={
-                "kcxx": course_id,  # 课程名称
-                "skls": teacher_name,  # 教师姓名
-                "skxq": week_day,  # 上课星期
-                "skjc": class_period,  # 上课节次
+                "kcxx": course_id,
+                "skls": teacher_name,
+                "skxq": week_day,
+                "skjc": class_period,
                 "szjylb": "",
-                "sfym": "true",  # 是否已满
-                "sfct": "true",  # 是否冲突
-                "sfxx": "true",  # 是否限选
+                "sfym": "true",
+                "sfct": "true",
+                "sfxx": "true",
             },
             data={
                 "sEcho": 1,
@@ -194,8 +218,9 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
                 "mDataProp_12": "czOper",
             },
         )
+        if response.status_code == 404:
+            raise Exception("404 Not Found")
 
-        logging.info(f"获取公选选课列表数据响应值: {response.status_code}")
         response_data = json.loads(response.text)
         # 检查aaData是否为空
         if not response_data.get("aaData"):
