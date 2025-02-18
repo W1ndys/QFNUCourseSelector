@@ -155,13 +155,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 >
 > 关于 jx02id 和 jx0404id 的**手动**获取方法，请参考 [详细说明文档](./assets/docs/how_to_get_jx02id_and_jx0404id.md)
 >
-> jx02id 和 jx0404id 是教务系统中课程的唯一标识，在配置文件中选填，如果不填，脚本会根据 API 或本地数据自动获取，但是获取的准确性可能不如手动获取，可能会遇到获取失败的情况，并且抢课速度会慢 10-50ms
->
-> ~~注意 `course_time` 的格式，周次，星期，节次，必须按照格式，不能省略空格，例如 `1-18 周 星期六 1-2 节`，不能写成 `1-18周星期六1-2节`~~
->
-> ~~在 [da0fef1](https://github.com/W1ndys/QFNUCourseSelector/commit/da0fef12f843e7336b8229ebc1c8a271059e7420) 更新中，`course_time` 的格式已自动过滤空格，所以加什么空格都不会影响运行~~
->
-> 在 [e2c8d8b](https://github.com/W1ndys/QFNUCourseSelector/commit/e2c8d8b0821694ba345cab18002b1665bdac2157) 更新中，`course_time` 的配置已删除
+> jx02id 和 jx0404id 是教务系统中课程的唯一标识，在配置文件中选填，如果不填，脚本会根据 API 搜索自动获取，但是获取的准确性可能不如手动获取，可能会遇到获取失败的情况，并且抢课速度会慢 10-50ms
 >
 > **脚本运行过程中不要异地登录，否则会把脚本踢下线**
 
