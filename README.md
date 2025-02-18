@@ -123,7 +123,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 | teacher_name      | 教师姓名                       | ✅       | 张三                                          |
 | week_day          | 上课星期                       | ⭕       | 1-7 之间的数字                                |
 | weeks             | 上课周次                       | ⭕       | "1-12"、"1-12,13-14"、"1,3,5,7,9,11,13,15,17" |
-| class_period      | 上课节次                       | ⭕       | 1-2-,3-4-,5-6-,7-8-,9-10-11,12-13-            |
+| class_period      | 上课节次                       | ⭕       | 1-2,1-3,1-4,9-10,9-11                         |
 | jx02id            | 公选课 jx02id                  | ⭕       | -                                             |
 | jx0404id          | 公选课 jx0404id                | ⭕       | -                                             |
 
@@ -139,7 +139,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 >
 > `class_period` 和 `week_day` 是选填项，如果你未填写 `jx02id` 和 `jx0404id`，则需要填写这两个字段，脚本会根据这两个字段搜索课程，并获取课程的 `jx02id` 和 `jx0404id`
 >
-> `class_period` 必须按照格式，后面的-不能省略（我也不知道为什么要这样写，教务系统设计的是这样的），并且可选项只有 `1-2-`, `3-4-`, `5-6-`, `7-8-`, `9-10-11`, `12-13-`
+> `class_period` 是上课节次，可以与教务系统对应，例如：1-2,1-3,1-4,9-10,9-11
 >
 > `weeks` 支持多种格式的周次配置：
 >
