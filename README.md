@@ -231,6 +231,8 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 - 超级大猫猫头头 - 测试支持
 - [Cursor](https://www.cursor.com/) - 开发工具支持
 
+## 🔗 友情链接
+
 ## 📄 许可证
 
 本项目采用 [MIT 许可证](./LICENSE)
