@@ -16,6 +16,15 @@ fi
 source venv/bin/activate
 echo "已激活 Python 虚拟环境"
 
+# 检查 Python 版本
+python3 -c "import sys; ver=sys.version_info; exit(1) if ver.major==3 and ver.minor>12 else exit(0)"
+if [ $? -eq 1 ]; then
+    echo "错误：Python 版本不能高于 3.12"
+    echo "当前环境的 Python 版本过高，请使用 3.12 或更低版本"
+    read -p "按回车键退出..."
+    exit 1
+fi
+
 # 检查 main.py 是否存在
 if [ ! -f "main.py" ]; then
     echo "错误：找不到 main.py 文件"
