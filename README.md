@@ -69,11 +69,15 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 ### 2. 安装依赖
 
-双击 `create_venv_windows.bat` 并等待安装完成
+Windows 用户双击 `create_venv_windows.bat` 并等待安装完成
+
+Linux 用户执行 `bash create_venv_linux.sh` 安装依赖
 
 ### 3. 首次运行
 
-双击 `run_app_in_venv_windows.bat`，系统将自动生成配置文件 `config.json`
+Windows 用户双击 `run_app_in_venv_windows.bat`，系统将自动生成配置文件 `config.json`
+
+Linux 用户执行 `bash run_app_in_venv_linux.sh`，系统将自动生成配置文件 `config.json`
 
 ### 4. 配置文件说明
 
@@ -161,7 +165,9 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 
 ### 5. 运行脚本
 
-配置完成后，再次双击 `run_app_in_venv_windows.bat` 运行脚本
+Windows 用户双击 `run_app_in_venv_windows.bat` 运行脚本
+
+Linux 用户执行 `bash run_app_in_venv_linux.sh` 运行脚本
 
 ## 🔧 扩展使用
 
@@ -233,6 +239,12 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 - [Cursor](https://www.cursor.com/) - 开发工具支持
 
 ## 🔗 友情链接
+
+> 注：以下为社区衍生版本，功能更新可能不及时，请自行验证代码可用性和安全性
+>
+> 本项目开发者未参与以下项目，请以本项目功能更新为准
+
+- [QFNU 抢课脚本增强版](https://github.com/Swcmb/QFNUCourseSelector-Pro)
 
 ## 📄 许可证
 
