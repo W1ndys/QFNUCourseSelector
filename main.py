@@ -351,7 +351,9 @@ def select_courses(courses, mode, select_semester):
             # 每次选课前刷新选课轮次ID
             current_jx0502zbid = get_jx0502zbid(session, select_semester)
             if not current_jx0502zbid:
-                logger.warning("获取选课轮次失败，1秒后重试...")
+                logger.warning(
+                    "获取选课轮次失败，1秒后重试...若持续失败，可能是账号被踢，请重新运行脚本"
+                )
                 time.sleep(1)
                 continue
 
