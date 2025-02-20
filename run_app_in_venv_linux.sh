@@ -35,5 +35,3 @@ fi
 
 # 运行 Python 脚本
 python3 main.py
-
-read -p "按回车键退出..." 

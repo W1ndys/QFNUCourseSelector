@@ -35,5 +35,3 @@ if not exist "main.py" (
 
 :: 运行 Python 脚本
 python main.py
-
-pause
