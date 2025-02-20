@@ -181,7 +181,7 @@ def get_user_config():
             "dingtalk_secret": "",
             "feishu_webhook": "",
             "feishu_secret": "",
-            "mode": "",
+            "mode": "snipe",
             "courses": [
                 {
                     "course_id_or_name": "",
@@ -191,25 +191,7 @@ def get_user_config():
                     "weeks": "",
                     "jx02id": "",
                     "jx0404id": "",
-                },
-                {
-                    "course_id_or_name": "",
-                    "teacher_name": "",
-                    "class_period": "",
-                    "week_day": "",
-                    "weeks": "",
-                    "jx02id": "",
-                    "jx0404id": "",
-                },
-                {
-                    "course_id_or_name": "",
-                    "teacher_name": "",
-                    "class_period": "",
-                    "week_day": "",
-                    "weeks": "",
-                    "jx02id": "",
-                    "jx0404id": "",
-                },
+                }
             ],
         }
         with open("config.json", "w", encoding="utf-8") as f:
