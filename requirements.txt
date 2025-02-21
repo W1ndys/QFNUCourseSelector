@@ -23,5 +23,4 @@ requests
 soupsieve
 sympy
 typing_extensions
-ujson
 urllib3
