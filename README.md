@@ -354,4 +354,9 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 
 ## 📄 许可证
 
-本项目采用 [MIT 许可证](./LICENSE)
+本项目采用 [GNU General Public License v3 (GPLv3)](./LICENSE)。
+
+特别说明：
+1. 本项目仅供学习和研究使用
+2. 严禁用于商业用途
+3. 任何衍生项目必须使用相同许可证开源
