@@ -398,6 +398,10 @@ def main():
     # 获取环境变量
     user_account, user_password, select_semester, mode, courses = get_user_config()
 
+    if user_account:
+        logger.info("成功获取配置文件")
+        logger.info(f"用户名: {user_account}")
+
     while True:  # 添加外层循环
         try:
             # 模拟登录
