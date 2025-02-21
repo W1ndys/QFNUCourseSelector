@@ -193,7 +193,7 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
                 "skxq": week_day,
                 "skjc": class_period,
                 "szjylb": "",
-                "sfym": "true",
+                "sfym": "false",
                 "sfct": "true",
                 "sfxx": "true",
             },
@@ -256,7 +256,7 @@ def get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course):
                 "skls": teacher_name,  # 教师姓名
                 "skxq": week_day,  # 上课星期
                 "skjc": class_period,  # 上课节次
-                "sfym": "true",  # 是否已满
+                "sfym": "false",  # 是否已满
                 "sfct": "true",  # 是否冲突
                 "sfxx": "true",  # 是否限选
             },
@@ -317,7 +317,7 @@ def get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course):
                 "skls": teacher_name,  # 教师姓名
                 "skxq": week_day,  # 上课星期
                 "skjc": class_period,  # 上课节次
-                "sfym": "true",  # 是否已满
+                "sfym": "false",  # 是否已满
                 "sfct": "true",  # 是否冲突
                 "sfxx": "true",  # 是否限选
             },
@@ -378,7 +378,7 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
                 "skls": teacher_name,  # 教师姓名
                 "skxq": week_day,  # 上课星期
                 "skjc": class_period,  # 上课节次
-                "sfym": "true",  # 是否已满
+                "sfym": "false",  # 是否已满
                 "sfct": "true",  # 是否冲突
                 "sfxx": "true",  # 是否限选
             },
@@ -448,7 +448,7 @@ def get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course):
                 "skls": teacher_name,  # 教师姓名
                 "skxq": week_day,  # 上课星期
                 "skjc": class_period,  # 上课节次
-                "sfym": "true",  # 是否已满
+                "sfym": "false",  # 是否已满
                 "sfct": "true",  # 是否冲突
                 "sfxx": "true",  # 是否限选
             },
