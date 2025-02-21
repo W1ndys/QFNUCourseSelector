@@ -15,7 +15,7 @@
 
 <div align="center">
     <h4 >
-        ✨请给我一个 Star!  Please give me a Star!✨
+        ✨ 请给我一个 Star!  Please give me a Star! ✨
     </h4>
 </div>
 
@@ -146,7 +146,7 @@ Linux 用户执行 `bash run_app_in_venv_linux.sh`，系统将自动生成配置
 >
 > `class_period` 是上课节次，可以与教务系统对应，例如：1-2,1-3,1-4,9-10,9-11
 >
-> > 此处配置旧版脚本强制要求为 1-2- 等固定格式，由于 2025 年 2 月 18 日晚上发现非正常发包，即直接发课程节次也可以正常搜索，所以[新版脚本](https://github.com/W1ndys/QFNUCourseSelector/commit/f42d9dd4fddafa27cd95dfdd7f46898efabfe9a1)已支持直接发课程节次，遵循配置节次的范围为搜索结果的子集，例如搜 1-2，也可以搜到 1-3,1-4 的符合条件的课程
+> > 此处配置旧版脚本强制要求为 1-2- 等固定格式，由于 2025 年 2 月 18 日晚上发现非正常发包，即直接发课程节次也可以正常搜索，所以 [新版脚本](https://github.com/W1ndys/QFNUCourseSelector/commit/f42d9dd4fddafa27cd95dfdd7f46898efabfe9a1) 已支持直接发课程节次，遵循配置节次的范围为搜索结果的子集，例如搜 1-2，也可以搜到 1-3,1-4 的符合条件的课程
 >
 > `weeks` 支持多种格式的周次配置：
 >
@@ -158,7 +158,7 @@ Linux 用户执行 `bash run_app_in_venv_linux.sh`，系统将自动生成配置
 
 > [!NOTE]
 >
-> 关于 jx02id 和 jx0404id 的**手动**获取方法，请参考 [详细说明文档](./assets/docs/how_to_get_jx02id_and_jx0404id.md)
+> 关于 jx02id 和 jx0404id 的 **手动** 获取方法，请参考 [详细说明文档](./assets/docs/how_to_get_jx02id_and_jx0404id.md)
 >
 > jx02id 和 jx0404id 是教务系统中课程的唯一标识，在配置文件中选填，如果不填，脚本会根据 API 搜索自动获取，但是获取的准确性可能不如手动获取，可能会遇到获取失败的情况，并且抢课速度会慢 10-50ms
 >
@@ -169,6 +169,101 @@ Linux 用户执行 `bash run_app_in_venv_linux.sh`，系统将自动生成配置
 Windows 用户双击 `run_app_in_venv_windows.bat` 运行脚本
 
 Linux 用户执行 `bash run_app_in_venv_linux.sh` 运行脚本
+
+## 程序流程图
+
+```mermaid
+flowchart TB
+    Start([开始]) --> LoadEnv[加载环境变量和配置]
+    LoadEnv --> Login{登录尝试}
+
+    Login -->|失败| RetryLogin[等待1秒后重试]
+    RetryLogin --> Login
+
+    Login -->|成功| GetSemester[获取选课轮次ID]
+    GetSemester -->|失败| RetryLogin
+
+    GetSemester -->|成功| CheckMode{检查选课模式}
+
+    CheckMode -->|Fast模式| FastMode[快速选课]
+    CheckMode -->|Normal模式| NormalMode[普通选课]
+    CheckMode -->|Snipe模式| SnipeMode[截胡模式]
+
+    subgraph FastMode[快速模式]
+        F1[遍历课程列表] --> F2{尝试选课}
+        F2 -->|成功| F3[更新课程状态]
+        F2 -->|失败| F1
+        F3 --> F4{所有课程已选?}
+        F4 -->|是| Exit
+        F4 -->|否| F1
+    end
+
+    subgraph NormalMode[普通模式]
+        N1[遍历课程列表] --> N2{尝试选课}
+        N2 -->|成功| N3[更新课程状态]
+        N2 -->|失败| N4[等待5秒]
+        N3 --> N5{所有课程已选?}
+        N4 --> N1
+        N5 -->|是| Exit
+        N5 -->|否| N1
+    end
+
+    subgraph SnipeMode[截胡模式]
+        S1[刷新选课轮次] --> S2[遍历课程列表]
+        S2 --> S3{尝试选课}
+        S3 -->|成功| S4[更新课程状态]
+        S3 -->|失败| S5[继续下一个课程]
+        S4 --> S6{所有课程已选?}
+        S5 --> S6
+        S6 -->|是| Exit
+        S6 -->|否| S7[等待2秒]
+        S7 --> S1
+    end
+
+    FastMode & NormalMode & SnipeMode --> Exit([结束])
+
+    subgraph CourseSelection[选课流程]
+        CS1[获取课程信息] --> CS2{检查jx02id和jx0404id}
+        CS2 -->|已配置| CS3[直接选课]
+        CS2 -->|未配置| CS4[搜索课程信息]
+        CS4 --> CS5[尝试不同选课接口]
+        CS5 --> CS6{选课结果}
+        CS6 -->|成功| CS7[发送成功通知]
+        CS6 -->|失败| CS8[发送失败通知]
+    end
+```
+
+### 流程说明
+
+1. **初始化阶段**
+
+   - 加载环境变量和配置文件
+   - 初始化日志系统
+   - 建立会话连接
+
+2. **登录阶段**
+
+   - 获取验证码并识别
+   - 尝试登录，失败后重试
+   - 成功后获取选课轮次 ID
+
+3. **选课模式**
+
+   - Fast 模式：以最快速度持续尝试选课
+   - Normal 模式：每次选课后等待 5 秒
+   - Snipe 模式：持续刷新选课轮次并尝试选课
+
+4. **选课流程**
+
+   - 获取课程信息
+   - 检查是否已配置课程 ID
+   - 尝试不同类型的选课接口
+   - 发送选课结果通知
+
+5. **通知系统**
+   - 支持钉钉通知
+   - 支持飞书通知
+   - 实时反馈选课状态
 
 ## 🔧 扩展使用
 
