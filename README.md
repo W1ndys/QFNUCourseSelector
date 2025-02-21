@@ -1,6 +1,6 @@
 # QFNUCourseSelector
 
-> QFNU 抢课脚本 | 强智教务抢课脚本 | 强智教务 2017 | 大学抢课脚本 | 学院抢课脚本 | 光速抢课 |秒级
+> QFNU 抢课脚本 | 曲阜师范大学抢课脚本 | 强智教务抢课脚本 | 强智教务 2017 | 大学抢课脚本 | 学院抢课脚本 | 光速抢课 | 毫秒级抢课
 
 <p align="center">
     <img src="https://img.shields.io/github/stars/W1ndys/QFNUCourseSelector?style=flat-square" alt="Stars">
@@ -14,9 +14,9 @@
 </p>
 
 <div align="center">
-    <h1 >
-        ✨ 请给我一个 Star! ✨
-    </h1>
+    <h4 >
+        ✨请给我一个 Star!  Please give me a Star!✨
+    </h4>
 </div>
 
 > 我看谁在这里用我脚本不给我 Star
