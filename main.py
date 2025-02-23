@@ -235,14 +235,14 @@ def get_user_config():
     # 验证选课模式
     valid_modes = ["fast", "normal", "snipe"]
     if config.get("mode") and config["mode"] not in valid_modes:
-        logger.warning(f"无效的选课模式: {config['mode']}，将使用默认的 fast 模式")
-        config["mode"] = "fast"
+        logger.warning(f"无效的选课模式: {config['mode']}，将使用默认的 snipe 模式")
+        config["mode"] = "snipe"
 
     return (
         config["user_account"],
         config["user_password"],
         config["select_semester"],
-        config.get("mode", "fast"),
+        config.get("mode", "snipe"),
         config.get("courses", []),
     )
 
