@@ -26,7 +26,7 @@
 - 🚀 通过发送请求包的方式选课，不依赖浏览器页面渲染，速度快的起飞
 - 🎯 支持多种选课功能（选修选课、专业内跨年级选课、本学期计划选课、公选课选课、计划外选课）
 - 📱 支持多种通知方式（钉钉、飞书）
-- 🔄 支持多种选课模式（高速模式、普通模式、截胡模式）
+- 🔄 支持多种选课模式（高速模式、普通模式、蹲课模式）
 - 👥 支持多账号执行（批量启动）
 - 📚 支持多课程执行（courses 数组）
 - 💻 支持多系统执行（Windows、Linux、MacOS）
@@ -102,7 +102,7 @@ Linux 用户执行 `bash run_app_in_venv_linux.sh`，系统将自动生成配置
   "dingtalk_secret": "你的钉钉机器人secret", // 选填
   "feishu_webhook": "你的飞书机器人webhook", // 选填
   "feishu_secret": "你的飞书机器人secret", // 选填
-  "mode": "选课模式", // 选课模式，fast: 高速模式，normal: 普通模式，snipe: 截胡模式
+  "mode": "选课模式", // 选课模式，fast: 高速模式，normal: 普通模式，snipe: 蹲课模式
   "course": [
     {
       "course_id_or_name": "课程id", // 必填
@@ -125,7 +125,7 @@ Linux 用户执行 `bash run_app_in_venv_linux.sh`，系统将自动生成配置
 | -------- | ------ | ---------------------------------------------------------------------- |
 | 高速模式 | fast   | 以最快速度持续尝试选课，适用于系统即将开放选课时抢课，抢课耗时几乎为 0 |
 | 普通模式 | normal | 每 5 秒一次选课，适用于害怕高速抢课被 ban 的用户                       |
-| 截胡模式 | snipe  | 每 2 秒一次持续选课，适用于截胡别人的退课或退课和选课的临界时间        |
+| 蹲课模式 | snipe  | 每 2 秒一次持续选课，适用于补选中退选轮次的临界时间和正选中全天候蹲课  |
 
 > 如果不填填错，脚本会默认使用高速模式
 
@@ -196,7 +196,7 @@ flowchart TB
 
     CheckMode -->|Fast模式| FastMode[快速选课]
     CheckMode -->|Normal模式| NormalMode[普通选课]
-    CheckMode -->|Snipe模式| SnipeMode[截胡模式]
+    CheckMode -->|Snipe模式| SnipeMode[蹲课模式]
 
     subgraph FastMode[快速模式]
         F1[遍历课程列表] --> F2{尝试选课}
@@ -217,7 +217,7 @@ flowchart TB
         N5 -->|否| N1
     end
 
-    subgraph SnipeMode[截胡模式]
+    subgraph SnipeMode[蹲课模式]
         S1[刷新选课轮次] --> S2[遍历课程列表]
         S2 --> S3{尝试选课}
         S3 -->|成功| S4[更新课程状态]

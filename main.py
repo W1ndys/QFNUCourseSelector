@@ -340,7 +340,7 @@ def select_courses(courses, mode, select_semester):
             time.sleep(5)
 
     elif mode == "snipe":
-        # 截胡模式：每次选课前刷新轮次，持续执行选课操作
+        # 蹲课模式：每次选课前刷新轮次，持续执行选课操作
         session = get_session()
         while True:
             # 检查是否所有课程都已选上
