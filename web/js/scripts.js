@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 加载保存的数据
     loadSavedData();
 
+    // 加载保存的主题和颜色
+    loadThemeAndColor();
+
     // 添加课程按钮点击事件
     document.getElementById('addCourseBtn').addEventListener('click', function() {
         addCourse();
@@ -61,6 +64,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 初始化JSON预览
     updateJsonPreview();
+
+    // 主题切换按钮点击事件
+    document.getElementById('themeToggle').addEventListener('click', function() {
+        toggleTheme();
+    });
+
+    // 颜色选择器点击事件
+    const colorOptions = document.querySelectorAll('.color-option');
+    colorOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const color = this.getAttribute('data-color');
+            changeThemeColor(color);
+        });
+    });
 });
 
 // 添加课程
@@ -223,4 +240,87 @@ function loadSavedData() {
         // 出错时添加一个空课程
         addCourse();
     }
+}
+
+// 切换深浅模式
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('qfnuTheme', newTheme);
+    
+    // 更新图标
+    const themeIcon = document.querySelector('#themeToggle i');
+    if (newTheme === 'dark') {
+        themeIcon.classList.remove('bi-moon-fill');
+        themeIcon.classList.add('bi-sun-fill');
+    } else {
+        themeIcon.classList.remove('bi-sun-fill');
+        themeIcon.classList.add('bi-moon-fill');
+    }
+}
+
+// 更改主题颜色
+function changeThemeColor(color) {
+    document.documentElement.style.setProperty('--primary-color', color);
+    
+    // 计算悬停颜色（稍微深一点）
+    const hoverColor = adjustColor(color, -20);
+    document.documentElement.style.setProperty('--primary-hover', hoverColor);
+    
+    // 保存颜色设置
+    localStorage.setItem('qfnuThemeColor', color);
+    localStorage.setItem('qfnuThemeHoverColor', hoverColor);
+}
+
+// 加载保存的主题和颜色
+function loadThemeAndColor() {
+    // 加载主题
+    const savedTheme = localStorage.getItem('qfnuTheme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // 更新图标
+        const themeIcon = document.querySelector('#themeToggle i');
+        if (savedTheme === 'dark') {
+            themeIcon.classList.remove('bi-moon-fill');
+            themeIcon.classList.add('bi-sun-fill');
+        }
+    }
+    
+    // 加载颜色
+    const savedColor = localStorage.getItem('qfnuThemeColor');
+    const savedHoverColor = localStorage.getItem('qfnuThemeHoverColor');
+    
+    if (savedColor) {
+        document.documentElement.style.setProperty('--primary-color', savedColor);
+    }
+    
+    if (savedHoverColor) {
+        document.documentElement.style.setProperty('--primary-hover', savedHoverColor);
+    }
+}
+
+// 调整颜色亮度
+function adjustColor(color, amount) {
+    // 将颜色转换为RGB
+    let r, g, b;
+    
+    if (color.startsWith('#')) {
+        const hex = color.substring(1);
+        r = parseInt(hex.substring(0, 2), 16);
+        g = parseInt(hex.substring(2, 4), 16);
+        b = parseInt(hex.substring(4, 6), 16);
+    } else {
+        return color; // 如果不是十六进制颜色，直接返回
+    }
+    
+    // 调整亮度
+    r = Math.max(0, Math.min(255, r + amount));
+    g = Math.max(0, Math.min(255, g + amount));
+    b = Math.max(0, Math.min(255, b + amount));
+    
+    // 转回十六进制
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 } 
