@@ -9,6 +9,7 @@
     --muted-text: #6c757d;
     --border-color: #dee2e6;
     --transition-time: 0.3s;
+    --label-transition-time: 0.15s;
 }
 
 [data-theme="dark"] {
@@ -32,6 +33,11 @@
                 color var(--transition-time) ease,
                 border-color var(--transition-time) ease,
                 box-shadow var(--transition-time) ease;
+}
+
+/* 表单标签更快的过渡速度 */
+.form-label {
+    transition: color var(--label-transition-time) ease;
 }
 
 body {
