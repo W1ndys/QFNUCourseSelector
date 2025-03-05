@@ -27,7 +27,7 @@ web/
 本工具已通过 GitHub Actions 自动部署到 GitHub Pages，您可以通过以下链接访问：
 
 ```
-https://w1ndys.github.io/QFNUCourseSelector/
+https://w1ndys.github.io/QFNUCourseSelector/web/
 ```
 
 ## 功能特点
