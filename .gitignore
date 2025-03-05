@@ -173,3 +173,5 @@ cython_debug/
 # 配置文件
 config.json
 
+# Cursor 配置文件
+.cursorrules
