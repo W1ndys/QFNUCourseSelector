@@ -44,7 +44,7 @@
 为了方便用户使用，我们提供了一个在线的配置生成器，您可以通过以下链接访问：
 
 ```
-https://w1ndys.github.io/QFNUCourseSelector/
+https://w1ndys.github.io/QFNUCourseSelector/web/
 ```
 
 配置生成器特点：
