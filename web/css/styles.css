@@ -21,6 +21,10 @@
     --form-bg: #2d2d2d;
     --muted-text: #a0a0a0;
     --border-color: #444;
+    --input-bg: #2d2d2d;
+    --input-text: #e1e1e1;
+    --input-border: #555;
+    --input-focus-bg: #3d3d3d;
 }
 
 * {
@@ -249,4 +253,39 @@ h3, h4, h5 {
     .color-picker {
         flex-direction: row;
     }
+}
+
+/* 深色模式下的表单控件样式 */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--input-text);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: var(--input-focus-bg);
+    color: var(--input-text);
+}
+
+[data-theme="dark"] .form-select option {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+}
+
+[data-theme="dark"] .form-text {
+    color: var(--muted-text);
+}
+
+/* 深色模式下的JSON预览区域 */
+[data-theme="dark"] .json-preview {
+    background-color: #1a1a1a;
+    border: 1px solid #444;
+}
+
+/* 深色模式下的提示框 */
+[data-theme="dark"] .alert-info {
+    background-color: rgba(103, 45, 7, 0.2);
+    border-color: rgba(103, 45, 7, 0.3);
 } 
