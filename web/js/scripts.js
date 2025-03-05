@@ -18,8 +18,25 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('copyBtn').addEventListener('click', function() {
         const jsonText = document.getElementById('jsonPreview').textContent;
         navigator.clipboard.writeText(jsonText).then(function() {
+            // 显示成功提示
             const toast = new bootstrap.Toast(document.getElementById('copySuccess'));
             toast.show();
+            
+            // 临时改变按钮样式，提供视觉反馈
+            const copyBtn = document.getElementById('copyBtn');
+            copyBtn.classList.remove('btn-outline-primary');
+            copyBtn.classList.add('btn-success');
+            copyBtn.innerHTML = '<i class="bi bi-check-circle"></i> 已复制';
+            
+            // 2秒后恢复按钮样式
+            setTimeout(function() {
+                copyBtn.classList.remove('btn-success');
+                copyBtn.classList.add('btn-outline-primary');
+                copyBtn.innerHTML = '<i class="bi bi-clipboard"></i> 复制';
+            }, 2000);
+        }).catch(function(err) {
+            console.error('复制失败: ', err);
+            alert('复制失败，请手动复制配置。');
         });
     });
 
