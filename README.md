@@ -372,6 +372,7 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 
 - [nakaii](https://github.com/nakaii-002) - 技术指导
 - [上杉九月](https://github.com/sakurasep) - 技术指导
+- [AuroBreeze](https://github.com/AuroBreeze) - 登录算法优化
 - 超级大猫猫头头 - 测试支持
 - [Cursor](https://www.cursor.com/) - 开发工具支持
 

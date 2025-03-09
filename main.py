@@ -77,16 +77,6 @@ loginUrl = "http://zhjw.qfnu.edu.cn/Logon.do?method=logonLdap"
 dataStrUrl = "http://zhjw.qfnu.edu.cn/Logon.do?method=logon&flag=sess"
 
 
-def get_initial_session():
-    """
-    创建会话并获取初始数据
-    返回: 初始数据字符串
-    """
-    session = init_session()  # 初始化全局session
-    response = session.get(dataStrUrl)
-    return response.text
-
-
 def handle_captcha():
     """
     获取并识别验证码
@@ -108,30 +98,24 @@ def handle_captcha():
     return get_ocr_res(image)
 
 
-def generate_encoded_string(data_str, user_account, user_password):
+def generate_encoded_string(user_account, user_password):
     """
     生成登录所需的encoded字符串
     参数:
-        data_str: 初始数据字符串
+        data_str: 初始数据字符串 (实际未使用)
         user_account: 用户账号
         user_password: 用户密码
-    返回: encoded字符串
+    返回: encoded字符串 (账号base64 + %%% + 密码base64)
     """
-    res = data_str.split("#")
-    code, sxh = res[0], res[1]
-    data = f"{user_account}%%%{user_password}"
-    encoded = ""
-    b = 0
+    import base64
 
-    for a in range(len(code)):
-        if a < 20:
-            encoded += data[a]
-            for _ in range(int(sxh[a])):
-                encoded += code[b]
-                b += 1
-        else:
-            encoded += data[a:]
-            break
+    # 对账号和密码分别进行base64编码
+    account_b64 = base64.b64encode(user_account.encode()).decode()
+    password_b64 = base64.b64encode(user_password.encode()).decode()
+
+    # 拼接编码后的字符串
+    encoded = f"{account_b64}%%%{password_b64}"
+
     return encoded
 
 
@@ -252,12 +236,11 @@ def simulate_login(user_account, user_password):
     模拟登录过程
     返回: 是否登录成功
     """
-    data_str = get_initial_session()
 
     for attempt in range(3):
         random_code = handle_captcha()
         logger.info(f"验证码: {random_code}")
-        encoded = generate_encoded_string(data_str, user_account, user_password)
+        encoded = generate_encoded_string(user_account, user_password)
         response = login(user_account, user_password, random_code, encoded)
 
         if response.status_code == 200:
