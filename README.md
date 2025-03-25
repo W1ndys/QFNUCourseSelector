@@ -321,8 +321,8 @@ Windows 可以使用 bat 脚本调用执行每个配置文件，Linux 可以使�
 
 ### 报错下面内容
 
-```TypeError:DdddOcr.__init__()got an unexpected keyword argument 'show_ad'
-
+```py
+TypeError:DdddOcr.__init__()got an unexpected keyword argument 'show_ad'
 ```
 
 解决办法：https://github.com/W1ndys/QFNUCourseSelector/issues/8
