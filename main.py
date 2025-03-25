@@ -68,22 +68,16 @@ logger = setup_logger()
 load_dotenv()
 
 
-# 设置基本的URL和数据
-
-# 验证码请求URL
-RandCodeUrl = "http://zhjw.qfnu.edu.cn/verifycode.servlet"
-# 登录请求URL
-loginUrl = "http://zhjw.qfnu.edu.cn/Logon.do?method=logonLdap"
-# 初始数据请求URL
-dataStrUrl = "http://zhjw.qfnu.edu.cn/Logon.do?method=logon&flag=sess"
-
-
 def handle_captcha():
     """
     获取并识别验证码
     返回: 识别出的验证码字符串
     """
     session = get_session()
+
+    # 验证码请求URL
+    RandCodeUrl = "http://zhjw.qfnu.edu.cn/jsxsd/verifycode.servlet"
+
     response = session.get(RandCodeUrl)
 
     if response.status_code != 200:
@@ -120,24 +114,25 @@ def generate_encoded_string(user_account, user_password):
     return encoded
 
 
-def login(user_account, user_password, random_code, encoded):
+def login(random_code, encoded):
     """
     执行登录操作
     返回: 登录响应结果
     """
+
+    # 登录请求URL
+    loginUrl = "http://zhjw.qfnu.edu.cn/jsxsd/xk/LoginToXkLdap"
     session = get_session()
     headers = {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
         "Content-Type": "application/x-www-form-urlencoded",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
         "Origin": "http://zhjw.qfnu.edu.cn",
         "Referer": "http://zhjw.qfnu.edu.cn/",
-        "Upgrade-Insecure-Requests": "1",
     }
 
     data = {
-        "userAccount": user_account,
-        "userPassword": user_password,
+        "userAccount": "",
+        "userPassword": "",
         "RANDOMCODE": random_code,
         "encoded": encoded,
     }
@@ -254,34 +249,36 @@ def simulate_login(user_account, user_password):
     模拟登录过程
     返回: 是否登录成功
     """
+    session = get_session()
+    # 访问教务系统首页，获取必要的cookie
+    response = session.get("http://zhjw.qfnu.edu.cn/jsxsd/")
+    if response.status_code != 200:
+        logger.error("无法访问教务系统首页，请检查网络连接或教务系统的可用性。")
+        return False
+
+    # 获取必要的cookie
+    cookies = session.cookies
+    logger.info(f"获取到的cookie: {cookies}")
 
     for attempt in range(3):
         random_code = handle_captcha()
         logger.info(f"验证码: {random_code}")
         encoded = generate_encoded_string(user_account, user_password)
-        response = login(user_account, user_password, random_code, encoded)
+        logger.info(f"encoded: {encoded}")
+        response = login(random_code, encoded)
+        logger.info(f"登录响应: {response.status_code}")
 
         if response.status_code == 200:
-            if "验证码错误!!" in response.text:
+            if "验证码错误" in response.text:
                 logger.warning(f"验证码识别错误，重试第 {attempt + 1} 次")
                 continue
             if "密码错误" in response.text:
-                error_msg = "用户名或密码错误"
-                logger.error(error_msg)
-                input("按回车键退出程序...")
-                raise Exception(error_msg)
-            logger.info("登录成功")
+                raise Exception("用户名或密码错误")
             return True
         else:
-            error_msg = "登录失败"
-            logger.error(error_msg)
-            input("按回车键退出程序...")
-            raise Exception(error_msg)
+            raise Exception("登录失败")
 
-    error_msg = "验证码识别错误，请重试"
-    logger.error(error_msg)
-    input("按回车键退出程序...")
-    raise Exception(error_msg)
+    raise Exception("验证码识别错误，请重试")
 
 
 def print_welcome():
