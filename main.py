@@ -11,6 +11,7 @@ import colorlog
 import logging
 import datetime
 import time
+import traceback
 
 
 def setup_logger():
@@ -183,52 +184,69 @@ def get_user_config():
         logger.error(
             "配置文件不存在，已创建默认配置文件 config.json\n请填写相关信息后重新运行程序"
         )
+        # 暂停让用户查看错误信息
+        input("按回车键退出程序...")
         exit(0)
 
     # 读取配置文件
-    with open("config.json", "r", encoding="utf-8") as f:
-        config = json.load(f)
+    try:
+        with open("config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
 
-    # 验证必填字段
-    required_fields = ["user_account", "user_password"]
-    for field in required_fields:
-        if not config.get(field):
-            raise ValueError(f"配置文件中缺少必填字段: {field}")
+        # 验证必填字段
+        required_fields = ["user_account", "user_password"]
+        for field in required_fields:
+            if not config.get(field):
+                logger.error(f"配置文件中缺少必填字段: {field}")
+                input("按回车键退出程序...")
+                exit(1)
 
-    # 验证课程配置
-    for course in config.get("courses", []):
-        # 检查必填字段
-        if not course.get("course_id_or_name") or not course.get("teacher_name"):
-            raise ValueError("每个课程配置必须包含 course_id_or_name 和 teacher_name")
+        # 验证课程配置
+        for course in config.get("courses", []):
+            # 检查必填字段
+            if not course.get("course_id_or_name") or not course.get("teacher_name"):
+                logger.error("每个课程配置必须包含 course_id_or_name 和 teacher_name")
+                input("按回车键退出程序...")
+                exit(1)
 
-        # 验证 week_day 格式（如果提供）
-        if course.get("week_day") and not course["week_day"] in [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-        ]:
-            raise ValueError(
-                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 week_day 格式错误: "
-                "必须是 1-7 之间的数字"
-            )
+            # 验证 week_day 格式（如果提供）
+            if course.get("week_day") and not course["week_day"] in [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+            ]:
+                logger.error(
+                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 week_day 格式错误: "
+                    "必须是 1-7 之间的数字"
+                )
+                input("按回车键退出程序...")
+                exit(1)
 
-    # 验证选课模式
-    valid_modes = ["fast", "normal", "snipe"]
-    if config.get("mode") and config["mode"] not in valid_modes:
-        logger.warning(f"无效的选课模式: {config['mode']}，将使用默认的 snipe 模式")
-        config["mode"] = "snipe"
+        # 验证选课模式
+        valid_modes = ["fast", "normal", "snipe"]
+        if config.get("mode") and config["mode"] not in valid_modes:
+            logger.warning(f"无效的选课模式: {config['mode']}，将使用默认的 snipe 模式")
+            config["mode"] = "snipe"
 
-    return (
-        config["user_account"],
-        config["user_password"],
-        config["select_semester"],
-        config.get("mode", "snipe"),
-        config.get("courses", []),
-    )
+        return (
+            config["user_account"],
+            config["user_password"],
+            config.get("select_semester", ""),
+            config.get("mode", "snipe"),
+            config.get("courses", []),
+        )
+    except json.JSONDecodeError:
+        logger.error("配置文件格式错误，请检查 config.json 文件格式是否正确")
+        input("按回车键退出程序...")
+        exit(1)
+    except Exception as e:
+        logger.error(f"读取配置文件时发生错误: {str(e)}")
+        input("按回车键退出程序...")
+        exit(1)
 
 
 def simulate_login(user_account, user_password):
@@ -248,13 +266,22 @@ def simulate_login(user_account, user_password):
                 logger.warning(f"验证码识别错误，重试第 {attempt + 1} 次")
                 continue
             if "密码错误" in response.text:
-                raise Exception("用户名或密码错误")
+                error_msg = "用户名或密码错误"
+                logger.error(error_msg)
+                input("按回车键退出程序...")
+                raise Exception(error_msg)
             logger.info("登录成功")
             return True
         else:
-            raise Exception("登录失败")
+            error_msg = "登录失败"
+            logger.error(error_msg)
+            input("按回车键退出程序...")
+            raise Exception(error_msg)
 
-    raise Exception("验证码识别错误，请重试")
+    error_msg = "验证码识别错误，请重试"
+    logger.error(error_msg)
+    input("按回车键退出程序...")
+    raise Exception(error_msg)
 
 
 def print_welcome():
@@ -379,70 +406,81 @@ def select_courses(courses, mode, select_semester):
         mode = "snipe"
         select_courses(courses, mode, select_semester)
 
+
 def main():
     """
     主函数，协调整个程序的执行流程
     """
-    print_welcome()
+    try:
+        print_welcome()
 
-    # 获取环境变量
-    user_account, user_password, select_semester, mode, courses = get_user_config()
+        # 获取环境变量
+        user_account, user_password, select_semester, mode, courses = get_user_config()
 
-    if user_account:
-        logger.info("成功获取配置文件")
-        logger.info(f"用户名: {user_account}")
+        if user_account:
+            logger.info("成功获取配置文件")
+            logger.info(f"用户名: {user_account}")
 
-    while True:  # 添加外层循环
-        try:
-            # 模拟登录
-            if not simulate_login(user_account, user_password):
-                logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
-                time.sleep(1)  # 添加重试间隔
-                continue  # 重试登录
+        while True:  # 添加外层循环
+            try:
+                # 模拟登录
+                if not simulate_login(user_account, user_password):
+                    logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+                    time.sleep(1)  # 添加重试间隔
+                    continue  # 重试登录
 
-            session = get_session()
-            if not session:
-                logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
-                time.sleep(1)
-                continue
+                session = get_session()
+                if not session:
+                    logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+                    time.sleep(1)
+                    continue
 
-            # 访问主页和选课页面
-            for page_url in [
-                "http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp",
-                "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list",
-            ]:
-                for attempt in range(3):
-                    try:
-                        response = session.get(page_url)
-                        logger.debug(f"页面响应状态码: {response.status_code}")
-                        if response.status_code == 200:
-                            break
-                    except Exception as e:
-                        if attempt == 2:
-                            logger.error(f"访问页面失败: {str(e)}")
-                            raise
-                        logger.warning(f"访问页面失败，正在进行第{attempt + 2}次尝试")
-                        continue
+                # 访问主页和选课页面
+                for page_url in [
+                    "http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp",
+                    "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list",
+                ]:
+                    for attempt in range(3):
+                        try:
+                            response = session.get(page_url)
+                            logger.debug(f"页面响应状态码: {response.status_code}")
+                            if response.status_code == 200:
+                                break
+                        except Exception as e:
+                            if attempt == 2:
+                                logger.error(f"访问页面失败: {str(e)}")
+                                raise
+                            logger.warning(
+                                f"访问页面失败，正在进行第{attempt + 2}次尝试"
+                            )
+                            continue
 
-            # 获取选课轮次编号
-            jx0502zbid = get_jx0502zbid(session, select_semester)
-            if jx0502zbid:
-                logger.critical(f"成功获取到选课轮次ID: {jx0502zbid}")
-                response = session.get(
-                    f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
-                )
-                logger.debug(f"选课页面响应状态码: {response.status_code}")
-                select_courses(courses, mode, select_semester)
-                break  # 成功后退出循环
-            else:
-                logger.warning("获取选课轮次编号失败，正在重新登录...")
+                # 获取选课轮次编号
+                jx0502zbid = get_jx0502zbid(session, select_semester)
+                if jx0502zbid:
+                    logger.critical(f"成功获取到选课轮次ID: {jx0502zbid}")
+                    response = session.get(
+                        f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
+                    )
+                    logger.debug(f"选课页面响应状态码: {response.status_code}")
+                    select_courses(courses, mode, select_semester)
+                    break  # 成功后退出循环
+                else:
+                    logger.warning("获取选课轮次编号失败，正在重新登录...")
+                    time.sleep(1)
+                    continue  # 重新登录
+
+            except Exception as e:
+                logger.error(f"发生错误: {str(e)}，正在重新登录...")
                 time.sleep(1)
                 continue  # 重新登录
-
-        except Exception as e:
-            logger.error(f"发生错误: {str(e)}，正在重新登录...")
-            time.sleep(1)
-            continue  # 重新登录
+    except KeyboardInterrupt:
+        logger.info("用户手动终止程序")
+        input("按回车键退出程序...")
+    except Exception as e:
+        logger.error(f"程序发生未预期的错误: {str(e)}")
+        logger.error(traceback.format_exc())
+        input("按回车键退出程序...")
 
 
 if __name__ == "__main__":
