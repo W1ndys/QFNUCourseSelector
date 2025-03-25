@@ -118,19 +118,21 @@ def search_and_select_course(course):
                 f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课失败，遇到以下错误：\n\n"
                 + "\n\n".join(error_messages)
             )
-            dingtalk("选课失败 😭 😢 😔", error_summary)
-            feishu("选课失败 😭 😢 😔", error_summary)
+            # dingtalk("选课失败 😭 😢 😔", error_summary)
+            # feishu("选课失败 😭 😢 😔", error_summary)
+            logging.error(error_summary)
         return False
 
     except Exception as e:
         error_msg = str(e)
         logging.error(f"搜索选课失败: {error_msg}")
-        dingtalk(
-            "选课失败 😭 😢 😔",
-            f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课过程发生异常：{error_msg}",
-        )
-        feishu(
-            "选课失败 😭 😢 😔",
-            f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课过程发生异常：{error_msg}",
-        )
+        # dingtalk(
+        #     "选课失败 😭 😢 😔",
+        #     f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课过程发生异常：{error_msg}",
+        # )
+        # feishu(
+        #     "选课失败 😭 😢 😔",
+        #     f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课过程发生异常：{error_msg}",
+        # )
+        logging.error(f"搜索选课失败: {error_msg}")
         return False
