@@ -289,6 +289,8 @@ def select_courses(courses, mode, select_semester):
         f"{c['course_id_or_name']}-{c['teacher_name']}": False for c in courses
     }
 
+    start_time = time.time()  # 记录开始时间
+
     if mode == "fast":
         # 高速模式：以最快速度持续尝试选课
         for course in courses:
@@ -300,7 +302,9 @@ def select_courses(courses, mode, select_semester):
 
             # 检查是否所有课程都已选上
             if all(course_status.values()):
+                end_time = time.time()  # 记录结束时间
                 logger.info("所有课程已选择成功，程序即将退出...")
+                logger.info(f"总耗时: {end_time - start_time:.2f} 秒")
                 exit(0)
 
     elif mode == "normal":
@@ -314,7 +318,9 @@ def select_courses(courses, mode, select_semester):
 
             # 检查是否所有课程都已选上
             if all(course_status.values()):
+                end_time = time.time()  # 记录结束时间
                 logger.info("所有课程已选择成功，程序即将退出...")
+                logger.info(f"总耗时: {end_time - start_time:.2f} 秒")
                 exit(0)
 
             logger.info(
@@ -328,7 +334,9 @@ def select_courses(courses, mode, select_semester):
         while True:
             # 检查是否所有课程都已选上
             if all(course_status.values()):
+                end_time = time.time()  # 记录结束时间
                 logger.info("所有课程已选择成功，程序即将退出...")
+                logger.info(f"总耗时: {end_time - start_time:.2f} 秒")
                 exit(0)
 
             # 每次选课前刷新选课轮次ID
@@ -370,7 +378,6 @@ def select_courses(courses, mode, select_semester):
         )
         mode = "snipe"
         select_courses(courses, mode, select_semester)
-
 
 def main():
     """
