@@ -328,7 +328,7 @@ def select_courses(courses, mode, select_semester):
             if all(course_status.values()):
                 end_time = time.time()  # 记录结束时间
                 logger.info("所有课程已选择成功，程序即将退出...")
-                logger.info(f"总耗时: {end_time - start_time:.2f} 秒")
+                logger.info(f"总耗时: {end_time - start_time} 秒")
                 exit(0)
 
     elif mode == "normal":
@@ -344,7 +344,7 @@ def select_courses(courses, mode, select_semester):
             if all(course_status.values()):
                 end_time = time.time()  # 记录结束时间
                 logger.info("所有课程已选择成功，程序即将退出...")
-                logger.info(f"总耗时: {end_time - start_time:.2f} 秒")
+                logger.info(f"总耗时: {end_time - start_time} 秒")
                 exit(0)
 
             logger.info(
@@ -360,7 +360,7 @@ def select_courses(courses, mode, select_semester):
             if all(course_status.values()):
                 end_time = time.time()  # 记录结束时间
                 logger.info("所有课程已选择成功，程序即将退出...")
-                logger.info(f"总耗时: {end_time - start_time:.2f} 秒")
+                logger.info(f"总耗时: {end_time - start_time} 秒")
                 exit(0)
 
             # 每次选课前刷新选课轮次ID
