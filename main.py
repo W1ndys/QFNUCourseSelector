@@ -318,9 +318,22 @@ def select_courses(courses, mode, select_semester):
     start_time = time.time()  # 记录开始时间
     dingtalk("曲阜师范大学教务系统抢课脚本", "选课开始")
     feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
+    
+    session = get_session()
 
     if mode == "fast":
         # 高速模式：以最快速度持续尝试选课
+        # 每次选课前刷新选课轮次ID
+        current_jx0502zbid = get_jx0502zbid(session, select_semester)
+        if not current_jx0502zbid:
+            logger.warning("获取选课轮次失败，可能是账号被踢，请重新运行脚本")
+            return False
+            
+        response = session.get(
+            f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
+        )
+        logger.debug(f"选课页面响应状态码: {response.status_code}")
+        
         for course in courses:
             result = search_and_select_course(course)
             if result:
@@ -345,6 +358,17 @@ def select_courses(courses, mode, select_semester):
 
     elif mode == "normal":
         # 普通模式：正常速度选课，每次请求间隔较长
+        # 每次选课前刷新选课轮次ID
+        current_jx0502zbid = get_jx0502zbid(session, select_semester)
+        if not current_jx0502zbid:
+            logger.warning("获取选课轮次失败，可能是账号被踢，请重新运行脚本")
+            return False
+            
+        response = session.get(
+            f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
+        )
+        logger.debug(f"选课页面响应状态码: {response.status_code}")
+        
         for course in courses:
             result = search_and_select_course(course)
             if result:
@@ -374,7 +398,6 @@ def select_courses(courses, mode, select_semester):
 
     elif mode == "snipe":
         # 蹲课模式：每次选课前刷新轮次，持续执行选课操作
-        session = get_session()
         while True:
             # 检查是否所有课程都已选上
             if all(course_status.values()):
