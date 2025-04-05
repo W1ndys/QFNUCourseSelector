@@ -12,6 +12,8 @@ import logging
 import datetime
 import time
 import traceback
+from src.utils.dingtalk import dingtalk
+from src.utils.feishu import feishu
 
 
 def setup_logger():
@@ -314,6 +316,8 @@ def select_courses(courses, mode, select_semester):
     }
 
     start_time = time.time()  # 记录开始时间
+    dingtalk("曲阜师范大学教务系统抢课脚本", "选课开始")
+    feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
 
     if mode == "fast":
         # 高速模式：以最快速度持续尝试选课
@@ -329,6 +333,14 @@ def select_courses(courses, mode, select_semester):
                 end_time = time.time()  # 记录结束时间
                 logger.info("所有课程已选择成功，程序即将退出...")
                 logger.info(f"总耗时: {end_time - start_time} 秒")
+                dingtalk(
+                    "曲阜师范大学教务系统抢课脚本",
+                    f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
+                )
+                feishu(
+                    "曲阜师范大学教务系统抢课脚本",
+                    f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
+                )
                 exit(0)
 
     elif mode == "normal":
@@ -345,6 +357,14 @@ def select_courses(courses, mode, select_semester):
                 end_time = time.time()  # 记录结束时间
                 logger.info("所有课程已选择成功，程序即将退出...")
                 logger.info(f"总耗时: {end_time - start_time} 秒")
+                dingtalk(
+                    "曲阜师范大学教务系统抢课脚本",
+                    f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
+                )
+                feishu(
+                    "曲阜师范大学教务系统抢课脚本",
+                    f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
+                )
                 exit(0)
 
             logger.info(
@@ -361,8 +381,14 @@ def select_courses(courses, mode, select_semester):
                 end_time = time.time()  # 记录结束时间
                 logger.info("所有课程已选择成功，程序即将退出...")
                 logger.info(f"总耗时: {end_time - start_time} 秒")
-                exit(0)
-
+                dingtalk(
+                    "曲阜师范大学教务系统抢课脚本",
+                    f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
+                )
+                feishu(
+                    "曲阜师范大学教务系统抢课脚本",
+                    f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
+                )
             # 每次选课前刷新选课轮次ID
             current_jx0502zbid = get_jx0502zbid(session, select_semester)
             if not current_jx0502zbid:
