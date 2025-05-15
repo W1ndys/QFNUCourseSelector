@@ -5,16 +5,13 @@ cd /d %~dp0
 echo 已切换到脚本所在目录
 
 :: 检查虚拟环境目录是否存在
-if not exist "venv\Scripts\activate" (
-    echo 错误：找不到虚拟环境目录 venv\Scripts\activate
-    echo 请确保已经创建了虚拟环境
-    pause
-    exit /b 1
+if exist "venv\Scripts\activate" (
+    :: 激活 Python 虚拟环境
+    call venv\Scripts\activate
+    echo 已激活 Python 虚拟环境
+) else (
+    echo 警告：未找到虚拟环境，将使用主机 Python 环境
 )
-
-:: 激活 Python 虚拟环境
-call venv\Scripts\activate
-echo 已激活 Python 虚拟环境
 
 :: 检查 Python 版本
 python -c "import sys; ver=sys.version_info; exit(1) if ver.major==3 and ver.minor>12 else exit(0)"
@@ -28,10 +25,10 @@ if %errorlevel% equ 1 (
 :: 检查 main.py 是否存在
 if not exist "main.py" (
     echo 错误：找不到 main.py 文件
-    echo 请确保 main.py 文件存在于 app 目录中
+    echo 请确保 main.py 文件存在于当前目录中
     pause
     exit /b 1
 )
 
 :: 运行 Python 脚本
-python main.py
+python main.py 
