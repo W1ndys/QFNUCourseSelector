@@ -7,8 +7,7 @@
 <p align="center">
     <img src="https://img.shields.io/github/stars/W1ndys/QFNUCourseSelector?style=flat-square" alt="Stars">
     <img src="https://img.shields.io/github/issues/W1ndys/QFNUCourseSelector?style=flat-square" alt="Issues">
-    <img src="https://img.shields.io/badge/Python-3.12.3-blue.svg" alt="Python">
-    <img src="https://img.shields.io/badge/状态-开发完成-green.svg" alt="Status">
+    <img src="https://img.shields.io/badge/Python-3.12-blue.svg" alt="Python">
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
     <img src="https://img.shields.io/github/forks/W1ndys/QFNUCourseSelector?style=flat-square" alt="Forks">
     <img src="https://img.shields.io/github/watchers/W1ndys/QFNUCourseSelector?style=flat-square" alt="Watchers">
