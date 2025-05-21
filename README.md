@@ -15,11 +15,6 @@
     <img src="https://img.shields.io/github/last-commit/W1ndys/QFNUCourseSelector?style=flat-square" alt="Last Commit">
 </p>
 
-<div align="center">
-    <h3>
-        ✨ <b>请给我一个 Star!  Please give me a Star!</b> ✨
-    </h3>
-</div>
 
 ## 本脚本初衷是为了告别卡顿页面，还学生一个流畅的选课体验，请谨慎使用，请勿滥用，请勿在大陆范围内所有社交媒体平台软件等传播
 
