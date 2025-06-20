@@ -20,11 +20,26 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             data = course_data[0]
             jx02id = data.get("jx02id")
             jx0404id = data.get("jx0404id")
+            # 提取 xxrs (选课人数)
+            # 路径: data -> 'aaData' -> 列表第1个元素[0] -> 'xxrs'
+            xxrs_value = course_data[0]["xxrs"]
+            # 提取 skls (授课老师)
+            # 路径: data -> 'aaData' -> 列表第1个元素[0] -> 'skls'
+            skls_value = course_data[0]["skls"]
+            # 提取 kcmc (课程名称)
+            # 路径: data -> 'aaData' -> 列表第1个元素[0] -> 'kcmc'
+            kcmc_value = course_data[0]["kcmc"]
             if jx02id and jx0404id:
                 logging.critical(
                     f"仅有一组数据，直接匹配课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
                 )
-                return {"jx02id": jx02id, "jx0404id": jx0404id}
+                return {
+                    "jx02id": jx02id,
+                    "jx0404id": jx0404id,
+                    "xxrs": xxrs_value,
+                    "skls": skls_value,
+                    "kcmc": kcmc_value,
+                }
 
         # 处理周次信息
         def parse_weeks(weeks_str):
@@ -187,7 +202,8 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
         if response.status_code == 404:
             raise Exception("404 Not Found")
         logging.info(f"获取公选选课页面响应值: {response.status_code}")
-
+        # 打印当前会话的cookie
+        logging.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkGgxxkxk",
@@ -251,7 +267,8 @@ def get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course):
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/comeInXxxk",
         )
         logging.info(f"获取选修选课页面响应值: {response.status_code}")
-
+        # 打印当前会话的cookie
+        logging.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkXxxk",
@@ -261,8 +278,8 @@ def get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course):
                 "skxq": week_day,  # 上课星期
                 "skjc": class_period,  # 上课节次
                 "sfym": "false",  # 是否已满
-                "sfct": "true",  # 是否冲突
-                "sfxx": "true",  # 是否限选
+                "sfct": "false",  # 是否冲突
+                "sfxx": "false",  # 是否限选
             },
             data={
                 "sEcho": 1,
@@ -312,7 +329,8 @@ def get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course):
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/comeInBxqjhxk",
         )
         logging.info(f"获取本学期计划选课页面响应值: {response.status_code}")
-
+        # 打印当前会话的cookie
+        logging.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkBxqjhxk",
@@ -322,15 +340,15 @@ def get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course):
                 "skxq": week_day,  # 上课星期
                 "skjc": class_period,  # 上课节次
                 "sfym": "false",  # 是否已满
-                "sfct": "true",  # 是否冲突
-                "sfxx": "true",  # 是否限选
+                "sfct": "false",  # 是否冲突
+                "sfxx": "false",  # 是否限选
             },
             data={
-                "sEcho": 1,
-                "iColumns": 12,
+                "sEcho": "1",
+                "iColumns": "12",
                 "sColumns": "",
-                "iDisplayStart": 0,
-                "iDisplayLength": 15,
+                "iDisplayStart": "0",
+                "iDisplayLength": "15",
                 "mDataProp_0": "kch",
                 "mDataProp_1": "kcmc",
                 "mDataProp_2": "fzmc",
@@ -373,7 +391,8 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/comeInKnjxk",
         )
         logging.info(f"获取专业内跨年级选课页面响应值: {response.status_code}")
-
+        # 打印当前会话的cookie
+        logging.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkKnjxk",
@@ -383,15 +402,15 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
                 "skxq": week_day,  # 上课星期
                 "skjc": class_period,  # 上课节次
                 "sfym": "false",  # 是否已满
-                "sfct": "true",  # 是否冲突
-                "sfxx": "true",  # 是否限选
+                "sfct": "false",  # 是否冲突
+                "sfxx": "false",  # 是否限选
             },
             data={
-                "sEcho": 1,
-                "iColumns": 12,
+                "sEcho": "1",
+                "iColumns": "12",
                 "sColumns": "",
-                "iDisplayStart": 0,
-                "iDisplayLength": 15,
+                "iDisplayStart": "0",
+                "iDisplayLength": "15",
                 "mDataProp_0": "kch",
                 "mDataProp_1": "kcmc",
                 "mDataProp_2": "fzmc",
@@ -443,7 +462,8 @@ def get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course):
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/comeInFawxk",
         )
         logging.info(f"获取计划外选课页面响应值: {response.status_code}")
-
+        # 打印当前会话的cookie
+        logging.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkFawxk",
@@ -453,15 +473,15 @@ def get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course):
                 "skxq": week_day,  # 上课星期
                 "skjc": class_period,  # 上课节次
                 "sfym": "false",  # 是否已满
-                "sfct": "true",  # 是否冲突
-                "sfxx": "true",  # 是否限选
+                "sfct": "false",  # 是否冲突
+                "sfxx": "false",  # 是否限选
             },
             data={
-                "sEcho": 1,
-                "iColumns": 12,
+                "sEcho": "1",
+                "iColumns": "12",
                 "sColumns": "",
-                "iDisplayStart": 0,
-                "iDisplayLength": 15,
+                "iDisplayStart": "0",
+                "iDisplayLength": "15",
                 "mDataProp_0": "kch",
                 "mDataProp_1": "kcmc",
                 "mDataProp_2": "fzmc",
