@@ -68,6 +68,18 @@ def search_and_select_course(course):
             if not course_data:
                 logging.error(f"未找到课程信息: {course}")
                 return False
+            # 提取 xxrs (选课人数)
+            # 路径: data -> 'aaData' -> 列表第1个元素[0] -> 'xxrs'
+            xxrs_value = course_data["aaData"][0]["xxrs"]
+            # 提取 skls (授课老师)
+            # 路径: data -> 'aaData' -> 列表第1个元素[0] -> 'skls'
+            skls_value = course_data["aaData"][0]["skls"]
+            # 提取 kcmc (课程名称)
+            # 路径: data -> 'aaData' -> 列表第1个元素[0] -> 'kcmc'
+            kcmc_value = course_data["aaData"][0]["kcmc"]
+            logging.info(
+                f"获取课程信息成功: 课程名字：{kcmc_value}，课程人数：{xxrs_value}，授课老师：{skls_value}"
+            )
 
         # 尝试不同的选课方式
         for method_name, method_func in selection_methods:
