@@ -2,6 +2,7 @@ import os
 import json
 from src.utils.session_manager import get_session
 import logging
+from urllib.parse import quote
 
 
 def find_course_jx02id_and_jx0404id(course, course_data):
@@ -190,8 +191,8 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
     """通过教务系统API获取公选课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
-        teacher_name = course["teacher_name"]
+        course_id = quote(quote(course["course_id_or_name"], safe=""), safe="")
+        teacher_name = quote(quote(course["teacher_name"], safe=""), safe="")
         class_period = course["class_period"]
         week_day = course["week_day"]
 
@@ -257,8 +258,8 @@ def get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course):
     """通过教务系统API获取选修课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
-        teacher_name = course["teacher_name"]
+        course_id = quote(quote(course["course_id_or_name"], safe=""), safe="")
+        teacher_name = quote(quote(course["teacher_name"], safe=""), safe="")
         class_period = course["class_period"]
         week_day = course["week_day"]
 
@@ -282,22 +283,23 @@ def get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course):
                 "sfxx": "false",  # 是否限选
             },
             data={
-                "sEcho": 1,
-                "iColumns": 11,
+                "sEcho": "1",
+                "iColumns": "12",
                 "sColumns": "",
-                "iDisplayStart": 0,
-                "iDisplayLength": 15,
+                "iDisplayStart": "0",
+                "iDisplayLength": "15",
                 "mDataProp_0": "kch",
                 "mDataProp_1": "kcmc",
                 "mDataProp_2": "fzmc",
-                "mDataProp_3": "ktmc",
-                "mDataProp_4": "xf",
-                "mDataProp_5": "skls",
-                "mDataProp_6": "sksj",
-                "mDataProp_7": "skdd",
-                "mDataProp_8": "xqmc",
-                "mDataProp_9": "ctsm",
-                "mDataProp_10": "czOper",
+                "mDataProp_3": "xf",
+                "mDataProp_4": "skls",
+                "mDataProp_5": "sksj",
+                "mDataProp_6": "skdd",
+                "mDataProp_7": "xqmc",
+                "mDataProp_8": "xkrs",
+                "mDataProp_9": "syrs",
+                "mDataProp_10": "ctsm",
+                "mDataProp_11": "czOper",
             },
         )
 
@@ -319,8 +321,8 @@ def get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course):
     """通过教务系统API获取本学期计划选课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
-        teacher_name = course["teacher_name"]
+        course_id = quote(quote(course["course_id_or_name"], safe=""), safe="")
+        teacher_name = quote(quote(course["teacher_name"], safe=""), safe="")
         class_period = course["class_period"]
         week_day = course["week_day"]
 
@@ -352,14 +354,15 @@ def get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course):
                 "mDataProp_0": "kch",
                 "mDataProp_1": "kcmc",
                 "mDataProp_2": "fzmc",
-                "mDataProp_3": "ktmc",
-                "mDataProp_4": "xf",
-                "mDataProp_5": "skls",
-                "mDataProp_6": "sksj",
-                "mDataProp_7": "skdd",
-                "mDataProp_8": "xqmc",
-                "mDataProp_9": "ctsm",
-                "mDataProp_10": "czOper",
+                "mDataProp_3": "xf",
+                "mDataProp_4": "skls",
+                "mDataProp_5": "sksj",
+                "mDataProp_6": "skdd",
+                "mDataProp_7": "xqmc",
+                "mDataProp_8": "xkrs",
+                "mDataProp_9": "syrs",
+                "mDataProp_10": "ctsm",
+                "mDataProp_11": "czOper",
             },
         )
 
@@ -381,8 +384,8 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
     """通过教务系统API获取专业内跨年级选课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
-        teacher_name = course["teacher_name"]
+        course_id = quote(quote(course["course_id_or_name"], safe=""), safe="")
+        teacher_name = quote(quote(course["teacher_name"], safe=""), safe="")
         class_period = course["class_period"]
         week_day = course["week_day"]
 
@@ -414,14 +417,15 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
                 "mDataProp_0": "kch",
                 "mDataProp_1": "kcmc",
                 "mDataProp_2": "fzmc",
-                "mDataProp_3": "ktmc",
-                "mDataProp_4": "xf",
-                "mDataProp_5": "skls",
-                "mDataProp_6": "sksj",
-                "mDataProp_7": "skdd",
-                "mDataProp_8": "xqmc",
-                "mDataProp_9": "ctsm",
-                "mDataProp_10": "czOper",
+                "mDataProp_3": "xf",
+                "mDataProp_4": "skls",
+                "mDataProp_5": "sksj",
+                "mDataProp_6": "skdd",
+                "mDataProp_7": "xqmc",
+                "mDataProp_8": "xkrs",
+                "mDataProp_9": "syrs",
+                "mDataProp_10": "ctsm",
+                "mDataProp_11": "czOper",
             },
         )
 
@@ -452,8 +456,8 @@ def get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course):
     """通过教务系统API获取计划外选课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
-        teacher_name = course["teacher_name"]
+        course_id = quote(quote(course["course_id_or_name"], safe=""), safe="")
+        teacher_name = quote(quote(course["teacher_name"], safe=""), safe="")
         class_period = course["class_period"]
         week_day = course["week_day"]
 
@@ -485,14 +489,15 @@ def get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course):
                 "mDataProp_0": "kch",
                 "mDataProp_1": "kcmc",
                 "mDataProp_2": "fzmc",
-                "mDataProp_3": "ktmc",
-                "mDataProp_4": "xf",
-                "mDataProp_5": "skls",
-                "mDataProp_6": "sksj",
-                "mDataProp_7": "skdd",
-                "mDataProp_8": "xqmc",
-                "mDataProp_9": "ctsm",
-                "mDataProp_10": "czOper",
+                "mDataProp_3": "xf",
+                "mDataProp_4": "skls",
+                "mDataProp_5": "sksj",
+                "mDataProp_6": "skdd",
+                "mDataProp_7": "xqmc",
+                "mDataProp_8": "xkrs",
+                "mDataProp_9": "syrs",
+                "mDataProp_10": "ctsm",
+                "mDataProp_11": "czOper",
             },
         )
 
