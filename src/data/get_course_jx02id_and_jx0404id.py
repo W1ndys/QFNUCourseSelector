@@ -12,10 +12,13 @@ def find_course_jx02id_and_jx0404id(course, course_data):
         if not course_data:
             return None
 
-        # 如果只有一组数据，并且课程号和教师姓名都匹配，直接返回
+        # 如果只有一组数据，并且课程号或课程ID和教师姓名都匹配，直接返回
         if (
             len(course_data) == 1
-            and course_data[0].get("kch") == course["course_id_or_name"]
+            and (
+                course_data[0].get("kch") == course["course_id_or_name"]
+                or course_data[0].get("kcmc") == course["course_id_or_name"]
+            )
             and course_data[0].get("skls") == course["teacher_name"]
         ):
             data = course_data[0]
