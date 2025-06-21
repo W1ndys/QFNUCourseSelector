@@ -318,7 +318,7 @@ def select_courses(courses, mode, select_semester):
     start_time = time.time()  # 记录开始时间
     dingtalk("曲阜师范大学教务系统抢课脚本", "选课开始")
     feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
-    
+
     session = get_session()
 
     if mode == "fast":
@@ -328,12 +328,12 @@ def select_courses(courses, mode, select_semester):
         if not current_jx0502zbid:
             logger.warning("获取选课轮次失败，可能是账号被踢，请重新运行脚本")
             return False
-            
+
         response = session.get(
             f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
         )
         logger.debug(f"选课页面响应状态码: {response.status_code}")
-        
+
         for course in courses:
             result = search_and_select_course(course)
             if result:
@@ -354,7 +354,7 @@ def select_courses(courses, mode, select_semester):
                     "曲阜师范大学教务系统抢课脚本",
                     f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
                 )
-                exit(0)
+                return True
 
     elif mode == "normal":
         # 普通模式：正常速度选课，每次请求间隔较长
@@ -363,12 +363,12 @@ def select_courses(courses, mode, select_semester):
         if not current_jx0502zbid:
             logger.warning("获取选课轮次失败，可能是账号被踢，请重新运行脚本")
             return False
-            
+
         response = session.get(
             f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
         )
         logger.debug(f"选课页面响应状态码: {response.status_code}")
-        
+
         for course in courses:
             result = search_and_select_course(course)
             if result:
@@ -389,7 +389,7 @@ def select_courses(courses, mode, select_semester):
                     "曲阜师范大学教务系统抢课脚本",
                     f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
                 )
-                exit(0)
+                return True
 
             logger.info(
                 f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待5秒后继续选下一节课"
@@ -412,6 +412,7 @@ def select_courses(courses, mode, select_semester):
                     "曲阜师范大学教务系统抢课脚本",
                     f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
                 )
+                return True
             # 每次选课前刷新选课轮次ID
             current_jx0502zbid = get_jx0502zbid(session, select_semester)
             if not current_jx0502zbid:
