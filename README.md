@@ -115,7 +115,7 @@ Linux 用户执行 `bash run_app_in_venv_linux.sh`，系统将自动生成配置
   "feishu_webhook": "你的飞书机器人webhook", // 选填
   "feishu_secret": "你的飞书机器人secret", // 选填
   "mode": "选课模式", // 选课模式，fast: 高速模式，normal: 普通模式，snipe: 蹲课模式
-  "course": [
+  "courses": [
     {
       "course_id_or_name": "课程id", // 必填
       "teacher_name": "教师名称", // 必填
