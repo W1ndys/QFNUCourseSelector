@@ -30,11 +30,15 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             lecture_courses = []
             lab_courses = []
 
+            # 增加标记集合
+            lecture_markers = ("[讲课学时]",)
+            lab_markers = ("[实验学时]", "[实践学时]")
+
             for data in matching_courses:
                 course_name = data.get("kcmc", "")
-                if "[讲课学时]" in course_name:
+                if any(marker in course_name for marker in lecture_markers):
                     lecture_courses.append(data)
-                elif "[实验学时]" in course_name:
+                elif any(marker in course_name for marker in lab_markers):
                     lab_courses.append(data)
 
             # 选择讲课学时课程（优先使用配置中的偏好时间）
@@ -88,7 +92,11 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 如果课程名称包含[讲课学时]或[实验学时]，说明可能需要同时选课
             # 此时不要直接返回，而是标记需要进一步搜索
-            if "[讲课学时]" in course_name or "[实验学时]" in course_name:
+            if (
+                ("[讲课学时]" in course_name)
+                or ("[实验学时]" in course_name)
+                or ("[实践学时]" in course_name)
+            ):
                 logging.info(
                     f"发现可能需要同时选课的课程：【{course['course_id_or_name']}-{course['teacher_name']}】，"
                     f"但当前搜索结果只有一条记录，标记需要进一步搜索"
