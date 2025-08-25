@@ -81,33 +81,42 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                     },
                 }
 
-        # 如果只有一组数据，并且课程号或课程ID和教师姓名都匹配，直接返回
-        if (
-            len(course_data) == 1
-            and (
-                course_data[0].get("kch") == course["course_id_or_name"]
-                or course_data[0].get("kcmc") == course["course_id_or_name"]
-            )
-            and course_data[0].get("skls") == course["teacher_name"]
-        ):
+        # 如果只有一组数据，检查是否需要强制搜索组合课程
+        if len(course_data) == 1:
             data = course_data[0]
-            jx02id = data.get("jx02id")
-            jx0404id = data.get("jx0404id")
-            xxrs_value = course_data[0]["xxrs"]
-            skls_value = course_data[0]["skls"]
-            kcmc_value = course_data[0]["kcmc"]
-            if jx02id and jx0404id:
-                logging.critical(
-                    f"仅有一组数据，直接匹配课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
+            course_name = data.get("kcmc", "")
+
+            # 如果课程名称包含[讲课学时]或[实验学时]，说明可能需要同时选课
+            # 此时不要直接返回，而是标记需要进一步搜索
+            if "[讲课学时]" in course_name or "[实验学时]" in course_name:
+                logging.info(
+                    f"发现可能需要同时选课的课程：【{course['course_id_or_name']}-{course['teacher_name']}】，"
+                    f"但当前搜索结果只有一条记录，标记需要进一步搜索"
                 )
-                return {
-                    "jx02id": jx02id,
-                    "jx0404id": jx0404id,
-                    "xxrs": xxrs_value,
-                    "skls": skls_value,
-                    "kcmc": kcmc_value,
-                    "needs_both": False,
-                }
+                return {"needs_further_search": True, "current_course": data}
+
+            # 如果课程名称不包含学时标识，按原来的逻辑处理
+            if (
+                data.get("kch") == course["course_id_or_name"]
+                or data.get("kcmc") == course["course_id_or_name"]
+            ) and data.get("skls") == course["teacher_name"]:
+                jx02id = data.get("jx02id")
+                jx0404id = data.get("jx0404id")
+                xxrs_value = data["xxrs"]
+                skls_value = data["skls"]
+                kcmc_value = data["kcmc"]
+                if jx02id and jx0404id:
+                    logging.critical(
+                        f"仅有一组数据，直接匹配课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
+                    )
+                    return {
+                        "jx02id": jx02id,
+                        "jx0404id": jx0404id,
+                        "xxrs": xxrs_value,
+                        "skls": skls_value,
+                        "kcmc": kcmc_value,
+                        "needs_both": False,
+                    }
 
         # 处理周次信息
         def parse_weeks(weeks_str):
@@ -306,41 +315,55 @@ def get_course_jx02id_and_jx0404id_by_api(course):
                 if result:
                     result = find_course_jx02id_and_jx0404id(course, result["aaData"])
                     if result:
-                        return result
+                        # 检查是否需要进一步搜索
+                        if result.get("needs_further_search"):
+                            logging.info(f"需要进一步搜索组合课程，跳过精确搜索结果")
+                        else:
+                            return result
 
                 result = get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course)
                 if result:
                     result = find_course_jx02id_and_jx0404id(course, result["aaData"])
                     if result:
-                        return result
+                        if result.get("needs_further_search"):
+                            logging.info(f"需要进一步搜索组合课程，跳过精确搜索结果")
+                        else:
+                            return result
 
                 result = get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course)
                 if result:
                     result = find_course_jx02id_and_jx0404id(course, result["aaData"])
                     if result:
-                        return result
+                        if result.get("needs_further_search"):
+                            logging.info(f"需要进一步搜索组合课程，跳过精确搜索结果")
+                        else:
+                            return result
 
                 result = get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course)
                 if result:
                     result = find_course_jx02id_and_jx0404id(course, result["aaData"])
                     if result:
-                        return result
+                        if result.get("needs_further_search"):
+                            logging.info(f"需要进一步搜索组合课程，跳过精确搜索结果")
+                        else:
+                            return result
 
                 result = get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course)
                 if result:
                     result = find_course_jx02id_and_jx0404id(course, result["aaData"])
                     if result:
-                        return result
+                        if result.get("needs_further_search"):
+                            logging.info(f"需要进一步搜索组合课程，跳过精确搜索结果")
+                        else:
+                            return result
 
-                # 如果精确搜索没有找到，且配置了时间信息，尝试无时间限制搜索
+                # 如果精确搜索没有找到，或者标记需要进一步搜索，尝试无时间限制搜索
                 if (
                     course.get("week_day")
                     or course.get("weeks")
                     or course.get("class_period")
                 ):
-                    logging.info(
-                        f"精确搜索未找到课程，尝试无时间限制搜索: {course['course_id_or_name']}"
-                    )
+                    logging.info(f"尝试无时间限制搜索: {course['course_id_or_name']}")
 
                     # 创建无时间限制的搜索参数
                     course_no_time = {
