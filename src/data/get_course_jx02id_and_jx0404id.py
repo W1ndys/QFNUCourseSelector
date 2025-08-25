@@ -12,6 +12,58 @@ def find_course_jx02id_and_jx0404id(course, course_data):
         if not course_data:
             return None
 
+        # 检查是否存在需要同时选择讲课学时和实验学时的情况
+        # 查找同一个课程号、同一个老师的多个课程记录
+        matching_courses = []
+        for data in course_data:
+            if (
+                data.get("kch") == course["course_id_or_name"]
+                or data.get("kcmc") == course["course_id_or_name"]
+            ) and data.get("skls") == course["teacher_name"]:
+                matching_courses.append(data)
+
+        # 如果找到多个匹配的课程，检查是否包含讲课学时和实验学时
+        if len(matching_courses) > 1:
+            lecture_course = None
+            lab_course = None
+
+            for data in matching_courses:
+                course_name = data.get("kcmc", "")
+                if "[讲课学时]" in course_name:
+                    lecture_course = data
+                elif "[实验学时]" in course_name:
+                    lab_course = data
+
+            # 如果同时找到讲课学时和实验学时，返回组合信息
+            if lecture_course and lab_course:
+                logging.critical(
+                    f"发现需要同时选择的课程：【{course['course_id_or_name']}-{course['teacher_name']}】"
+                    f"讲课学时: {lecture_course.get('jx02id')}-{lecture_course.get('jx0404id')}, "
+                    f"实验学时: {lab_course.get('jx02id')}-{lab_course.get('jx0404id')}"
+                )
+                return {
+                    "jx02id": lecture_course.get(
+                        "jx02id"
+                    ),  # 使用讲课学时的jx02id作为主ID
+                    "jx0404id": lecture_course.get(
+                        "jx0404id"
+                    ),  # 使用讲课学时的jx0404id作为主ID
+                    "xxrs": lecture_course.get("xxrs"),
+                    "skls": lecture_course.get("skls"),
+                    "kcmc": lecture_course.get("kcmc"),
+                    "needs_both": True,  # 标记需要同时选择
+                    "lecture_course": {
+                        "jx02id": lecture_course.get("jx02id"),
+                        "jx0404id": lecture_course.get("jx0404id"),
+                        "cfbs": lecture_course.get("cfbs", "1"),
+                    },
+                    "lab_course": {
+                        "jx02id": lab_course.get("jx02id"),
+                        "jx0404id": lab_course.get("jx0404id"),
+                        "cfbs": lab_course.get("cfbs", "4"),
+                    },
+                }
+
         # 如果只有一组数据，并且课程号或课程ID和教师姓名都匹配，直接返回
         if (
             len(course_data) == 1
@@ -43,25 +95,47 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                     "xxrs": xxrs_value,
                     "skls": skls_value,
                     "kcmc": kcmc_value,
+                    "needs_both": False,  # 标记不需要同时选择
                 }
 
         # 处理周次信息
         def parse_weeks(weeks_str):
             weeks = set()
-            # 处理多个周次范围（用逗号分隔）
-            for part in weeks_str.split(","):
-                part = part.strip()
-                if "-" in part:
-                    start, end = map(int, part.split("-"))
+            if not weeks_str:
+                return weeks
+
+            # 处理常见的周次格式
+            if "周" in weeks_str:
+                weeks_str = weeks_str.split("周")[0]
+
+            # 处理范围格式，如 "1-18"
+            if "-" in weeks_str:
+                try:
+                    start, end = map(int, weeks_str.split("-"))
                     weeks.update(range(start, end + 1))
-                else:
-                    weeks.add(int(part))
+                except ValueError:
+                    pass
+            # 处理单个数字
+            elif weeks_str.isdigit():
+                weeks.add(int(weeks_str))
+            # 处理逗号分隔的格式，如 "1,3,5"
+            elif "," in weeks_str:
+                try:
+                    for week in weeks_str.split(","):
+                        if week.strip().isdigit():
+                            weeks.add(int(week.strip()))
+                except ValueError:
+                    pass
+
             return weeks
 
         def check_weeks_match(target_weeks, actual_weeks):
-            """检查实际周次是否匹配目标周次"""
-            target_set = parse_weeks(target_weeks)
-            actual_set = actual_weeks
+            if not target_weeks or not actual_weeks:
+                return True
+
+            target_set = set(target_weeks)
+            actual_set = set(actual_weeks)
+
             # 判断实际周次是否完全包含目标周次
             return target_set.issubset(actual_set)
 
@@ -105,7 +179,11 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                 logging.critical(
                     f"找到课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
                 )
-                return {"jx02id": jx02id, "jx0404id": jx0404id}
+                return {
+                    "jx02id": jx02id,
+                    "jx0404id": jx0404id,
+                    "needs_both": False,  # 标记不需要同时选择
+                }
 
         logging.warning(f"未找到匹配的课程数据")
         return None

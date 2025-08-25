@@ -69,9 +69,15 @@ def search_and_select_course(course):
                 logging.error(f"未找到课程信息: {course}")
                 return False
 
-            logging.info(
-                f"获取课程信息成功: 课程名字：{course_data['kcmc']}，课程人数：{course_data['xxrs']}，授课老师：{course_data['skls']}"
-            )
+            # 检查是否需要同时选择讲课学时和实验学时
+            if course_data.get("needs_both", False):
+                logging.info(
+                    f"获取课程信息成功: 课程名字：{course_data['kcmc']}，课程人数：{course_data['xxrs']}，授课老师：{course_data['skls']}，需要同时选择讲课学时和实验学时"
+                )
+            else:
+                logging.info(
+                    f"获取课程信息成功: 课程名字：{course_data['kcmc']}，课程人数：{course_data['xxrs']}，授课老师：{course_data['skls']}"
+                )
         # input("Press Enter to continue...")
         # 尝试不同的选课方式
         for method_name, method_func in selection_methods:
