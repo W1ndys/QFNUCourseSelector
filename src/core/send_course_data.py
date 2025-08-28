@@ -39,7 +39,7 @@ def send_ggxxkxkOper_course_jx02id_and_jx0404id(
             lecture_response_json = lecture_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时的公选课选课请求, 响应代码: {lecture_response.status_code}"
+                f"已发送【{course_name}】讲课学时的公选课选课请求, 响应代码: {lecture_response.status_code}，响应内容: {lecture_response_json}"
             )
 
             # 检查讲课学时选课结果
@@ -91,7 +91,7 @@ def send_ggxxkxkOper_course_jx02id_and_jx0404id(
             combined_response_json = combined_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时+实验学时的公选课选课请求, 响应代码: {combined_response.status_code}"
+                f"已发送【{course_name}】讲课学时+实验学时的公选课选课请求, 响应代码: {combined_response.status_code}，响应内容: {combined_response_json}"
             )
 
             # 检查最终选课结果
@@ -149,7 +149,7 @@ def send_ggxxkxkOper_course_jx02id_and_jx0404id(
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的公选课选课请求, 响应代码: {response.status_code}"
+            f"已发送【{course_name}】的公选课选课请求, 响应代码: {response.status_code}，响应内容: {response_json}"
         )
 
         if "flag1" in response_json:
@@ -217,7 +217,7 @@ def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
             lecture_response_json = lecture_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时的专业内跨年级选课请求, 响应代码: {lecture_response.status_code}"
+                f"已发送【{course_name}】讲课学时的专业内跨年级选课请求, 响应代码: {lecture_response.status_code}，响应内容: {lecture_response_json}"
             )
 
             # 检查讲课学时选课结果
@@ -269,7 +269,7 @@ def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
             combined_response_json = combined_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时+实验学时的专业内跨年级选课请求, 响应代码: {combined_response.status_code}"
+                f"已发送【{course_name}】讲课学时+实验学时的专业内跨年级选课请求, 响应代码: {combined_response.status_code}，响应内容: {combined_response_json}"
             )
 
             # 检查最终选课结果
@@ -327,7 +327,7 @@ def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的专业内跨年级选课请求, 响应代码: {response.status_code}"
+            f"已发送【{course_name}】的专业内跨年级选课请求, 响应代码: {response.status_code}，响应内容: {response_json}"
         )
 
         if "flag1" in response_json:
@@ -399,7 +399,7 @@ def send_bxqjhxkOper_course_jx02id_and_jx0404id(
             lecture_response_json = lecture_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时的本学期计划选课请求, 响应代码: {lecture_response.status_code}"
+                f"已发送【{course_name}】讲课学时的本学期计划选课请求, 响应代码: {lecture_response.status_code}，响应内容: {lecture_response_json}"
             )
 
             # 检查讲课学时选课结果
@@ -451,7 +451,7 @@ def send_bxqjhxkOper_course_jx02id_and_jx0404id(
             combined_response_json = combined_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时+实验学时的本学期计划选课请求, 响应代码: {combined_response.status_code}"
+                f"已发送【{course_name}】讲课学时+实验学时的本学期计划选课请求, 响应代码: {combined_response.status_code}，响应内容: {combined_response_json}"
             )
 
             # 检查最终选课结果
@@ -509,7 +509,7 @@ def send_bxqjhxkOper_course_jx02id_and_jx0404id(
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的本学期计划选课请求, 响应代码: {response.status_code}"
+            f"已发送【{course_name}】的本学期计划选课请求, 响应代码: {response.status_code}，响应内容: {response_json}"
         )
 
         if "flag1" in response_json:
@@ -577,7 +577,7 @@ def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx04
             lecture_response_json = lecture_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时的选修选课请求, 响应代码: {lecture_response.status_code}"
+                f"已发送【{course_name}】讲课学时的选修选课请求, 响应代码: {lecture_response.status_code}，响应内容: {lecture_response_json}"
             )
 
             # 检查讲课学时选课结果
@@ -629,7 +629,7 @@ def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx04
             combined_response_json = combined_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时+实验学时的选修选课请求, 响应代码: {combined_response.status_code}"
+                f"已发送【{course_name}】讲课学时+实验学时的选修选课请求, 响应代码: {combined_response.status_code}，响应内容: {combined_response_json}"
             )
 
             # 检查最终选课结果
@@ -686,7 +686,7 @@ def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx04
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的选修选课请求, 响应代码: {response.status_code}"
+            f"已发送【{course_name}】的选修选课请求, 响应代码: {response.status_code}，响应内容: {response_json}"
         )
 
         if "flag1" in response_json:
@@ -754,7 +754,7 @@ def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
             lecture_response_json = lecture_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时的计划外选课请求, 响应代码: {lecture_response.status_code}"
+                f"已发送【{course_name}】讲课学时的计划外选课请求, 响应代码: {lecture_response.status_code}，响应内容: {lecture_response_json}"
             )
 
             # 检查讲课学时选课结果
@@ -806,7 +806,7 @@ def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
             combined_response_json = combined_response.json()
 
             logging.info(
-                f"已发送【{course_name}】讲课学时+实验学时的计划外选课请求, 响应代码: {combined_response.status_code}"
+                f"已发送【{course_name}】讲课学时+实验学时的计划外选课请求, 响应代码: {combined_response.status_code}，响应内容: {combined_response_json}"
             )
 
             # 检查最终选课结果
@@ -864,7 +864,7 @@ def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
         response_json = response.json()
 
         logging.info(
-            f"已发送【{course_name}】的计划外选课请求, 响应代码: {response.status_code}"
+            f"已发送【{course_name}】的计划外选课请求, 响应代码: {response.status_code}，响应内容: {response_json}"
         )
 
         if "flag1" in response_json:

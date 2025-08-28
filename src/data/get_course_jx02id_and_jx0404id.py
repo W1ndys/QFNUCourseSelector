@@ -505,24 +505,8 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkGgxxkxk",
             params=search_params,
             data={
-                "sEcho": 1,
-                "iColumns": 13,
-                "sColumns": "",
-                "iDisplayStart": 0,
-                "iDisplayLength": 15,
-                "mDataProp_0": "kch",
-                "mDataProp_1": "kcmc",
-                "mDataProp_2": "xf",
-                "mDataProp_3": "skls",
-                "mDataProp_4": "sksj",
-                "mDataProp_5": "skdd",
-                "mDataProp_6": "xqmc",
-                "mDataProp_7": "xxrs",
-                "mDataProp_8": "xkrs",
-                "mDataProp_9": "syrs",
-                "mDataProp_10": "ctsm",
-                "mDataProp_11": "szkcflmc",
-                "mDataProp_12": "czOper",
+                "iDisplayStart": "0",
+                "iDisplayLength": "100",
             },
         )
         if response.status_code == 404:
@@ -533,7 +517,9 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
         if not response_data.get("aaData"):
             logging.warning("公选选课的API返回的aaData为空，可能该课程不在该分类")
             return None
-
+        logging.info(
+            f"获取公选选课列表数据响应值: {response.status_code}，响应内容: {response.text}"
+        )
         return response_data
     except Exception as e:
         logging.error(f"获取公选选课的jx02id和jx0404id失败: {e}")
@@ -577,27 +563,14 @@ def get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course):
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkXxxk",
             params=search_params,
             data={
-                "sEcho": "1",
-                "iColumns": "12",
-                "sColumns": "",
                 "iDisplayStart": "0",
-                "iDisplayLength": "15",
-                "mDataProp_0": "kch",
-                "mDataProp_1": "kcmc",
-                "mDataProp_2": "fzmc",
-                "mDataProp_3": "xf",
-                "mDataProp_4": "skls",
-                "mDataProp_5": "sksj",
-                "mDataProp_6": "skdd",
-                "mDataProp_7": "xqmc",
-                "mDataProp_8": "xkrs",
-                "mDataProp_9": "syrs",
-                "mDataProp_10": "ctsm",
-                "mDataProp_11": "czOper",
+                "iDisplayLength": "100",
             },
         )
 
-        logging.info(f"获取选修选课列表数据响应值: {response.status_code}")
+        logging.info(
+            f"获取选修选课列表数据响应值: {response.status_code}，响应内容: {response.text}"
+        )
         response_data = json.loads(response.text)
 
         # 检查aaData是否为空
@@ -648,27 +621,14 @@ def get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course):
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkBxqjhxk",
             params=search_params,
             data={
-                "sEcho": "1",
-                "iColumns": "12",
-                "sColumns": "",
                 "iDisplayStart": "0",
-                "iDisplayLength": "15",
-                "mDataProp_0": "kch",
-                "mDataProp_1": "kcmc",
-                "mDataProp_2": "fzmc",
-                "mDataProp_3": "xf",
-                "mDataProp_4": "skls",
-                "mDataProp_5": "sksj",
-                "mDataProp_6": "skdd",
-                "mDataProp_7": "xqmc",
-                "mDataProp_8": "xkrs",
-                "mDataProp_9": "syrs",
-                "mDataProp_10": "ctsm",
-                "mDataProp_11": "czOper",
+                "iDisplayLength": "100",
             },
         )
 
-        logging.info(f"获取本学期计划选课列表数据响应值: {response.status_code}")
+        logging.info(
+            f"获取本学期计划选课列表数据响应值: {response.status_code}，响应内容: {response.text}"
+        )
         response_data = json.loads(response.text)
 
         # 检查aaData是否为空
@@ -721,30 +681,17 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkKnjxk",
             params=search_params,
             data={
-                "sEcho": "1",
-                "iColumns": "12",
-                "sColumns": "",
                 "iDisplayStart": "0",
-                "iDisplayLength": "15",
-                "mDataProp_0": "kch",
-                "mDataProp_1": "kcmc",
-                "mDataProp_2": "fzmc",
-                "mDataProp_3": "xf",
-                "mDataProp_4": "skls",
-                "mDataProp_5": "sksj",
-                "mDataProp_6": "skdd",
-                "mDataProp_7": "xqmc",
-                "mDataProp_8": "xkrs",
-                "mDataProp_9": "syrs",
-                "mDataProp_10": "ctsm",
-                "mDataProp_11": "czOper",
+                "iDisplayLength": "100",
             },
         )
 
         if response.status_code == 404:
             raise Exception("404 Not Found")
 
-        logging.info(f"获取专业内跨年级选课列表数据响应值: {response.status_code}")
+        logging.info(
+            f"获取专业内跨年级选课列表数据响应值: {response.status_code}，响应内容: {response.text}"
+        )
         response_data = json.loads(response.text)
 
         # 检查aaData是否为空
@@ -797,27 +744,14 @@ def get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course):
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkFawxk",
             params=search_params,
             data={
-                "sEcho": "1",
-                "iColumns": "12",
-                "sColumns": "",
                 "iDisplayStart": "0",
-                "iDisplayLength": "15",
-                "mDataProp_0": "kch",
-                "mDataProp_1": "kcmc",
-                "mDataProp_2": "fzmc",
-                "mDataProp_3": "xf",
-                "mDataProp_4": "skls",
-                "mDataProp_5": "sksj",
-                "mDataProp_6": "skdd",
-                "mDataProp_7": "xqmc",
-                "mDataProp_8": "xkrs",
-                "mDataProp_9": "syrs",
-                "mDataProp_10": "ctsm",
-                "mDataProp_11": "czOper",
+                "iDisplayLength": "100",
             },
         )
 
-        logging.info(f"获取计划外选课列表数据响应值: {response.status_code}")
+        logging.info(
+            f"获取计划外选课列表数据响应值: {response.status_code}，响应内容: {response.text}"
+        )
         response_data = json.loads(response.text)
 
         # 检查aaData是否为空
