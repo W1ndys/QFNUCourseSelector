@@ -69,7 +69,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                 return {
                     "jx02id": lecture_course.get("jx02id"),
                     "jx0404id": lecture_course.get("jx0404id"),
-                    "xxrs": lecture_course.get("xxrs"),
+                    "syrs": lecture_course.get("syrs"),
                     "skls": lecture_course.get("skls"),
                     "kcmc": lecture_course.get("kcmc"),
                     "needs_both": True,
@@ -110,7 +110,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             ) and data.get("skls") == course["teacher_name"]:
                 jx02id = data.get("jx02id")
                 jx0404id = data.get("jx0404id")
-                xxrs_value = data["xxrs"]
+                syrs_value = data["syrs"]
                 skls_value = data["skls"]
                 kcmc_value = data["kcmc"]
                 if jx02id and jx0404id:
@@ -120,7 +120,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                     return {
                         "jx02id": jx02id,
                         "jx0404id": jx0404id,
-                        "xxrs": xxrs_value,
+                        "syrs": syrs_value,
                         "skls": skls_value,
                         "kcmc": kcmc_value,
                         "needs_both": False,
@@ -214,7 +214,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                     "jx0404id": jx0404id,
                     "kcmc": data.get("kcmc"),
                     "skls": data.get("skls"),
-                    "xxrs": data.get("xxrs"),
+                    "syrs": data.get("syrs"),
                     "sksj": data.get("sksj"),
                     "needs_both": False,
                 }

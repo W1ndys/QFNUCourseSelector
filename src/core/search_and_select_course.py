@@ -72,11 +72,11 @@ def search_and_select_course(course):
             # 检查是否需要同时选择讲课学时和实验学时
             if course_data.get("needs_both", False):
                 logging.info(
-                    f"获取课程信息成功: 课程名字：{course_data['kcmc']}，课程人数：{course_data['xxrs']}，授课老师：{course_data['skls']}，需要同时选择讲课学时和实验学时"
+                    f"获取课程信息成功: 课程名字：{course_data['kcmc']}，剩余人数：{course_data['syrs']}，授课老师：{course_data['skls']}，需要同时选择讲课学时和实验学时"
                 )
             else:
                 logging.info(
-                    f"获取课程信息成功: 课程名字：{course_data['kcmc']}，课程人数：{course_data['xxrs']}，授课老师：{course_data['skls']}"
+                    f"获取课程信息成功: 课程名字：{course_data['kcmc']}，剩余人数：{course_data['syrs']}，授课老师：{course_data['skls']}"
                 )
         # input("Press Enter to continue...")
         # 尝试不同的选课方式
