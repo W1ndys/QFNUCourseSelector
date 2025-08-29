@@ -200,14 +200,24 @@ def find_course_jx02id_and_jx0404id(course, course_data):
                     actual_weeks.update(parse_weeks(weeks_str))
 
                 # 检查是否匹配目标周次
-                weeks_match = check_weeks_match(course["weeks"], actual_weeks)
+                weeks_match = check_weeks_match(
+                    parse_weeks(course["weeks"]), actual_weeks
+                )
 
             # 确保两个ID都存在且周次匹配
             if jx02id and jx0404id and weeks_match:
                 logging.critical(
                     f"找到课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
                 )
-                return {"jx02id": jx02id, "jx0404id": jx0404id, "needs_both": False}
+                return {
+                    "jx02id": jx02id,
+                    "jx0404id": jx0404id,
+                    "kcmc": data.get("kcmc"),
+                    "skls": data.get("skls"),
+                    "xxrs": data.get("xxrs"),
+                    "sksj": data.get("sksj"),
+                    "needs_both": False,
+                }
 
         logging.warning(f"未找到匹配的课程数据")
         return None
@@ -490,8 +500,8 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
             "skls": teacher_name,
             "szjylb": "",
             "sfym": "false",
-            "sfct": "true",
-            "sfxx": "true",
+            "sfct": "false",
+            "sfxx": "false",
         }
 
         # 只有当配置了时间信息时才添加时间参数
@@ -511,15 +521,15 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
         )
         if response.status_code == 404:
             raise Exception("404 Not Found")
-
+        logging.info(
+            f"获取公选选课列表数据响应值: {response.status_code}，响应内容: {response.text}"
+        )
         response_data = json.loads(response.text)
         # 检查aaData是否为空
         if not response_data.get("aaData"):
             logging.warning("公选选课的API返回的aaData为空，可能该课程不在该分类")
             return None
-        logging.info(
-            f"获取公选选课列表数据响应值: {response.status_code}，响应内容: {response.text}"
-        )
+
         return response_data
     except Exception as e:
         logging.error(f"获取公选选课的jx02id和jx0404id失败: {e}")
