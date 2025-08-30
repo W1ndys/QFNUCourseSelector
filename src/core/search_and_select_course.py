@@ -99,7 +99,6 @@ def search_and_select_course(course):
                 + "\n\n".join(error_messages)
             )
             logging.error(error_summary)
-            feishu("选课失败", error_summary)
         return False
 
     except Exception as e:
