@@ -78,7 +78,7 @@ def search_and_select_course(course):
                 logging.info(
                     f"获取课程信息成功: 课程名字：{course_data['kcmc']}，剩余人数：{course_data['syrs']}，授课老师：{course_data['skls']}"
                 )
-        # input("Press Enter to continue...")
+
         # 尝试不同的选课方式
         for method_name, method_func in selection_methods:
             result, message = method_func(course["course_id_or_name"], course_data)
@@ -99,6 +99,7 @@ def search_and_select_course(course):
                 + "\n\n".join(error_messages)
             )
             logging.error(error_summary)
+            feishu("选课失败", error_summary)
         return False
 
     except Exception as e:
