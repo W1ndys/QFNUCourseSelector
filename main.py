@@ -445,7 +445,7 @@ def select_courses(courses, mode, select_semester):
                 )
 
             logger.info("本轮选课操作完成，2秒后开始新一轮选课...")
-            time.sleep(2)
+            time.sleep(1)
     else:
         logger.warning(
             "模式错误，请检查配置文件的mode字段是否为fast、normal或snipe，即将默认使用snipe模式"
