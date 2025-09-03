@@ -4,206 +4,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#672D07">
-    <title>QFNU 抢课配置生成器</title>
-    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <title>选课配置生成器</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover-color: #4338ca;
+            --danger-color: #ef4444;
+            --danger-hover-color: #dc2626;
+            --background-gradient-start: #f3f4f6;
+            --background-gradient-end: #e5e7eb;
+            --text-color: #1f2937;
+            --subtle-text-color: #6b7280;
+            --card-bg-color: #ffffff;
+            --border-color: #d1d5db;
+            --input-bg-color: #f9fafb;
+            --code-bg-color: #1f2937;
+            --code-text-color: #d1d5db;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius-lg: 12px;
+            --border-radius-md: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, var(--background-gradient-start), var(--background-gradient-end));
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--card-bg-color);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .form-column,
+        .json-column {
+            padding: 40px;
+        }
+
+        .form-column {
+            flex: 1;
+            min-width: 320px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .json-column {
+            flex: 1;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--code-bg-color);
+        }
+
+        h1 {
+            font-size: 2em;
+            color: var(--text-color);
+            margin: 0 0 30px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 i {
+            color: var(--primary-color);
+        }
+
+        h2 {
+            font-size: 1.2em;
+            color: var(--text-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        h2 i {
+            color: var(--subtle-text-color);
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg-color);
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        button {
+            border: none;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        #add-course-btn {
+            background: linear-gradient(45deg, var(--primary-color), #6d28d9);
+            color: #fff;
+            padding: 12px 24px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #add-course-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-card {
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius-md);
+            background: #fff;
+            position: relative;
+            transition: box-shadow 0.3s;
+        }
+
+        .course-card:focus-within {
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        .remove-course-btn {
+            background: transparent;
+            color: var(--subtle-text-color);
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .remove-course-btn:hover {
+            color: var(--danger-color);
+            transform: scale(1.1);
+        }
+
+        .json-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .json-header h2 {
+            color: #fff;
+            margin: 0;
+        }
+
+        .json-header h2 i {
+            color: var(--subtle-text-color);
+        }
+
+        #copy-json-btn {
+            background: transparent;
+            color: var(--subtle-text-color);
+            padding: 5px;
+            font-size: 20px;
+        }
+
+        #copy-json-btn:hover {
+            color: #fff;
+        }
+
+        pre {
+            flex-grow: 1;
+            background: var(--code-bg-color);
+            color: var(--code-text-color);
+            padding: 20px;
+            border-radius: var(--border-radius-md);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+            overflow-y: auto;
+            border: 1px solid #374151;
+            margin: 0;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translate(-50%, 100px);
+            background-color: #22c55e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--border-radius-md);
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.4s, opacity 0.4s, visibility 0.4s;
+            z-index: 1000;
+        }
+
+        #toast.show {
+            transform: translate(-50%, 0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (max-width: 992px) {
+            body {
+                padding: 0;
+                align-items: stretch;
+            }
+
+            .container {
+                flex-direction: column;
+                border-radius: 0;
+                height: 100vh;
+            }
+
+            .form-column {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                overflow-y: auto;
+            }
+
+            .json-column {
+                flex-grow: 1;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="header">
-            <h1>QFNU 抢课配置生成器</h1>
-            <p class="text-muted">轻松生成 QFNUCourseSelector 配置文件</p>
-            <p class="text-muted">注意：本工具仅供学习交流，请勿用于非法用途，本站仅用于生成配置文件，不具备抢课功能</p>
+        <div class="form-column">
+            <h1><i class="ri-settings-3-line"></i>选课配置生成器</h1>
+
+            <div class="form-section">
+                <h2><i class="ri-user-line"></i>用户信息</h2>
+                <input type="text" id="user_account" placeholder="学号/账号">
+                <input type="password" id="user_password" placeholder="密码">
+                <input type="text" id="feishu_webhook" placeholder="飞书 Webhook 链接 (可选)">
+            </div>
+
+            <div class="courses-section">
+                <h2><i class="ri-book-open-line"></i>课程信息</h2>
+                <div id="courses-container">
+                    <!-- Course cards will be added here dynamically -->
+                </div>
+                <button id="add-course-btn"><i class="ri-add-line"></i>添加课程</button>
+            </div>
         </div>
-
-        <div class="row">
-            <div class="col-md-7">
-                <div class="form-container">
-                    <h3 class="mb-4">基本配置</h3>
-                    <form id="configForm">
-                        <div class="mb-3">
-                            <label for="userAccount" class="form-label">学号 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="userAccount" required>
-                            <div class="form-text">请输入您的教务系统学号</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="userPassword" class="form-label">密码 <span class="text-danger">*</span></label>
-                            <input type="password" class="form-control" id="userPassword" required>
-                            <div class="form-text">请输入您的教务系统登录密码</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="selectSemester" class="form-label">选课学期</label>
-                            <input type="text" class="form-control" id="selectSemester">
-                            <div class="form-text">例如：2024-2025-2学期2021级选课（不知道是什么空着就行）</div>
-                        </div>
-
-                        <h4 class="mt-4 mb-3">通知配置（不知道是什么空着就行）</h4>
-                        <div class="mb-3">
-                            <label for="dingtalkWebhook" class="form-label">钉钉 Webhook</label>
-                            <input type="text" class="form-control" id="dingtalkWebhook">
-                            <div class="form-text">钉钉机器人Webhook地址，不知道是什么空着就行</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="dingtalkSecret" class="form-label">钉钉 Secret</label>
-                            <input type="text" class="form-control" id="dingtalkSecret">
-                            <div class="form-text">钉钉机器人Secret，不知道是什么空着就行</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="feishuWebhook" class="form-label">飞书 Webhook</label>
-                            <input type="text" class="form-control" id="feishuWebhook">
-                            <div class="form-text">飞书机器人Webhook地址，不知道是什么空着就行</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="feishuSecret" class="form-label">飞书 Secret</label>
-                            <input type="text" class="form-control" id="feishuSecret">
-                            <div class="form-text">飞书机器人Secret，不知道是什么空着就行</div>
-                        </div>
-
-                        <h4 class="mt-4 mb-3">选课模式</h4>
-                        <div class="mb-3">
-                            <select class="form-select" id="mode">
-                                <option value="">请选择选课模式</option>
-                                <option value="fast">高速模式 - 以最快速度持续尝试选课</option>
-                                <option value="normal">普通模式 - 每5秒一次选课</option>
-                                <option value="snipe">蹲课模式 - 每2秒一次持续选课</option>
-                            </select>
-                            <div class="form-text">正选阶段使用高速或普通，补退选阶段使用蹲课</div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="form-container">
-                    <div class="mb-4">
-                        <h3>课程配置</h3>
-                    </div>
-
-                    <div id="coursesContainer">
-                        <!-- 课程卡片将在这里动态添加 -->
-                    </div>
-
-                    <div class="text-center mt-4">
-                        <button type="button" class="btn btn-primary" id="addCourseBtn">
-                            <i class="bi bi-plus-circle"></i> 添加课程
-                        </button>
-                    </div>
-                </div>
+        <div class="json-column">
+            <div class="json-header">
+                <h2><i class="ri-code-s-slash-line"></i>JSON 配置</h2>
+                <button id="copy-json-btn" title="复制"><i class="ri-file-copy-line"></i></button>
             </div>
-
-            <div class="col-md-5">
-                <div class="form-container json-container">
-                    <h3 class="mb-3">配置预览</h3>
-                    <button class="btn btn-sm btn-outline-primary copy-btn" id="copyBtn" data-bs-toggle="tooltip"
-                        data-bs-placement="top" title="复制到剪贴板">
-                        <i class="bi bi-clipboard"></i> 复制
-                    </button>
-                    <div class="json-preview" id="jsonPreview"></div>
-                </div>
-            </div>
+            <pre id="json-output"></pre>
         </div>
     </div>
 
-    <!-- 主题切换按钮 -->
-    <button class="theme-toggle" id="themeToggle" title="切换深浅模式">
-        <i class="bi bi-moon-fill"></i>
-    </button>
+    <div id="toast">已复制到剪贴板</div>
 
-    <!-- 页脚 -->
-    <footer class="footer mt-5 mb-4 text-center">
-        <div class="container">
-            <p class="text-muted">
-                © 2024 QFNU 抢课配置生成器
-            </p>
-        </div>
-    </footer>
-
-    <!-- 颜色选择器 -->
-    <div class="color-picker" id="colorPicker">
-        <div class="color-option" style="background-color: #672D07;" data-color="#672D07" title="棕色"></div>
-        <div class="color-option" style="background-color: #0d6efd;" data-color="#0d6efd" title="蓝色"></div>
-        <div class="color-option" style="background-color: #198754;" data-color="#198754" title="绿色"></div>
-        <div class="color-option" style="background-color: #dc3545;" data-color="#dc3545" title="红色"></div>
-        <div class="color-option" style="background-color: #6f42c1;" data-color="#6f42c1" title="紫色"></div>
-    </div>
-
-    <!-- 成功提示 -->
-    <div class="toast success-message" id="copySuccess" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-success text-white">
-            <strong class="me-auto">成功</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            <p>配置已复制到剪贴板！</p>
-            <p class="mb-0 small">您可以将此配置粘贴发送给对方。</p>
-        </div>
-    </div>
-
-    <!-- 课程模板 -->
-    <template id="courseTemplate">
-        <div class="course-card" data-course-id="{id}">
-            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-course" data-course-id="{id}">
-                <i class="bi bi-trash"></i>
-            </button>
-            <h5>课程 #{number}</h5>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">课程ID或名称 <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control course-field" data-field="course_id_or_name" required>
-                    <div class="form-text">请输入课程编号或课程名称，推荐使用编号，更精准</div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">教师姓名 <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control course-field" data-field="teacher_name" required>
-                    <div class="form-text">请输入任课教师姓名</div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">上课星期</label>
-                    <select class="form-control course-field" data-field="week_day">
-                        <option value="">请选择</option>
-                        <option value="1">星期一</option>
-                        <option value="2">星期二</option>
-                        <option value="3">星期三</option>
-                        <option value="4">星期四</option>
-                        <option value="5">星期五</option>
-                        <option value="6">星期六</option>
-                        <option value="7">星期日</option>
-                    </select>
-                    <div class="form-text">请选择课程在星期几</div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">上课周次</label>
-                    <input type="text" class="form-control course-field" data-field="weeks" placeholder="例如: 1-12">
-                    <div class="form-text">请输入上课周次，如: 1-12或1,3,5,7</div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label">上课节次</label>
-                    <input type="text" class="form-control course-field" data-field="class_period"
-                        placeholder="例如: 1-2">
-                    <div class="form-text">请输入上课节次，如: 1-2或9-11</div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">jx02id</label>
-                    <input type="text" class="form-control course-field" data-field="jx02id">
-                    <div class="form-text">不知道是什么空着就行</div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">jx0404id</label>
-                    <input type="text" class="form-control course-field" data-field="jx0404id">
-                    <div class="form-text">不知道是什么空着就行</div>
-                </div>
-            </div>
+    <template id="course-card-template">
+        <div class="course-card">
+            <button class="remove-course-btn" title="删除"><i class="ri-delete-bin-line"></i></button>
+            <input type="text" class="course_name" placeholder="课程名称 (例如: 计算机网络)">
+            <input type="text" class="course_id" placeholder="课程编号 (例如: 081203A004)">
+            <input type="text" class="teacher_name" placeholder="老师名称 (例如: 张三)">
+            <input type="text" class="selection_link" placeholder="选课链接 (粘贴完整的javascript:...)">
         </div>
     </template>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/scripts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userAccountInput = document.getElementById('user_account');
+            const userPasswordInput = document.getElementById('user_password');
+            const feishuWebhookInput = document.getElementById('feishu_webhook');
+            const coursesContainer = document.getElementById('courses-container');
+            const addCourseBtn = document.getElementById('add-course-btn');
+            const jsonOutput = document.getElementById('json-output');
+            const courseCardTemplate = document.getElementById('course-card-template');
+            const copyJsonBtn = document.getElementById('copy-json-btn');
+            const toast = document.getElementById('toast');
+
+            function generateJson() {
+                const data = {
+                    user_account: userAccountInput.value,
+                    user_password: userPasswordInput.value,
+                    feishu_webhook: feishuWebhookInput.value,
+                    courses: []
+                };
+
+                const courseCards = coursesContainer.querySelectorAll('.course-card');
+                courseCards.forEach(card => {
+                    const selectionLink = card.querySelector('.selection_link').value;
+                    const linkRegex = /javascript:\w+\('([^']*)','([^']*)',/;
+                    const matches = selectionLink.match(linkRegex);
+
+                    let jx0404id = '';
+                    let jx02id = '';
+
+                    if (matches && matches.length >= 3) {
+                        jx0404id = matches[1];
+                        jx02id = matches[2];
+                    }
+
+                    const course = {
+                        course_name: card.querySelector('.course_name').value,
+                        course_id: card.querySelector('.course_id').value,
+                        teacher_name: card.querySelector('.teacher_name').value,
+                        jx02id: jx02id,
+                        jx0404id: jx0404id
+                    };
+                    data.courses.push(course);
+                });
+
+                jsonOutput.textContent = JSON.stringify(data, null, 4);
+            }
+
+            function addCourseCard() {
+                const cardClone = courseCardTemplate.content.cloneNode(true);
+                const removeBtn = cardClone.querySelector('.remove-course-btn');
+
+                removeBtn.addEventListener('click', (event) => {
+                    event.target.closest('.course-card').remove();
+                    generateJson();
+                });
+
+                const inputs = cardClone.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.addEventListener('input', generateJson);
+                });
+
+                coursesContainer.appendChild(cardClone);
+                generateJson(); // Update JSON after adding a new card
+            }
+
+            // Attach event listeners to main inputs
+            [userAccountInput, userPasswordInput, feishuWebhookInput].forEach(input => {
+                input.addEventListener('input', generateJson);
+            });
+
+            // "Add Course" button listener
+            addCourseBtn.addEventListener('click', addCourseCard);
+
+            function showToast() {
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            }
+
+            // "Copy JSON" button listener
+            copyJsonBtn.addEventListener('click', () => {
+                const jsonString = jsonOutput.textContent;
+                if (!jsonString || jsonString.trim() === '{}' || jsonString.trim() === '') {
+                    alert('没有可复制的内容');
+                    return;
+                }
+                navigator.clipboard.writeText(jsonString).then(() => {
+                    showToast();
+                }).catch(err => {
+                    console.error('无法复制JSON: ', err);
+                    alert('复制失败!');
+                });
+            });
+
+            // Add one course card by default to start with and generate initial JSON
+            addCourseCard();
+        });
+    </script>
 </body>
 
 </html>
