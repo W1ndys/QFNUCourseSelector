@@ -557,6 +557,13 @@
                         cardToRemove.addEventListener('transitionend', () => {
                             cardToRemove.remove();
                             onInputChange();
+                            const lastCard = coursesContainer.querySelector('.course-card:last-child');
+                            if (lastCard) {
+                                lastCard.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'end'
+                                });
+                            }
                         }, { once: true });
                     }
                 });
