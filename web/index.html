@@ -419,6 +419,29 @@
             const courseCardTemplate = document.getElementById('course-card-template');
             const copyJsonBtn = document.getElementById('copy-json-btn');
             const toast = document.getElementById('toast');
+            const CACHE_KEY = 'courseConfigCache';
+
+            function saveDataToCache() {
+                const data = {
+                    user_account: userAccountInput.value,
+                    user_password: userPasswordInput.value,
+                    feishu_webhook: feishuWebhookInput.value,
+                    courses: []
+                };
+
+                const courseCards = coursesContainer.querySelectorAll('.course-card');
+                courseCards.forEach(card => {
+                    const course = {
+                        course_name: card.querySelector('.course_name').value,
+                        course_id: card.querySelector('.course_id').value,
+                        teacher_name: card.querySelector('.teacher_name').value,
+                        selection_link: card.querySelector('.selection_link').value
+                    };
+                    data.courses.push(course);
+                });
+
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+            }
 
             function generateJson() {
                 const data = {
@@ -455,31 +478,70 @@
                 jsonOutput.textContent = JSON.stringify(data, null, 4);
             }
 
-            function addCourseCard() {
+            function onInputChange() {
+                generateJson();
+                saveDataToCache();
+            }
+
+            function addCourseCard(courseData = null) {
                 const cardClone = courseCardTemplate.content.cloneNode(true);
                 const removeBtn = cardClone.querySelector('.remove-course-btn');
 
+                if (courseData) {
+                    cardClone.querySelector('.course_name').value = courseData.course_name || '';
+                    cardClone.querySelector('.course_id').value = courseData.course_id || '';
+                    cardClone.querySelector('.teacher_name').value = courseData.teacher_name || '';
+                    cardClone.querySelector('.selection_link').value = courseData.selection_link || '';
+                }
+
                 removeBtn.addEventListener('click', (event) => {
                     event.target.closest('.course-card').remove();
-                    generateJson();
+                    onInputChange();
                 });
 
                 const inputs = cardClone.querySelectorAll('input');
                 inputs.forEach(input => {
-                    input.addEventListener('input', generateJson);
+                    input.addEventListener('input', onInputChange);
                 });
 
                 coursesContainer.appendChild(cardClone);
-                generateJson(); // Update JSON after adding a new card
+            }
+
+            function loadDataFromCache() {
+                const cachedDataJSON = localStorage.getItem(CACHE_KEY);
+                if (cachedDataJSON) {
+                    try {
+                        const cachedData = JSON.parse(cachedDataJSON);
+                        userAccountInput.value = cachedData.user_account || '';
+                        userPasswordInput.value = cachedData.user_password || '';
+                        feishuWebhookInput.value = cachedData.feishu_webhook || '';
+
+                        coursesContainer.innerHTML = '';
+                        if (cachedData.courses && cachedData.courses.length > 0) {
+                            cachedData.courses.forEach(course => addCourseCard(course));
+                        } else {
+                            addCourseCard();
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse cache", e);
+                        addCourseCard(); // Load default if cache is corrupted
+                    }
+                } else {
+                    addCourseCard();
+                }
+                onInputChange();
             }
 
             // Attach event listeners to main inputs
             [userAccountInput, userPasswordInput, feishuWebhookInput].forEach(input => {
-                input.addEventListener('input', generateJson);
+                input.addEventListener('input', onInputChange);
             });
 
             // "Add Course" button listener
-            addCourseBtn.addEventListener('click', addCourseCard);
+            addCourseBtn.addEventListener('click', () => {
+                addCourseCard();
+                onInputChange();
+            });
 
             function showToast() {
                 toast.classList.add('show');
@@ -503,8 +565,8 @@
                 });
             });
 
-            // Add one course card by default to start with and generate initial JSON
-            addCourseCard();
+            // Load data from cache and generate initial view
+            loadDataFromCache();
         });
     </script>
 </body>
