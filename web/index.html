@@ -573,6 +573,10 @@
                     cardElement.addEventListener('animationend', () => {
                         cardElement.classList.remove('newly-added');
                     }, { once: true });
+                    cardElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'end'
+                    });
                 }
             }
 
