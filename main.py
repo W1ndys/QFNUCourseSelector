@@ -400,9 +400,11 @@ def select_courses(courses, mode, select_semester):
     elif mode == "snipe":
         # 蹲课模式：每次选课前刷新轮次，持续执行选课操作
         round_count = 1
+        snipe_failure_count = 0
         while True:
             logger.info(f"第 {round_count} 轮选课开始...")
             round_count += 1
+
             # 检查是否所有课程都已选上
             if all(course_status.values()):
                 end_time = time.time()  # 记录结束时间
@@ -417,36 +419,46 @@ def select_courses(courses, mode, select_semester):
                     f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
                 )
                 return True
+
+            round_success = False  # 本轮选课成功的标志
+
             # 每次选课前刷新选课轮次ID
             current_jx0502zbid = get_jx0502zbid(session, select_semester)
-            if not current_jx0502zbid:
-                logger.warning(
-                    "获取选课轮次失败，1秒后重试...若持续失败，可能是账号被踢，请重新运行脚本"
+            if current_jx0502zbid:
+                response = session.get(
+                    f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
                 )
-                time.sleep(1)
-                continue
+                logger.debug(f"选课页面响应状态码: {response.status_code}")
 
-            response = session.get(
-                f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
-            )
-            logger.debug(f"选课页面响应状态码: {response.status_code}")
-
-            # 执行选课操作
-            for course in courses:
-                # 如果该课程已经选上，则跳过
-                if course_status[
-                    f"{course['course_id_or_name']}-{course['teacher_name']}"
-                ]:
-                    continue
-
-                result = search_and_select_course(course)
-                if result:
-                    course_status[
+                # 执行选课操作
+                for course in courses:
+                    # 如果该课程已经选上，则跳过
+                    if course_status[
                         f"{course['course_id_or_name']}-{course['teacher_name']}"
-                    ] = True
-                logger.info(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束"
+                    ]:
+                        continue
+
+                    result = search_and_select_course(course)
+                    if result:
+                        course_status[
+                            f"{course['course_id_or_name']}-{course['teacher_name']}"
+                        ] = True
+                        round_success = True
+                    logger.info(
+                        f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束"
+                    )
+
+            if round_success:
+                snipe_failure_count = 0
+            else:
+                snipe_failure_count += 1
+                logger.warning(
+                    f"本轮未选上任何课程或获取选课轮次失败，失败次数: {snipe_failure_count}"
                 )
+
+            if snipe_failure_count >= 200:
+                logger.error("snipe模式连续失败次数超过200次，自动退出。")
+                return False
 
             logger.info("本轮选课操作完成，2秒后开始新一轮选课...")
             time.sleep(1)
