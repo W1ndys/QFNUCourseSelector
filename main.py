@@ -35,7 +35,7 @@ def setup_logger():
     # 配置文件处理器 - 使用普通的Formatter
     file_handler = logging.FileHandler(
         os.path.join(
-            "logs", f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+            "logs", f'{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
         ),
         encoding="utf-8",
     )
@@ -46,7 +46,8 @@ def setup_logger():
     console_handler = colorlog.StreamHandler()
     console_handler.setLevel(logging.INFO)  # 设置控制台处理器的日志级别为INFO
     console_formatter = colorlog.ColoredFormatter(
-        "%(log_color)s%(levelname)s: %(message)s%(reset)s",
+        "%(log_color)s%(asctime)s - %(levelname)s - %(message)s%(reset)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
         log_colors={
             "DEBUG": "cyan",
             "INFO": "green",
@@ -398,7 +399,10 @@ def select_courses(courses, mode, select_semester):
 
     elif mode == "snipe":
         # 蹲课模式：每次选课前刷新轮次，持续执行选课操作
+        round_count = 1
         while True:
+            logger.info(f"第 {round_count} 轮选课开始...")
+            round_count += 1
             # 检查是否所有课程都已选上
             if all(course_status.values()):
                 end_time = time.time()  # 记录结束时间
@@ -468,17 +472,26 @@ def main():
             logger.info("成功获取配置文件")
             logger.info(f"用户名: {user_account}")
 
+        failure_count = 0
         while True:  # 添加外层循环
             try:
                 # 模拟登录
                 if not simulate_login(user_account, user_password):
                     logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+                    failure_count += 1
+                    if failure_count >= 200:
+                        logger.error("失败次数超过200次，自动退出。")
+                        break
                     time.sleep(1)  # 添加重试间隔
                     continue  # 重试登录
 
                 session = get_session()
                 if not session:
                     logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+                    failure_count += 1
+                    if failure_count >= 200:
+                        logger.error("失败次数超过200次，自动退出。")
+                        break
                     time.sleep(1)
                     continue
 
@@ -518,7 +531,13 @@ def main():
                     continue  # 重新登录
 
             except Exception as e:
-                logger.error(f"发生错误: {str(e)}，正在重新登录...")
+                failure_count += 1
+                logger.error(
+                    f"发生错误: {str(e)}，正在重新登录... (失败次数: {failure_count})"
+                )
+                if failure_count >= 200:
+                    logger.error("失败次数超过200次，自动退出。")
+                    break
                 time.sleep(1)
                 continue  # 重新登录
     except KeyboardInterrupt:
