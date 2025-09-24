@@ -86,7 +86,7 @@ https://w1ndys.github.io/QFNUCourseSelector/web/
 git clone git@github.com:W1ndys/QFNUCourseSelector.git
 ```
 
-> 直接下载 zip 包也可以，但是需要把 bat 文件的行位序列改成 CRLF，否则会报错
+> 直接下载 zip 包也可以，但是需要把 bat 文件的行尾序列改成 CRLF，否则会报错
 
 ### 2. 安装依赖
 
