@@ -387,24 +387,6 @@ TypeError:DdddOcr.__init__()got an unexpected keyword argument 'show_ad'
 
 解决办法：https://github.com/W1ndys/QFNUCourseSelector/issues/8
 
-## 🌐 关于用啥选的快
-
-直接点题：QFNU（这里指曲阜师范大学校园 WiFi 校园网），比其他网络更容易访问教务系统
-
-cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
-
-![Windows10 测试环境](./assets/images/wifi_test_win10.png)
-
-![手机测试环境](./assets/images/wifi_test_mobile.png)
-
-![Pad 测试环境](./assets/images/wifi_test_pad.png)
-
-可以很明显的看到，QFNU 的网络环境比其他网络环境更容易访问教务系统
-
-以上环境是在网络通畅的情况下测试，所以几十毫秒的差距对正常使用来说几乎无感，在网络拥堵的情况下差距将进一步扩大
-
-但是当选课服务器接近崩溃的时候，两者的差距几乎可以忽略不计，就变成大家都进不去
-
 ## 🏆 战绩
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
@@ -437,11 +419,6 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 
 ## 🔗 友情链接
 
-- [QFNU 抢课脚本增强版](https://github.com/Swcmb/QFNUCourseSelector-Pro)
-
-  > 注：该项目为本项目的衍生版本，功能更新可能不及时，请自行验证代码可用性和安全性
-  >
-  > 本项目开发者未参与其项目开发，请以本项目功能更新为准
 
 - [使用 Python 实现的抢课脚本](https://github.com/AuroBreeze/QFNUClassSelector)
 
