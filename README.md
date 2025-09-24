@@ -4,13 +4,6 @@
 >
 > 本脚本以强智教务系统 2017 版本为基础，支持 2017 版本的所有功能，包括选修选课、专业内跨年级选课、本学期计划选课、公选课选课、计划外选课，其他版本未测试，但基本的请求 API 几乎类似，可以参考本脚本实现
 
-![Stars](https://img.shields.io/github/stars/W1ndys/QFNUCourseSelector?style=flat-square)
-![Issues](https://img.shields.io/github/issues/W1ndys/QFNUCourseSelector?style=flat-square)
-![Python](https://img.shields.io/badge/Python-3.12-blue.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
-![Forks](https://img.shields.io/github/forks/W1ndys/QFNUCourseSelector?style=flat-square)
-![Watchers](https://img.shields.io/github/watchers/W1ndys/QFNUCourseSelector?style=flat-square)
-![Last Commit](https://img.shields.io/github/last-commit/W1ndys/QFNUCourseSelector?style=flat-square)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/W1ndys/QFNUCourseSelector)
 
 ## 本脚本初衷是为了告别卡顿页面，还学生一个流畅的选课体验，请谨慎使用，请勿滥用，请勿在大陆范围内所有社交媒体平台软件等传播
