@@ -461,6 +461,10 @@ def main():
     try:
         print_welcome()
 
+        input(
+            "本项目具有严重的安全风险和非预期运行，有极大概率无法正常的选课，为避免影响正常选课，请勿继续使用，相关代码仅供学习研究使用，请勿用于实际的选课环境中，使用脚本造成的一切后果与开发者无关。\n"
+        )
+
         # 获取环境变量
         user_account, user_password, select_semester, mode, courses = get_user_config()
 
