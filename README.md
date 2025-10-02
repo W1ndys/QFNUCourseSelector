@@ -1,21 +1,16 @@
 # QFNUCourseSelector
 
-> QFNU 抢课脚本 | 曲阜师范大学抢课脚本 | 强智教务抢课脚本 | 强智教务 2017 | 大学抢课脚本 | 学院抢课脚本 | 光速抢课 | 毫秒级抢课
+> 曲阜师范大学 QFNU 抢课脚本 | 强智教务抢课脚本 | 强智教务 2017 | 大学抢课脚本 | 学院抢课脚本
 >
 > 本脚本以强智教务系统 2017 版本为基础，支持 2017 版本的所有功能，包括选修选课、专业内跨年级选课、本学期计划选课、公选课选课、计划外选课，其他版本未测试，但基本的请求 API 几乎类似，可以参考本脚本实现
 
-![Stars](https://img.shields.io/github/stars/W1ndys/QFNUCourseSelector?style=flat-square)
-![Issues](https://img.shields.io/github/issues/W1ndys/QFNUCourseSelector?style=flat-square)
-![Python](https://img.shields.io/badge/Python-3.12-blue.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
-![Forks](https://img.shields.io/github/forks/W1ndys/QFNUCourseSelector?style=flat-square)
-![Watchers](https://img.shields.io/github/watchers/W1ndys/QFNUCourseSelector?style=flat-square)
-![Last Commit](https://img.shields.io/github/last-commit/W1ndys/QFNUCourseSelector?style=flat-square)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/W1ndys/QFNUCourseSelector)
 
 ## 本脚本初衷是为了告别卡顿页面，还学生一个流畅的选课体验，请谨慎使用，请勿滥用，请勿在大陆范围内所有社交媒体平台软件等传播
 
-## 本脚本正在重构，可能不稳定，不推荐使用，重构维护期间造成的后果与本项目无关（重构进度 1%）
+## 注意！！！！！！
+
+## 2025 年 9 月 24 日公告：本项目具有严重的安全风险和非预期运行，有极大概率无法正常的选课，为避免影响正常选课，请勿继续使用，相关代码仅供学习研究使用，请勿用于实际的选课环境中，使用脚本造成的一切后果与开发者无关
 
 ## ✨ 功能
 
@@ -34,19 +29,6 @@
 - 🛠️ 支持环境部署脚本化，就算是傻瓜也可以一键部署~
 - ⚡ 已实现抢课 0 耗时
 - 🛠️ 提供网页版配置生成器，轻松生成配置文件
-
-## 🌐 在线配置生成器
-
-为了方便用户使用，我们提供了一个在线的配置生成器，您可以通过以下链接访问：
-
-```
-https://w1ndys.github.io/QFNUCourseSelector/web/
-```
-
-- 🖥️ 直观的 Web 界面，无需手动编写 JSON
-- 💾 自动保存表单数据到本地浏览器
-- 📋 一键复制生成的配置
-- 🔒 所有数据仅保存在本地，不会上传到任何服务器
 
 ## 📝 免责声明
 
@@ -368,15 +350,8 @@ cmd 命令行输入 `ping zhjw.qfnu.edu.cn`
 - [上杉九月](https://github.com/sakurasep) - 技术指导
 - [AuroBreeze](https://github.com/AuroBreeze) - 登录算法优化
 - 超级大猫猫头头 - 测试支持
-- [Cursor](https://www.cursor.com/) - 开发工具支持
 
 ## 🔗 友情链接
-
-- [QFNU 抢课脚本增强版](https://github.com/Swcmb/QFNUCourseSelector-Pro)
-
-  > 注：该项目为本项目的衍生版本，功能更新可能不及时，请自行验证代码可用性和安全性
-  >
-  > 本项目开发者未参与其项目开发，请以本项目功能更新为准
 
 - [使用 Python 实现的抢课脚本](https://github.com/AuroBreeze/QFNUClassSelector)
 
