@@ -2,7 +2,6 @@ import os
 import json
 from src.utils.session_manager import get_session
 import logging
-from urllib.parse import quote
 
 
 def find_course_jx02id_and_jx0404id(course, course_data):
