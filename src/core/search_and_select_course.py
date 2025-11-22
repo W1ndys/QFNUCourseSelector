@@ -1,12 +1,12 @@
-from core.get_course_capacity import get_course_capacity_by_ids
-from src.core.send_course_data import (
+from .get_course_capacity import get_course_capacity_by_ids
+from .send_course_data import (
     send_ggxxkxkOper_course_jx02id_and_jx0404id,
     send_knjxkOper_course_jx02id_and_jx0404id,
     send_bxqjhxkOper_course_jx02id_and_jx0404id,
     send_xxxkOper_course_jx02id_and_jx0404id,
     send_fawxkOper_course_jx02id_and_jx0404id,
 )
-from src.utils.feishu import feishu
+from ..utils.feishu import feishu
 import logging
 
 
@@ -26,8 +26,10 @@ def search_and_select_course(course):
         bool: 如果成功选择课程返回True，否则返回False
     """
     try:
-        logging.info(f"开始处理课程: 【{course['course_id_or_name']}-{course['teacher_name']}】")
-        
+        logging.info(
+            f"开始处理课程: 【{course['course_id_or_name']}-{course['teacher_name']}】"
+        )
+
         # 验证必填字段
         required_keys = ["course_id_or_name", "teacher_name", "jx02id", "jx0404id"]
         if not all(key in course for key in required_keys):
@@ -43,7 +45,9 @@ def search_and_select_course(course):
 
         # 通过jx02id和jx0404id直接查询课程剩余容量信息（仅用于日志记录）
         remaining_capacity = None
-        logging.info(f"正在通过ID查询课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量...")
+        logging.info(
+            f"正在通过ID查询课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量..."
+        )
         course_info = get_course_capacity_by_ids(course["jx02id"], course["jx0404id"])
         if course_info:
             remaining_capacity = course_info.get("xxrs", "未知")
@@ -58,10 +62,7 @@ def search_and_select_course(course):
             )
 
         # 准备选课数据
-        course_data = {
-            "jx02id": course["jx02id"],
-            "jx0404id": course["jx0404id"]
-        }
+        course_data = {"jx02id": course["jx02id"], "jx0404id": course["jx0404id"]}
 
         error_messages = []  # 用于收集所有错误信息
         selection_methods = [
@@ -73,7 +74,9 @@ def search_and_select_course(course):
         ]
 
         # 使用配置的jx02id和jx0404id直接尝试不同的选课方式
-        logging.info(f"使用配置的jx02id={course['jx02id']}和jx0404id={course['jx0404id']}直接选课")
+        logging.info(
+            f"使用配置的jx02id={course['jx02id']}和jx0404id={course['jx0404id']}直接选课"
+        )
         for method_name, method_func in selection_methods:
             result, message = method_func(course["course_id_or_name"], course_data)
             if result is True:
