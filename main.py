@@ -166,13 +166,13 @@ def get_user_config():
             "mode": "snipe",
             "courses": [
                 {
-                    "course_id_or_name": "课程编号或名称（用于日志输出）",
-                    "teacher_name": "教师姓名（用于日志输出）",
-                    "jx02id": "课程jx02id（必填）",
-                    "jx0404id": "课程jx0404id（必填）",
-                    "class_period": "上课节次（选填，用于查询剩余容量）",
-                    "week_day": "上课星期（选填，用于查询剩余容量）",
-                    "weeks": "上课周次（选填，用于查询剩余容量）",
+                    "course_id_or_name": "",  # 课程编号或名称（用于日志输出）
+                    "teacher_name": "",  # 教师姓名（用于日志输出）
+                    "jx02id": "",  # 课程jx02id（必填）
+                    "jx0404id": "",  # 课程jx0404id（必填）
+                    "class_period": "",  # 上课节次（选填，用于查询剩余容量）
+                    "week_day": "",  # 上课星期（选填，用于查询剩余容量）
+                    "weeks": "",  # 上课周次（选填，用于查询剩余容量）
                 }
             ],
         }

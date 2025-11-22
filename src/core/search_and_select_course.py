@@ -47,6 +47,8 @@ def search_and_select_course(course):
             return False
 
         # 尝试搜索课程以获取剩余量信息（仅用于日志记录）
+        # 注意：这里复用get_course_jx02id_and_jx0404id函数仅为获取课程容量信息
+        # 实际的jx02id和jx0404id已从配置文件获取，不依赖此搜索结果
         remaining_capacity = None
         if course.get("class_period") and course.get("week_day"):
             logging.info(f"正在查询课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量...")
