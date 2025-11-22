@@ -1,3 +1,4 @@
+from loguru import logger
 from .get_course_capacity import get_course_capacity_by_ids
 from .send_course_data import (
     send_ggxxkxkOper_course_jx02id_and_jx0404id,
@@ -7,7 +8,6 @@ from .send_course_data import (
     send_fawxkOper_course_jx02id_and_jx0404id,
 )
 from ..utils.feishu import feishu
-import logging
 
 
 def search_and_select_course(course):
@@ -26,26 +26,26 @@ def search_and_select_course(course):
         bool: 如果成功选择课程返回True，否则返回False
     """
     try:
-        logging.info(
+        logger.info(
             f"开始处理课程: 【{course['course_id_or_name']}-{course['teacher_name']}】"
         )
 
         # 验证必填字段
         required_keys = ["course_id_or_name", "teacher_name", "jx02id", "jx0404id"]
         if not all(key in course for key in required_keys):
-            logging.error(f"课程信息缺少必要的字段，需要: {', '.join(required_keys)}")
+            logger.error(f"课程信息缺少必要的字段，需要: {', '.join(required_keys)}")
             return False
 
         # 验证jx02id和jx0404id不为空
         if not course["jx02id"].strip() or not course["jx0404id"].strip():
-            logging.error(
+            logger.error(
                 f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的jx02id或jx0404id为空，请检查配置文件"
             )
             return False
 
         # 通过jx02id和jx0404id直接查询课程剩余容量信息（仅用于日志记录）
         remaining_capacity = None
-        logging.info(
+        logger.info(
             f"正在通过ID查询课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量..."
         )
         course_info = get_course_capacity_by_ids(course["jx02id"], course["jx0404id"])
@@ -53,11 +53,11 @@ def search_and_select_course(course):
             remaining_capacity = course_info.get("xxrs", "未知")
             course_name = course_info.get("kcmc", course["course_id_or_name"])
             teacher_name = course_info.get("skls", course["teacher_name"])
-            logging.info(
+            logger.info(
                 f"课程信息: 课程名称：{course_name}，剩余容量：{remaining_capacity}，授课老师：{teacher_name}"
             )
         else:
-            logging.warning(
+            logger.warning(
                 f"无法获取课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量信息，将继续选课"
             )
 
@@ -74,7 +74,7 @@ def search_and_select_course(course):
         ]
 
         # 使用配置的jx02id和jx0404id直接尝试不同的选课方式
-        logging.info(
+        logger.info(
             f"使用配置的jx02id={course['jx02id']}和jx0404id={course['jx0404id']}直接选课"
         )
         for method_name, method_func in selection_methods:
@@ -96,10 +96,10 @@ def search_and_select_course(course):
                 f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课失败，遇到以下错误：\n\n"
                 + "\n\n".join(error_messages)
             )
-            logging.error(error_summary)
+            logger.error(error_summary)
         return False
 
     except Exception as e:
         error_msg = str(e)
-        logging.error(f"选课失败: {error_msg}")
+        logger.error(f"选课失败: {error_msg}")
         return False

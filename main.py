@@ -116,7 +116,6 @@ def get_user_config():
         user_account: 用户账号
         user_password: 用户密码
         select_semester: 选课学期
-        mode: 选课模式
         courses: 课程列表
     """
     # 检查配置文件是否存在
@@ -127,7 +126,6 @@ def get_user_config():
             "user_password": "",
             "select_semester": "",
             "feishu_webhook": "",
-            "mode": "snipe",
             "courses": [
                 {
                     "course_id_or_name": "",  # 课程编号或名称（用于日志输出）
@@ -180,17 +178,10 @@ def get_user_config():
                 input("按回车键退出程序...")
                 exit(1)
 
-        # 验证选课模式
-        valid_modes = ["fast", "normal", "snipe"]
-        if config.get("mode") and config["mode"] not in valid_modes:
-            logger.warning(f"无效的选课模式: {config['mode']}，将使用默认的 snipe 模式")
-            config["mode"] = "snipe"
-
         return (
             config["user_account"],
             config["user_password"],
             config.get("select_semester", ""),
-            config.get("mode", "snipe"),
             config.get("courses", []),
         )
     except json.JSONDecodeError:
@@ -266,7 +257,10 @@ def print_welcome():
     logger.info("5. 开发者对使用本脚本造成的任何直接或间接损失不承担任何责任。")
 
 
-def select_courses(courses, mode, select_semester):
+def select_courses(courses, select_semester):
+    """
+    蹲课模式：持续尝试选课，每个课程之间间隔0.5秒
+    """
     # 创建一个字典来跟踪每个课程的选课状态
     course_status = {
         f"{c['course_id_or_name']}-{c['teacher_name']}": False for c in courses
@@ -277,125 +271,55 @@ def select_courses(courses, mode, select_semester):
 
     session = get_session()
 
-    if mode == "fast":
-        # 高速模式：以最快速度持续尝试选课
-        # 每次选课前刷新选课轮次ID
-        current_jx0502zbid = get_jx0502zbid(session, select_semester)
-        if not current_jx0502zbid:
-            logger.warning("获取选课轮次失败，可能是账号被踢，请重新运行脚本")
-            return False
-
-        response = session.get(
-            f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
-        )
-        logger.debug(f"选课页面响应状态码: {response.status_code}")
-
-        for course in courses:
-            result = search_and_select_course(course)
-            if result:
-                course_status[
-                    f"{course['course_id_or_name']}-{course['teacher_name']}"
-                ] = True
-
-            # 检查是否所有课程都已选上
-            if all(course_status.values()):
-                end_time = time.time()  # 记录结束时间
-                logger.info("所有课程已选择成功，程序即将退出...")
-                logger.info(f"总耗时: {end_time - start_time} 秒")
-                feishu(
-                    "曲阜师范大学教务系统抢课脚本",
-                    f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
-                )
-                return True
-
-    elif mode == "normal":
-        # 普通模式：正常速度选课，每次请求间隔较长
-        # 每次选课前刷新选课轮次ID
-        current_jx0502zbid = get_jx0502zbid(session, select_semester)
-        if not current_jx0502zbid:
-            logger.warning("获取选课轮次失败，可能是账号被踢，请重新运行脚本")
-            return False
-
-        response = session.get(
-            f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
-        )
-        logger.debug(f"选课页面响应状态码: {response.status_code}")
-
-        for course in courses:
-            result = search_and_select_course(course)
-            if result:
-                course_status[
-                    f"{course['course_id_or_name']}-{course['teacher_name']}"
-                ] = True
-
-            # 检查是否所有课程都已选上
-            if all(course_status.values()):
-                end_time = time.time()  # 记录结束时间
-                logger.info("所有课程已选择成功，程序即将退出...")
-                logger.info(f"总耗时: {end_time - start_time} 秒")
-                feishu(
-                    "曲阜师范大学教务系统抢课脚本",
-                    f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
-                )
-                return True
-
-            logger.info(
-                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，等待5秒后继续选下一节课"
+    # 蹲课模式：每次选课前刷新轮次，持续执行选课操作
+    while True:
+        # 检查是否所有课程都已选上
+        if all(course_status.values()):
+            end_time = time.time()  # 记录结束时间
+            logger.info("所有课程已选择成功，程序即将退出...")
+            logger.info(f"总耗时: {end_time - start_time} 秒")
+            feishu(
+                "曲阜师范大学教务系统抢课脚本",
+                f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
             )
-            time.sleep(5)
+            return True
+        
+        # 每次选课前刷新选课轮次ID
+        current_jx0502zbid = get_jx0502zbid(session, select_semester)
+        if not current_jx0502zbid:
+            logger.warning(
+                "获取选课轮次失败，1秒后重试...若持续失败，可能是账号被踢，请重新运行脚本"
+            )
+            time.sleep(1)
+            continue
 
-    elif mode == "snipe":
-        # 蹲课模式：每次选课前刷新轮次，持续执行选课操作
-        while True:
-            # 检查是否所有课程都已选上
-            if all(course_status.values()):
-                end_time = time.time()  # 记录结束时间
-                logger.info("所有课程已选择成功，程序即将退出...")
-                logger.info(f"总耗时: {end_time - start_time} 秒")
-                feishu(
-                    "曲阜师范大学教务系统抢课脚本",
-                    f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
-                )
-                return True
-            # 每次选课前刷新选课轮次ID
-            current_jx0502zbid = get_jx0502zbid(session, select_semester)
-            if not current_jx0502zbid:
-                logger.warning(
-                    "获取选课轮次失败，1秒后重试...若持续失败，可能是账号被踢，请重新运行脚本"
-                )
-                time.sleep(1)
+        response = session.get(
+            f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
+        )
+        logger.debug(f"选课页面响应状态码: {response.status_code}")
+
+        # 执行选课操作
+        for course in courses:
+            # 如果该课程已经选上，则跳过
+            if course_status[
+                f"{course['course_id_or_name']}-{course['teacher_name']}"
+            ]:
                 continue
 
-            response = session.get(
-                f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
-            )
-            logger.debug(f"选课页面响应状态码: {response.status_code}")
-
-            # 执行选课操作
-            for course in courses:
-                # 如果该课程已经选上，则跳过
-                if course_status[
+            result = search_and_select_course(course)
+            if result:
+                course_status[
                     f"{course['course_id_or_name']}-{course['teacher_name']}"
-                ]:
-                    continue
+                ] = True
+            logger.info(
+                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束"
+            )
+            
+            # 每个课程之间间隔0.5秒
+            time.sleep(0.5)
 
-                result = search_and_select_course(course)
-                if result:
-                    course_status[
-                        f"{course['course_id_or_name']}-{course['teacher_name']}"
-                    ] = True
-                logger.info(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束"
-                )
-
-            logger.info("本轮选课操作完成，2秒后开始新一轮选课...")
-            time.sleep(2)
-    else:
-        logger.warning(
-            "模式错误，请检查配置文件的mode字段是否为fast、normal或snipe，即将默认使用snipe模式"
-        )
-        mode = "snipe"
-        select_courses(courses, mode, select_semester)
+        logger.info("本轮选课操作完成，准备开始新一轮选课...")
+        time.sleep(0.5)
 
 
 def main():
@@ -410,7 +334,7 @@ def main():
         )
 
         # 获取环境变量
-        user_account, user_password, select_semester, mode, courses = get_user_config()
+        user_account, user_password, select_semester, courses = get_user_config()
 
         # 添加文件日志
         start_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -472,7 +396,7 @@ def main():
                     f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
                 )
                 logger.debug(f"选课页面响应状态码: {response.status_code}")
-                select_courses(courses, mode, select_semester)
+                select_courses(courses, select_semester)
                 break  # 成功后退出循环
 
             except Exception as e:

@@ -1,8 +1,8 @@
 import re
-import logging
 from typing import Optional
 from bs4 import BeautifulSoup
 from requests.exceptions import RequestException
+from loguru import logger
 
 
 def get_jx0502zbid(session, select_semester):
@@ -36,7 +36,7 @@ def get_jx0502zbid(session, select_semester):
                         if match:
                             return match.group(1)
                 except (AttributeError, IndexError) as e:
-                    logging.warning(f"解析行数据时出错: {str(e)}")
+                    logger.warning(f"解析行数据时出错: {str(e)}")
                     continue
             return None
 
@@ -59,17 +59,17 @@ def get_jx0502zbid(session, select_semester):
                         if select_semester in cells[1].text.strip():
                             return match.group(1)
             except (AttributeError, IndexError) as e:
-                logging.warning(f"解析行数据时出错: {str(e)}")
+                logger.warning(f"解析行数据时出错: {str(e)}")
                 continue
 
         # 如果没有找到指定学期，返回第一个有效的选课链接
         return first_valid_id
 
     except RequestException as e:
-        logging.error(f"请求选课页面失败: {str(e)}")
+        logger.error(f"请求选课页面失败: {str(e)}")
         raise
     except Exception as e:
-        logging.error(f"获取选课轮次时发生未知错误: {str(e)}")
+        logger.error(f"获取选课轮次时发生未知错误: {str(e)}")
         raise
 
 
@@ -133,8 +133,8 @@ def get_xxxk_course_list(session):
         return response.text
 
     except RequestException as e:
-        logging.error(f"获取选修选课课程列表失败: {str(e)}")
+        logger.error(f"获取选修选课课程列表失败: {str(e)}")
         raise
     except Exception as e:
-        logging.error(f"获取选修选课课程列表时发生未知错误: {str(e)}")
+        logger.error(f"获取选修选课课程列表时发生未知错误: {str(e)}")
         raise

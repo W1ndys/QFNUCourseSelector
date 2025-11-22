@@ -1,7 +1,7 @@
 import os
 import json
-from src.utils.session_manager import get_session
-import logging
+from loguru import logger
+from ..utils.session_manager import get_session
 
 
 def find_course_jx02id_and_jx0404id(course, course_data):
@@ -33,7 +33,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
             # 路径: data -> 'aaData' -> 列表第1个元素[0] -> 'kcmc'
             kcmc_value = course_data[0]["kcmc"]
             if jx02id and jx0404id:
-                logging.critical(
+                logger.critical(
                     f"仅有一组数据，直接匹配课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
                 )
                 return {
@@ -101,16 +101,16 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 确保两个ID都存在且周次匹配
             if jx02id and jx0404id and weeks_match:
-                logging.critical(
+                logger.critical(
                     f"找到课程 【{course['course_id_or_name']}-{course['teacher_name']}】 的jx02id: {jx02id} 和 jx0404id: {jx0404id}"
                 )
                 return {"jx02id": jx02id, "jx0404id": jx0404id}
 
-        logging.warning(f"未找到匹配的课程数据")
+        logger.warning(f"未找到匹配的课程数据")
         return None
 
     except Exception as e:
-        logging.error(f"查找课程jx02id和jx0404id时发生错误: {str(e)}")
+        logger.error(f"查找课程jx02id和jx0404id时发生错误: {str(e)}")
         return None
 
 
@@ -161,15 +161,15 @@ def get_course_jx02id_and_jx0404id_by_api(course):
                 if "404" in str(e):
                     retry_count += 1
                     if retry_count < max_retries:
-                        logging.warning(
+                        logger.warning(
                             f"获取课程信息失败(404)，正在进行第{retry_count}次重试..."
                         )
                         continue
-                logging.error(f"获取课程的jx02id和jx0404id失败: {e}")
+                logger.error(f"获取课程的jx02id和jx0404id失败: {e}")
 
         return None
     except Exception as e:
-        logging.error(f"获取课程的jx02id和jx0404id失败: {e}")
+        logger.error(f"获取课程的jx02id和jx0404id失败: {e}")
         return None
 
 
@@ -180,12 +180,12 @@ def get_course_jx02id_and_jx0404id(course):
         if result:
             return result
 
-        logging.warning(
+        logger.warning(
             f"未能找到课程: 【{course['course_id_or_name']}-{course['teacher_name']}】的jx02id和jx0404id"
         )
         return None
     except Exception as e:
-        logging.error(f"获取课程jx02id和jx0404id时发生错误: {str(e)}")
+        logger.error(f"获取课程jx02id和jx0404id时发生错误: {str(e)}")
         return None
 
 
@@ -204,9 +204,9 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
         )
         if response.status_code == 404:
             raise Exception("404 Not Found")
-        logging.info(f"获取公选选课页面响应值: {response.status_code}")
+        logger.info(f"获取公选选课页面响应值: {response.status_code}")
         # 打印当前会话的cookie
-        logging.debug(f"当前会话的cookie: {get_session().cookies}")
+        logger.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkGgxxkxk",
@@ -247,12 +247,12 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
         response_data = json.loads(response.text)
         # 检查aaData是否为空
         if not response_data.get("aaData"):
-            logging.warning("公选选课的API返回的aaData为空，可能该课程不在该分类")
+            logger.warning("公选选课的API返回的aaData为空，可能该课程不在该分类")
             return None
 
         return response_data
     except Exception as e:
-        logging.error(f"获取公选选课的jx02id和jx0404id失败: {e}")
+        logger.error(f"获取公选选课的jx02id和jx0404id失败: {e}")
         return None
 
 
@@ -269,9 +269,9 @@ def get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course):
         response = session.get(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/comeInXxxk",
         )
-        logging.info(f"获取选修选课页面响应值: {response.status_code}")
+        logger.info(f"获取选修选课页面响应值: {response.status_code}")
         # 打印当前会话的cookie
-        logging.debug(f"当前会话的cookie: {get_session().cookies}")
+        logger.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkXxxk",
@@ -305,17 +305,17 @@ def get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course):
             },
         )
 
-        logging.info(f"获取选修选课列表数据响应值: {response.status_code}")
+        logger.info(f"获取选修选课列表数据响应值: {response.status_code}")
         response_data = json.loads(response.text)
 
         # 检查aaData是否为空
         if not response_data.get("aaData"):
-            logging.warning("选修选课的API返回的aaData为空，可能该课程不在该分类")
+            logger.warning("选修选课的API返回的aaData为空，可能该课程不在该分类")
             return None
 
         return response_data
     except Exception as e:
-        logging.error(f"获取选修选课的jx02id和jx0404id失败: {e}")
+        logger.error(f"获取选修选课的jx02id和jx0404id失败: {e}")
         return None
 
 
@@ -332,9 +332,9 @@ def get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course):
         response = session.get(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/comeInBxqjhxk",
         )
-        logging.info(f"获取本学期计划选课页面响应值: {response.status_code}")
+        logger.info(f"获取本学期计划选课页面响应值: {response.status_code}")
         # 打印当前会话的cookie
-        logging.debug(f"当前会话的cookie: {get_session().cookies}")
+        logger.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkBxqjhxk",
@@ -368,17 +368,17 @@ def get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course):
             },
         )
 
-        logging.info(f"获取本学期计划选课列表数据响应值: {response.status_code}")
+        logger.info(f"获取本学期计划选课列表数据响应值: {response.status_code}")
         response_data = json.loads(response.text)
 
         # 检查aaData是否为空
         if not response_data.get("aaData"):
-            logging.warning("本学期计划选课的API返回的aaData为空，可能该课程不在该分类")
+            logger.warning("本学期计划选课的API返回的aaData为空，可能该课程不在该分类")
             return None
 
         return response_data
     except Exception as e:
-        logging.error(f"获取本学期计划选课的jx02id和jx0404id失败: {e}")
+        logger.error(f"获取本学期计划选课的jx02id和jx0404id失败: {e}")
         return None
 
 
@@ -395,9 +395,9 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
         response = session.get(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/comeInKnjxk",
         )
-        logging.info(f"获取专业内跨年级选课页面响应值: {response.status_code}")
+        logger.info(f"获取专业内跨年级选课页面响应值: {response.status_code}")
         # 打印当前会话的cookie
-        logging.debug(f"当前会话的cookie: {get_session().cookies}")
+        logger.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkKnjxk",
@@ -431,7 +431,7 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
             },
         )
 
-        logging.info(f"获取专业内跨年级选课列表数据响应值: {response.status_code}")
+        logger.info(f"获取专业内跨年级选课列表数据响应值: {response.status_code}")
 
         # 新增代码：检查响应内容是否为JSON格式
         try:
@@ -439,18 +439,18 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
 
             # 检查aaData是否为空
             if not response_data.get("aaData"):
-                logging.warning(
+                logger.warning(
                     "专业内跨年级选课的API返回的aaData为空，可能该课程不在该分类"
                 )
                 return None
 
             return response_data
         except ValueError:
-            logging.error("API返回的数据不是有效的JSON格式")
+            logger.error("API返回的数据不是有效的JSON格式")
             return None
 
     except Exception as e:
-        logging.error(f"获取专业内跨年级选课的jx02id和jx0404id失败: {e}")
+        logger.error(f"获取专业内跨年级选课的jx02id和jx0404id失败: {e}")
         return None
 
 
@@ -467,9 +467,9 @@ def get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course):
         response = session.get(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/comeInFawxk",
         )
-        logging.info(f"获取计划外选课页面响应值: {response.status_code}")
+        logger.info(f"获取计划外选课页面响应值: {response.status_code}")
         # 打印当前会话的cookie
-        logging.debug(f"当前会话的cookie: {get_session().cookies}")
+        logger.debug(f"当前会话的cookie: {get_session().cookies}")
         # 请求选课列表数据
         response = session.post(
             "http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkFawxk",
@@ -503,15 +503,15 @@ def get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course):
             },
         )
 
-        logging.info(f"获取计划外选课列表数据响应值: {response.status_code}")
+        logger.info(f"获取计划外选课列表数据响应值: {response.status_code}")
         response_data = json.loads(response.text)
 
         # 检查aaData是否为空
         if not response_data.get("aaData"):
-            logging.warning("计划外选课的API返回的aaData为空，可能该课程不在该分类")
+            logger.warning("计划外选课的API返回的aaData为空，可能该课程不在该分类")
             return None
 
         return response_data
     except Exception as e:
-        logging.error(f"获取计划外选课的jx02id和jx0404id失败: {e}")
+        logger.error(f"获取计划外选课的jx02id和jx0404id失败: {e}")
         return None

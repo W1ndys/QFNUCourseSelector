@@ -1,6 +1,6 @@
 import json
-from src.utils.session_manager import get_session
-import logging
+from loguru import logger
+from ..utils.session_manager import get_session
 
 
 def get_course_capacity_by_ids(jx02id, jx0404id):
@@ -87,21 +87,21 @@ def get_course_capacity_by_ids(jx02id, jx0404id):
                         course.get("jx02id") == jx02id
                         and course.get("jx0404id") == jx0404id
                     ):
-                        logging.info(f"通过{api_name}找到课程信息")
+                        logger.info(f"通过{api_name}找到课程信息")
                         return {
                             "xxrs": course.get("xxrs", "未知"),
                             "kcmc": course.get("kcmc", "未知"),
                             "skls": course.get("skls", "未知"),
                         }
             except Exception as e:
-                logging.debug(f"尝试{api_name}获取课程信息失败: {e}")
+                logger.debug(f"尝试{api_name}获取课程信息失败: {e}")
                 continue
 
-        logging.warning(
+        logger.warning(
             f"未能通过任何API找到jx02id={jx02id}, jx0404id={jx0404id}的课程信息"
         )
         return None
 
     except Exception as e:
-        logging.error(f"获取课程容量信息失败: {e}")
+        logger.error(f"获取课程容量信息失败: {e}")
         return None
