@@ -13,29 +13,65 @@ import logging
 
 def search_and_select_course(course):
     """
-    通过依次从公选课选课、本学期计划选课、选修选课、专业内跨年级选课、计划外选课、辅修选课搜索课程
+    使用配置的jx02id和jx0404id直接进行选课请求
+    搜索仅用于记录选课前的剩余量
 
     Args:
         course (dict): 包含课程信息的字典，必须包含以下键：
-            - course_id_or_name: 课程编号
-            - teacher_name: 教师姓名
+            - course_id_or_name: 课程编号（用于日志输出）
+            - teacher_name: 教师姓名（用于日志输出）
+            - jx02id: 课程jx02id（必填，用于选课请求）
+            - jx0404id: 课程jx0404id（必填，用于选课请求）
         可选键：
-            - week_day: 上课星期
-            - class_period: 上课节次
-            - weeks: 上课周次
-            - jx02id: 课程jx02id
-            - jx0404id: 课程jx0404id
-
+            - week_day: 上课星期（用于搜索剩余量）
+            - class_period: 上课节次（用于搜索剩余量）
+            - weeks: 上课周次（用于搜索剩余量）
 
     Returns:
-        bool: 如果成功找到并选择课程返回True，否则返回False
+        bool: 如果成功选择课程返回True，否则返回False
     """
     try:
-        logging.info(f"开始搜索课程: {course}")
-        required_keys = ["course_id_or_name", "teacher_name"]
+        logging.info(f"开始处理课程: 【{course['course_id_or_name']}-{course['teacher_name']}】")
+        
+        # 验证必填字段
+        required_keys = ["course_id_or_name", "teacher_name", "jx02id", "jx0404id"]
         if not all(key in course for key in required_keys):
             logging.error(f"课程信息缺少必要的字段，需要: {', '.join(required_keys)}")
             return False
+
+        # 验证jx02id和jx0404id不为空
+        if not course["jx02id"].strip() or not course["jx0404id"].strip():
+            logging.error(
+                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的jx02id或jx0404id为空，请检查配置文件"
+            )
+            return False
+
+        # 尝试搜索课程以获取剩余量信息（仅用于日志记录）
+        remaining_capacity = None
+        if course.get("class_period") and course.get("week_day"):
+            logging.info(f"正在查询课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量...")
+            course_info = get_course_jx02id_and_jx0404id(course)
+            if course_info:
+                remaining_capacity = course_info.get("xxrs", "未知")
+                course_name = course_info.get("kcmc", course["course_id_or_name"])
+                teacher_name = course_info.get("skls", course["teacher_name"])
+                logging.info(
+                    f"课程信息: 课程名称：{course_name}，剩余容量：{remaining_capacity}，授课老师：{teacher_name}"
+                )
+            else:
+                logging.warning(
+                    f"无法获取课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量信息，将继续选课"
+                )
+        else:
+            logging.info(
+                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】未配置class_period或week_day，跳过剩余容量查询"
+            )
+
+        # 准备选课数据
+        course_data = {
+            "jx02id": course["jx02id"],
+            "jx0404id": course["jx0404id"]
+        }
 
         error_messages = []  # 用于收集所有错误信息
         selection_methods = [
@@ -46,38 +82,14 @@ def search_and_select_course(course):
             ("计划外选课", send_fawxkOper_course_jx02id_and_jx0404id),
         ]
 
-        # 已手动配置jx02id和jx0404id的情况
-        if (
-            course.get("jx02id")
-            and course.get("jx0404id")
-            and course["jx02id"].strip() != ""
-            and course["jx0404id"].strip() != ""
-        ):
-            logging.critical(f"已手动配置jx02id和jx0404id，跳过搜索直接选课: {course}")
-            course_data = course
-        # 未手动配置jx02id和jx0404id的情况
-        else:
-            logging.critical(f"未手动配置jx02id和jx0404id，开始搜索课程: {course}")
-            # 检查class_period和week_day是否填写
-            if course.get("class_period") is None or course.get("week_day") is None:
-                logging.error(
-                    f"【{course['course_id_or_name']}-{course['teacher_name']}】的课程信息缺少必要的字段，需要: class_period, week_day"
-                )
-                return False
-            course_data = get_course_jx02id_and_jx0404id(course)
-            if not course_data:
-                logging.error(f"未找到课程信息: {course}")
-                return False
-
-            logging.info(
-                f"获取课程信息成功: 课程名字：{course_data['kcmc']}，课程人数：{course_data['xxrs']}，授课老师：{course_data['skls']}"
-            )
-        # input("Press Enter to continue...")
-        # 尝试不同的选课方式
+        # 使用配置的jx02id和jx0404id直接尝试不同的选课方式
+        logging.info(f"使用配置的jx02id={course['jx02id']}和jx0404id={course['jx0404id']}直接选课")
         for method_name, method_func in selection_methods:
             result, message = method_func(course["course_id_or_name"], course_data)
             if result is True:
                 success_message = f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课成功！"
+                if remaining_capacity:
+                    success_message += f" (选课前剩余容量: {remaining_capacity})"
                 dingtalk("选课成功 🎉 ✨ 🌟 🎊", success_message)
                 feishu("选课成功 🎉 ✨ 🌟 🎊", success_message)
                 return True
@@ -97,5 +109,5 @@ def search_and_select_course(course):
 
     except Exception as e:
         error_msg = str(e)
-        logging.error(f"搜索选课失败: {error_msg}")
+        logging.error(f"选课失败: {error_msg}")
         return False

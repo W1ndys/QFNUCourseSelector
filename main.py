@@ -166,13 +166,13 @@ def get_user_config():
             "mode": "snipe",
             "courses": [
                 {
-                    "course_id_or_name": "",
-                    "teacher_name": "",
-                    "class_period": "",
-                    "week_day": "",
-                    "weeks": "",
-                    "jx02id": "",
-                    "jx0404id": "",
+                    "course_id_or_name": "课程编号或名称（用于日志输出）",
+                    "teacher_name": "教师姓名（用于日志输出）",
+                    "jx02id": "课程jx02id（必填）",
+                    "jx0404id": "课程jx0404id（必填）",
+                    "class_period": "上课节次（选填，用于查询剩余容量）",
+                    "week_day": "上课星期（选填，用于查询剩余容量）",
+                    "weeks": "上课周次（选填，用于查询剩余容量）",
                 }
             ],
         }
@@ -201,8 +201,21 @@ def get_user_config():
         # 验证课程配置
         for course in config.get("courses", []):
             # 检查必填字段
-            if not course.get("course_id_or_name") or not course.get("teacher_name"):
-                logger.error("每个课程配置必须包含 course_id_or_name 和 teacher_name")
+            required_fields = ["course_id_or_name", "teacher_name", "jx02id", "jx0404id"]
+            missing_fields = [field for field in required_fields if not course.get(field)]
+            if missing_fields:
+                logger.error(
+                    f"每个课程配置必须包含以下字段: {', '.join(required_fields)}\n"
+                    f"缺失的字段: {', '.join(missing_fields)}"
+                )
+                input("按回车键退出程序...")
+                exit(1)
+
+            # 验证jx02id和jx0404id不为空
+            if not course["jx02id"].strip() or not course["jx0404id"].strip():
+                logger.error(
+                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 jx02id 或 jx0404id 不能为空"
+                )
                 input("按回车键退出程序...")
                 exit(1)
 
