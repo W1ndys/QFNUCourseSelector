@@ -3,6 +3,35 @@ from loguru import logger
 from ..utils.session_manager import get_session
 
 
+# 永久失败关键词集合
+PERMANENT_FAILURE_KEYWORDS = {
+    "此课堂选课人数已满",
+    "此课堂已设置选课限制",
+    "冲突",
+    "教学班",
+}
+
+
+def check_permanent_failure(message):
+    """
+    检查消息中是否包含永久失败关键词
+    
+    Args:
+        message: 响应消息字符串
+        
+    Returns:
+        tuple: (是否为永久失败, 匹配的关键词)
+    """
+    if not message or not isinstance(message, str):
+        return False, None
+    
+    for keyword in PERMANENT_FAILURE_KEYWORDS:
+        if keyword in message:
+            return True, keyword
+    
+    return False, None
+
+
 def send_ggxxkxkOper_course_jx02id_and_jx0404id(
     course_name, course_jx02id_and_jx0404id
 ):
@@ -54,6 +83,11 @@ def send_ggxxkxkOper_course_jx02id_and_jx0404id(
                 logger.info(f"【{course_name}】的公选课选课成功: {message}")
                 return True, None
             else:
+                # 检查是否为永久失败
+                is_permanent, keyword = check_permanent_failure(message)
+                if is_permanent:
+                    logger.critical(f"【{course_name}】的公选课选课永久失败（检测到关键词：{keyword}）: {message}")
+                    return "permanent_failure", message
                 logger.warning(f"【{course_name}】的公选课选课失败: {message}")
                 return False, message
 
@@ -115,6 +149,11 @@ def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
                 logger.info(f"【{course_name}】的专业内跨年级选课成功: {message}")
                 return True, None
             else:
+                # 检查是否为永久失败
+                is_permanent, keyword = check_permanent_failure(message)
+                if is_permanent:
+                    logger.critical(f"【{course_name}】的专业内跨年级选课永久失败（检测到关键词：{keyword}）: {message}")
+                    return "permanent_failure", message
                 logger.warning(f"【{course_name}】的专业内跨年级选课失败: {message}")
                 return False, message
 
@@ -180,6 +219,11 @@ def send_bxqjhxkOper_course_jx02id_and_jx0404id(
                 logger.info(f"【{course_name}】的本学期计划选课成功: {message}")
                 return True, None
             else:
+                # 检查是否为永久失败
+                is_permanent, keyword = check_permanent_failure(message)
+                if is_permanent:
+                    logger.critical(f"【{course_name}】的本学期计划选课永久失败（检测到关键词：{keyword}）: {message}")
+                    return "permanent_failure", message
                 logger.warning(f"【{course_name}】的本学期计划选课失败: {message}")
                 return False, message
 
@@ -240,6 +284,11 @@ def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx04
                 logger.info(f"【{course_name}】的选修选课成功: {message}")
                 return True, None
             else:
+                # 检查是否为永久失败
+                is_permanent, keyword = check_permanent_failure(message)
+                if is_permanent:
+                    logger.critical(f"【{course_name}】的选修选课永久失败（检测到关键词：{keyword}）: {message}")
+                    return "permanent_failure", message
                 logger.warning(f"【{course_name}】的选修选课失败: {message}")
                 return False, message
 
@@ -301,6 +350,11 @@ def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0
                 logger.info(f"【{course_name}】的计划外选课成功: {message}")
                 return True, None
             else:
+                # 检查是否为永久失败
+                is_permanent, keyword = check_permanent_failure(message)
+                if is_permanent:
+                    logger.critical(f"【{course_name}】的计划外选课永久失败（检测到关键词：{keyword}）: {message}")
+                    return "permanent_failure", message
                 logger.warning(f"【{course_name}】的计划外选课失败: {message}")
                 return False, message
 

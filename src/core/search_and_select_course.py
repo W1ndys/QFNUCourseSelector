@@ -23,7 +23,9 @@ def search_and_select_course(course):
             - jx0404id: 课程jx0404id（必填，用于选课请求和查询剩余量）
 
     Returns:
-        bool: 如果成功选择课程返回True，否则返回False
+        True: 如果成功选择课程
+        False: 如果选课失败（可重试）
+        "permanent_failure": 如果遇到永久失败条件（不可重试）
     """
     try:
         logger.info(
@@ -85,6 +87,12 @@ def search_and_select_course(course):
                     success_message += f" (选课前剩余容量: {remaining_capacity})"
                 feishu("选课成功 🎉 ✨ 🌟 🎊", success_message)
                 return True
+            elif result == "permanent_failure":
+                # 永久失败，停止重试
+                permanent_failure_message = f"课程【{course['course_id_or_name']}-{course['teacher_name']}】遇到永久失败条件，停止重试。原因: {message}"
+                logger.critical(permanent_failure_message)
+                feishu("选课永久失败 ⛔", permanent_failure_message)
+                return "permanent_failure"
             elif result is False:
                 error_messages.append(f"【{method_name}】失败: {message}")
             elif result is None:
