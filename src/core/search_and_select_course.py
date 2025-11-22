@@ -1,4 +1,4 @@
-from src.data.get_course_jx02id_and_jx0404id import get_course_jx02id_and_jx0404id
+from src.data.get_course_capacity import get_course_capacity_by_ids
 from src.core.send_course_data import (
     send_ggxxkxkOper_course_jx02id_and_jx0404id,
     send_knjxkOper_course_jx02id_and_jx0404id,
@@ -14,18 +14,14 @@ import logging
 def search_and_select_course(course):
     """
     使用配置的jx02id和jx0404id直接进行选课请求
-    搜索仅用于记录选课前的剩余量
+    通过ID查询课程剩余容量信息
 
     Args:
         course (dict): 包含课程信息的字典，必须包含以下键：
             - course_id_or_name: 课程编号（用于日志输出）
             - teacher_name: 教师姓名（用于日志输出）
-            - jx02id: 课程jx02id（必填，用于选课请求）
-            - jx0404id: 课程jx0404id（必填，用于选课请求）
-        可选键：
-            - week_day: 上课星期（用于搜索剩余量）
-            - class_period: 上课节次（用于搜索剩余量）
-            - weeks: 上课周次（用于搜索剩余量）
+            - jx02id: 课程jx02id（必填，用于选课请求和查询剩余量）
+            - jx0404id: 课程jx0404id（必填，用于选课请求和查询剩余量）
 
     Returns:
         bool: 如果成功选择课程返回True，否则返回False
@@ -46,27 +42,20 @@ def search_and_select_course(course):
             )
             return False
 
-        # 尝试搜索课程以获取剩余量信息（仅用于日志记录）
-        # 注意：这里复用get_course_jx02id_and_jx0404id函数仅为获取课程容量信息
-        # 实际的jx02id和jx0404id已从配置文件获取，不依赖此搜索结果
+        # 通过jx02id和jx0404id直接查询课程剩余容量信息（仅用于日志记录）
         remaining_capacity = None
-        if course.get("class_period") and course.get("week_day"):
-            logging.info(f"正在查询课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量...")
-            course_info = get_course_jx02id_and_jx0404id(course)
-            if course_info:
-                remaining_capacity = course_info.get("xxrs", "未知")
-                course_name = course_info.get("kcmc", course["course_id_or_name"])
-                teacher_name = course_info.get("skls", course["teacher_name"])
-                logging.info(
-                    f"课程信息: 课程名称：{course_name}，剩余容量：{remaining_capacity}，授课老师：{teacher_name}"
-                )
-            else:
-                logging.warning(
-                    f"无法获取课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量信息，将继续选课"
-                )
-        else:
+        logging.info(f"正在通过ID查询课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量...")
+        course_info = get_course_capacity_by_ids(course["jx02id"], course["jx0404id"])
+        if course_info:
+            remaining_capacity = course_info.get("xxrs", "未知")
+            course_name = course_info.get("kcmc", course["course_id_or_name"])
+            teacher_name = course_info.get("skls", course["teacher_name"])
             logging.info(
-                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】未配置class_period或week_day，跳过剩余容量查询"
+                f"课程信息: 课程名称：{course_name}，剩余容量：{remaining_capacity}，授课老师：{teacher_name}"
+            )
+        else:
+            logging.warning(
+                f"无法获取课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量信息，将继续选课"
             )
 
         # 准备选课数据

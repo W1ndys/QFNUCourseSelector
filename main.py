@@ -170,9 +170,6 @@ def get_user_config():
                     "teacher_name": "",  # 教师姓名（用于日志输出）
                     "jx02id": "",  # 课程jx02id（必填）
                     "jx0404id": "",  # 课程jx0404id（必填）
-                    "class_period": "",  # 上课节次（选填，用于查询剩余容量）
-                    "week_day": "",  # 上课星期（选填，用于查询剩余容量）
-                    "weeks": "",  # 上课周次（选填，用于查询剩余容量）
                 }
             ],
         }
@@ -215,23 +212,6 @@ def get_user_config():
             if not course["jx02id"].strip() or not course["jx0404id"].strip():
                 logger.error(
                     f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 jx02id 或 jx0404id 不能为空"
-                )
-                input("按回车键退出程序...")
-                exit(1)
-
-            # 验证 week_day 格式（如果提供）
-            if course.get("week_day") and not course["week_day"] in [
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "7",
-            ]:
-                logger.error(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 week_day 格式错误: "
-                    "必须是 1-7 之间的数字"
                 )
                 input("按回车键退出程序...")
                 exit(1)
