@@ -262,8 +262,9 @@ def select_courses(courses, select_semester):
     蹲课模式：持续尝试选课，每个课程之间间隔0.5秒
     """
     # 创建一个字典来跟踪每个课程的选课状态
+    # 使用 jx02id 和 jx0404id 的联合作为唯一标识，避免相同课程名和老师的不同课程冲突
     course_status = {
-        f"{c['course_id_or_name']}-{c['teacher_name']}": False for c in courses
+        f"{c['jx02id']}-{c['jx0404id']}": False for c in courses
     }
 
     start_time = time.time()  # 记录开始时间
@@ -300,17 +301,16 @@ def select_courses(courses, select_semester):
 
         # 执行选课操作
         for course in courses:
+            # 使用 jx02id 和 jx0404id 的联合作为课程唯一标识
+            course_key = f"{course['jx02id']}-{course['jx0404id']}"
+            
             # 如果该课程已经选上，则跳过
-            if course_status[
-                f"{course['course_id_or_name']}-{course['teacher_name']}"
-            ]:
+            if course_status[course_key]:
                 continue
 
             result = search_and_select_course(course)
             if result:
-                course_status[
-                    f"{course['course_id_or_name']}-{course['teacher_name']}"
-                ] = True
+                course_status[course_key] = True
             logger.info(
                 f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束"
             )
