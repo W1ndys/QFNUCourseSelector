@@ -1,0 +1,416 @@
+import os
+import sys
+import json
+import time
+import datetime
+import traceback
+from io import BytesIO
+
+from PIL import Image
+from dotenv import load_dotenv
+from loguru import logger
+
+# 添加项目根目录到sys.path以支持相对导入
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from src.utils.captcha_ocr import get_ocr_res
+from src.core.course_selector import get_jx0502zbid
+from src.core.search_and_select_course import search_and_select_course
+from src.utils.session_manager import get_session
+from src.utils.feishu import feishu
+
+
+# 配置日志
+# 确保logs目录存在
+if not os.path.exists("logs"):
+    os.makedirs("logs")
+logger.remove()
+# 设置控制台输出
+logger.add(
+    sys.stderr,
+    level="INFO",
+    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>",
+)
+
+load_dotenv()
+
+
+def handle_captcha():
+    """
+    获取并识别验证码
+    返回: 识别出的验证码字符串
+    """
+    session = get_session()
+
+    # 验证码请求URL
+    RandCodeUrl = "http://zhjw.qfnu.edu.cn/jsxsd/verifycode.servlet"
+
+    response = session.get(RandCodeUrl)
+
+    if response.status_code != 200:
+        logger.error(f"请求验证码失败，状态码: {response.status_code}")
+        return None
+
+    try:
+        image = Image.open(BytesIO(response.content))
+    except Exception as e:
+        logger.error(f"无法识别图像文件: {e}")
+        return None
+
+    return get_ocr_res(image)
+
+
+def generate_encoded_string(user_account, user_password):
+    """
+    生成登录所需的encoded字符串
+    参数:
+        data_str: 初始数据字符串 (实际未使用)
+        user_account: 用户账号
+        user_password: 用户密码
+    返回: encoded字符串 (账号base64 + %%% + 密码base64)
+    """
+    import base64
+
+    # 对账号和密码分别进行base64编码
+    account_b64 = base64.b64encode(user_account.encode()).decode()
+    password_b64 = base64.b64encode(user_password.encode()).decode()
+
+    # 拼接编码后的字符串
+    encoded = f"{account_b64}%%%{password_b64}"
+
+    return encoded
+
+
+def login(random_code, encoded):
+    """
+    执行登录操作
+    返回: 登录响应结果
+    """
+
+    # 登录请求URL
+    loginUrl = "http://zhjw.qfnu.edu.cn/jsxsd/xk/LoginToXkLdap"
+    session = get_session()
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+        "Origin": "http://zhjw.qfnu.edu.cn",
+        "Referer": "http://zhjw.qfnu.edu.cn/",
+    }
+
+    data = {
+        "userAccount": "",
+        "userPassword": "",
+        "RANDOMCODE": random_code,
+        "encoded": encoded,
+    }
+
+    return session.post(loginUrl, headers=headers, data=data, timeout=1000)
+
+
+def get_user_config():
+    """
+    获取用户配置
+    返回:
+        user_account: 用户账号
+        user_password: 用户密码
+        select_semester: 选课学期
+        courses: 课程列表
+    """
+    # 检查配置文件是否存在
+    if not os.path.exists("config.json"):
+        # 创建默认配置文件
+        default_config = {
+            "user_account": "",
+            "user_password": "",
+            "select_semester": "",
+            "feishu_webhook": "",
+            "courses": [
+                {
+                    "course_id_or_name": "",  # 课程编号或名称（用于日志输出）
+                    "teacher_name": "",  # 教师姓名（用于日志输出）
+                    "jx02id": "",  # 课程jx02id（必填）
+                    "jx0404id": "",  # 课程jx0404id（必填）
+                }
+            ],
+        }
+        with open("config.json", "w", encoding="utf-8") as f:
+            json.dump(default_config, f, ensure_ascii=False, indent=4)
+        logger.error(
+            "配置文件不存在，已创建默认配置文件 config.json\n请填写相关信息后重新运行程序"
+        )
+        # 暂停让用户查看错误信息
+        input("按回车键退出程序...")
+        exit(0)
+
+    # 读取配置文件
+    try:
+        with open("config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
+
+        # 验证必填字段
+        required_fields = ["user_account", "user_password"]
+        for field in required_fields:
+            if not config.get(field):
+                logger.error(f"配置文件中缺少必填字段: {field}")
+                input("按回车键退出程序...")
+                exit(1)
+
+        # 验证课程配置
+        for course in config.get("courses", []):
+            # 检查必填字段
+            required_fields = ["course_id_or_name", "teacher_name", "jx02id", "jx0404id"]
+            missing_fields = [field for field in required_fields if not course.get(field)]
+            if missing_fields:
+                logger.error(
+                    f"每个课程配置必须包含以下字段: {', '.join(required_fields)}\n"
+                    f"缺失的字段: {', '.join(missing_fields)}"
+                )
+                input("按回车键退出程序...")
+                exit(1)
+
+            # 验证jx02id和jx0404id不为空
+            if not course["jx02id"].strip() or not course["jx0404id"].strip():
+                logger.error(
+                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 jx02id 或 jx0404id 不能为空"
+                )
+                input("按回车键退出程序...")
+                exit(1)
+
+        return (
+            config["user_account"],
+            config["user_password"],
+            config.get("select_semester", ""),
+            config.get("courses", []),
+        )
+    except json.JSONDecodeError:
+        logger.error("配置文件格式错误，请检查 config.json 文件格式是否正确")
+        input("按回车键退出程序...")
+        exit(1)
+    except Exception as e:
+        logger.error(f"读取配置文件时发生错误: {str(e)}")
+        input("按回车键退出程序...")
+        exit(1)
+
+
+def simulate_login(user_account, user_password):
+    """
+    模拟登录过程
+    返回: 是否登录成功
+    """
+    session = get_session()
+    # 访问教务系统首页，获取必要的cookie
+    response = session.get("http://zhjw.qfnu.edu.cn/jsxsd/")
+    if response.status_code != 200:
+        logger.error("无法访问教务系统首页，请检查网络连接或教务系统的可用性。")
+        return False
+
+    # 获取必要的cookie
+    cookies = session.cookies
+    logger.info(f"获取到的cookie: {cookies}")
+
+    for attempt in range(3):
+        random_code = handle_captcha()
+        logger.info(f"验证码: {random_code}")
+        encoded = generate_encoded_string(user_account, user_password)
+        logger.info(f"encoded: {encoded}")
+        response = login(random_code, encoded)
+        logger.info(f"登录响应: {response.status_code}")
+
+        if response.status_code == 200:
+            if "验证码错误" in response.text:
+                logger.warning(f"验证码识别错误，重试第 {attempt + 1} 次")
+                continue
+            if "密码错误" in response.text:
+                raise Exception("用户名或密码错误")
+            return True
+        else:
+            raise Exception("登录失败")
+
+    raise Exception("验证码识别错误，请重试")
+
+
+def print_welcome():
+    logger.info(f"\n{'*' * 10} 曲阜师范大学教务系统抢课脚本 {'*' * 10}\n")
+    logger.info("By W1ndys")
+    logger.info("https://github.com/W1ndys")
+    logger.info("\n\n")
+    logger.info(f"当前时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info("免责声明: ")
+    logger.info("1. 本脚本仅供学习和研究目的，用于了解网络编程和自动化技术的实现原理。")
+    logger.info(
+        "2. 使用本脚本可能违反学校相关规定。使用者应自行承担因使用本脚本而产生的一切后果，包括但不限于："
+    )
+    logger.info("   - 账号被封禁")
+    logger.info("   - 选课资格被取消")
+    logger.info("   - 受到学校纪律处分")
+    logger.info("   - 其他可能产生的不良影响")
+    logger.info("3. 严禁将本脚本用于：")
+    logger.info("   - 商业用途")
+    logger.info("   - 干扰教务系统正常运行")
+    logger.info("   - 影响其他同学正常选课")
+    logger.info("   - 其他任何非法或不当用途")
+    logger.info(
+        "4. 下载本脚本即视为您已完全理解并同意本免责声明。请在下载后 24 小时内删除。"
+    )
+    logger.info("5. 开发者对使用本脚本造成的任何直接或间接损失不承担任何责任。")
+
+
+def select_courses(courses, select_semester):
+    """
+    蹲课模式：持续尝试选课，每个课程之间间隔0.5秒
+    """
+    # 创建一个字典来跟踪每个课程的选课状态
+    # 使用 jx02id 和 jx0404id 的联合作为唯一标识，避免相同课程名和老师的不同课程冲突
+    course_status = {
+        f"{c['jx02id']}-{c['jx0404id']}": False for c in courses
+    }
+
+    start_time = time.time()  # 记录开始时间
+    feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
+
+    session = get_session()
+
+    # 蹲课模式：每次选课前刷新轮次，持续执行选课操作
+    while True:
+        # 检查是否所有课程都已选上
+        if all(course_status.values()):
+            end_time = time.time()  # 记录结束时间
+            logger.info("所有课程已选择成功，程序即将退出...")
+            logger.info(f"总耗时: {end_time - start_time} 秒")
+            feishu(
+                "曲阜师范大学教务系统抢课脚本",
+                f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
+            )
+            return True
+        
+        # 每次选课前刷新选课轮次ID
+        current_jx0502zbid = get_jx0502zbid(session, select_semester)
+        if not current_jx0502zbid:
+            logger.warning(
+                "获取选课轮次失败，1秒后重试...若持续失败，可能是账号被踢，请重新运行脚本"
+            )
+            time.sleep(1)
+            continue
+
+        response = session.get(
+            f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
+        )
+        logger.debug(f"选课页面响应状态码: {response.status_code}")
+
+        # 执行选课操作
+        for course in courses:
+            # 使用 jx02id 和 jx0404id 的联合作为课程唯一标识
+            course_key = f"{course['jx02id']}-{course['jx0404id']}"
+            
+            # 如果该课程已经选上，则跳过
+            if course_status[course_key]:
+                continue
+
+            result = search_and_select_course(course)
+            if result:
+                course_status[course_key] = True
+            logger.info(
+                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束"
+            )
+            
+            # 每个课程之间间隔0.5秒
+            time.sleep(0.5)
+
+        logger.info("本轮选课操作完成，准备开始新一轮选课...")
+        time.sleep(0.5)
+
+
+def main():
+    """
+    主函数，协调整个程序的执行流程
+    """
+    try:
+        print_welcome()
+
+        input(
+            "本项目具有严重的安全风险和非预期运行，有极大概率无法正常的选课，为避免影响正常选课，请勿继续使用，相关代码仅供学习研究使用，请勿用于实际的选课环境中，使用脚本造成的一切后果与开发者无关。\n"
+        )
+
+        # 获取环境变量
+        user_account, user_password, select_semester, courses = get_user_config()
+
+        # 添加文件日志
+        start_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file_path = os.path.join("logs", f"{user_account}_{start_time}.log")
+        logger.add(
+            log_file_path,
+            encoding="utf-8",
+            level="DEBUG",
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
+        )
+
+        if user_account:
+            logger.info("成功获取配置文件")
+            logger.info(f"用户名: {user_account}")
+
+        while True:  # 添加外层循环
+            try:
+                # 模拟登录
+                if not simulate_login(user_account, user_password):
+                    logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+                    time.sleep(1)  # 添加重试间隔
+                    continue  # 重试登录
+
+                session = get_session()
+                if not session:
+                    logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+                    time.sleep(1)
+                    continue
+
+                # 访问主页和选课页面
+                for page_url in [
+                    "http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp",
+                    "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list",
+                ]:
+                    for attempt in range(3):
+                        try:
+                            response = session.get(page_url)
+                            logger.debug(f"页面响应状态码: {response.status_code}")
+                            if response.status_code == 200:
+                                break
+                        except Exception as e:
+                            if attempt == 2:
+                                logger.error(f"访问页面失败: {str(e)}")
+                                raise
+                            logger.warning(
+                                f"访问页面失败，正在进行第{attempt + 2}次尝试"
+                            )
+                            continue
+
+                # 获取选课轮次编号
+                jx0502zbid = get_jx0502zbid(session, select_semester)
+                while not jx0502zbid:
+                    logger.warning("获取选课轮次编号失败，1秒后重试...")
+                    time.sleep(1)
+                    jx0502zbid = get_jx0502zbid(session, select_semester)
+
+                logger.critical(f"成功获取到选课轮次ID: {jx0502zbid}")
+                response = session.get(
+                    f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
+                )
+                logger.debug(f"选课页面响应状态码: {response.status_code}")
+                select_courses(courses, select_semester)
+                break  # 成功后退出循环
+
+            except Exception as e:
+                logger.error(f"发生错误: {str(e)}，正在重新登录...")
+                time.sleep(1)
+                continue  # 重新登录
+    except KeyboardInterrupt:
+        logger.info("用户手动终止程序")
+        input("按回车键退出程序...")
+    except Exception as e:
+        logger.error(f"程序发生未预期的错误: {str(e)}")
+        logger.error(traceback.format_exc())
+        input("按回车键退出程序...")
+
+
+if __name__ == "__main__":
+    main()
