@@ -6,7 +6,6 @@ from src.core.send_course_data import (
     send_xxxkOper_course_jx02id_and_jx0404id,
     send_fawxkOper_course_jx02id_and_jx0404id,
 )
-from src.utils.dingtalk import dingtalk
 from src.utils.feishu import feishu
 import logging
 
@@ -81,7 +80,6 @@ def search_and_select_course(course):
                 success_message = f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课成功！"
                 if remaining_capacity:
                     success_message += f" (选课前剩余容量: {remaining_capacity})"
-                dingtalk("选课成功 🎉 ✨ 🌟 🎊", success_message)
                 feishu("选课成功 🎉 ✨ 🌟 🎊", success_message)
                 return True
             elif result is False:
