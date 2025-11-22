@@ -1,6 +1,6 @@
 import time
 import logging
-from src.utils.session_manager import get_session
+from ..utils.session_manager import get_session
 
 
 def send_ggxxkxkOper_course_jx02id_and_jx0404id(
