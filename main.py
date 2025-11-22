@@ -263,6 +263,7 @@ def select_courses(courses, select_semester):
     """
     # 创建一个字典来跟踪每个课程的选课状态
     # 使用 jx02id 和 jx0404id 的联合作为唯一标识，避免相同课程名和老师的不同课程冲突
+    # 状态值：False=未选上, True=已选上, "permanent_failure"=永久失败
     course_status = {
         f"{c['jx02id']}-{c['jx0404id']}": False for c in courses
     }
@@ -274,14 +275,22 @@ def select_courses(courses, select_semester):
 
     # 蹲课模式：每次选课前刷新轮次，持续执行选课操作
     while True:
-        # 检查是否所有课程都已选上
-        if all(course_status.values()):
+        # 检查是否所有课程都已选上或永久失败
+        active_courses = [status for status in course_status.values() if status is False]
+        if not active_courses:
             end_time = time.time()  # 记录结束时间
-            logger.info("所有课程已选择成功，程序即将退出...")
+            success_count = sum(1 for status in course_status.values() if status is True)
+            failed_count = sum(1 for status in course_status.values() if status == "permanent_failure")
+            
+            logger.info("所有课程处理完成，程序即将退出...")
             logger.info(f"总耗时: {end_time - start_time} 秒")
+            logger.info(f"成功选上: {success_count} 门课程")
+            if failed_count > 0:
+                logger.info(f"永久失败: {failed_count} 门课程")
+            
             feishu(
                 "曲阜师范大学教务系统抢课脚本",
-                f"所有课程已选择成功，总耗时: {end_time - start_time} 秒",
+                f"所有课程处理完成\n成功选上: {success_count} 门\n永久失败: {failed_count} 门\n总耗时: {end_time - start_time:.2f} 秒",
             )
             return True
         
@@ -304,16 +313,25 @@ def select_courses(courses, select_semester):
             # 使用 jx02id 和 jx0404id 的联合作为课程唯一标识
             course_key = f"{course['jx02id']}-{course['jx0404id']}"
             
-            # 如果该课程已经选上，则跳过
-            if course_status[course_key]:
+            # 如果该课程已经选上或永久失败，则跳过
+            if course_status[course_key] is not False:
                 continue
 
             result = search_and_select_course(course)
-            if result:
+            if result is True:
                 course_status[course_key] = True
-            logger.info(
-                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束"
-            )
+                logger.info(
+                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课成功"
+                )
+            elif result == "permanent_failure":
+                course_status[course_key] = "permanent_failure"
+                logger.critical(
+                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】永久失败，不再重试"
+                )
+            else:
+                logger.info(
+                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，将继续重试"
+                )
             
             # 每个课程之间间隔0.5秒
             time.sleep(0.5)

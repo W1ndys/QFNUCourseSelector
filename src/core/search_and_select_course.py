@@ -85,6 +85,12 @@ def search_and_select_course(course):
                     success_message += f" (选课前剩余容量: {remaining_capacity})"
                 feishu("选课成功 🎉 ✨ 🌟 🎊", success_message)
                 return True
+            elif result == "permanent_failure":
+                # 永久失败，停止重试
+                permanent_failure_message = f"课程【{course['course_id_or_name']}-{course['teacher_name']}】遇到永久失败条件，停止重试。原因: {message}"
+                logger.critical(permanent_failure_message)
+                feishu("选课永久失败 ⛔", permanent_failure_message)
+                return "permanent_failure"
             elif result is False:
                 error_messages.append(f"【{method_name}】失败: {message}")
             elif result is None:
