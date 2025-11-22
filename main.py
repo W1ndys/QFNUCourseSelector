@@ -501,18 +501,18 @@ def main():
 
                 # 获取选课轮次编号
                 jx0502zbid = get_jx0502zbid(session, select_semester)
-                if jx0502zbid:
-                    logger.critical(f"成功获取到选课轮次ID: {jx0502zbid}")
-                    response = session.get(
-                        f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
-                    )
-                    logger.debug(f"选课页面响应状态码: {response.status_code}")
-                    select_courses(courses, mode, select_semester)
-                    break  # 成功后退出循环
-                else:
-                    logger.warning("获取选课轮次编号失败，正在重新登录...")
+                while not jx0502zbid:
+                    logger.warning("获取选课轮次编号失败，1秒后重试...")
                     time.sleep(1)
-                    continue  # 重新登录
+                    jx0502zbid = get_jx0502zbid(session, select_semester)
+
+                logger.critical(f"成功获取到选课轮次ID: {jx0502zbid}")
+                response = session.get(
+                    f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
+                )
+                logger.debug(f"选课页面响应状态码: {response.status_code}")
+                select_courses(courses, mode, select_semester)
+                break  # 成功后退出循环
 
             except Exception as e:
                 logger.error(f"发生错误: {str(e)}，正在重新登录...")
