@@ -23,7 +23,9 @@ def search_and_select_course(course):
             - jx0404id: 课程jx0404id（必填，用于选课请求和查询剩余量）
 
     Returns:
-        bool: 如果成功选择课程返回True，否则返回False
+        True: 如果成功选择课程
+        False: 如果选课失败（可重试）
+        "permanent_failure": 如果遇到永久失败条件（不可重试）
     """
     try:
         logger.info(
