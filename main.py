@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 from src.core.course_selector import get_jx0502zbid
 from src.core.search_and_select_course import search_and_select_course
 from src.utils.session_manager import get_session
-import colorlog
-import logging
+from loguru import logger
+import sys
 import datetime
 import time
 import traceback
@@ -16,56 +16,17 @@ from src.utils.dingtalk import dingtalk
 from src.utils.feishu import feishu
 
 
-def setup_logger():
-    """
-    配置日志系统
-    """
-    # 确保logs目录存在
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
-
-    # 创建logger
-    logger = colorlog.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    # 清除可能存在的处理器
-    if logger.handlers:
-        logger.handlers.clear()
-
-    # 配置文件处理器 - 使用普通的Formatter
-    file_handler = logging.FileHandler(
-        os.path.join(
-            "logs", f'app_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
-        ),
-        encoding="utf-8",
-    )
-    file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    file_handler.setFormatter(file_formatter)
-
-    # 配置控制台处理器 - 使用ColoredFormatter
-    console_handler = colorlog.StreamHandler()
-    console_handler.setLevel(logging.INFO)  # 设置控制台处理器的日志级别为INFO
-    console_formatter = colorlog.ColoredFormatter(
-        "%(log_color)s%(levelname)s: %(message)s%(reset)s",
-        log_colors={
-            "DEBUG": "cyan",
-            "INFO": "green",
-            "WARNING": "yellow",
-            "ERROR": "red",
-            "CRITICAL": "red,bg_white",
-        },
-    )
-    console_handler.setFormatter(console_formatter)
-
-    # 添加处理器到logger
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
-    return logger
-
-
-# 在文件开头调用setup_logger
-logger = setup_logger()
+# 配置日志
+# 确保logs目录存在
+if not os.path.exists("logs"):
+    os.makedirs("logs")
+logger.remove()
+# 设置控制台输出
+logger.add(
+    sys.stderr,
+    level="INFO",
+    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>",
+)
 
 load_dotenv()
 
@@ -460,6 +421,16 @@ def main():
 
         # 获取环境变量
         user_account, user_password, select_semester, mode, courses = get_user_config()
+
+        # 添加文件日志
+        start_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file_path = os.path.join("logs", f"{user_account}_{start_time}.log")
+        logger.add(
+            log_file_path,
+            encoding="utf-8",
+            level="DEBUG",
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
+        )
 
         if user_account:
             logger.info("成功获取配置文件")
