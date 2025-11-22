@@ -1,10 +1,10 @@
-# QFNUCourseSelector
+# QFNUCourseGrabberPy
 
 > 曲阜师范大学 QFNU 抢课脚本 | 强智教务抢课脚本 | 强智教务 2017 | 大学抢课脚本 | 学院抢课脚本
 >
 > 本脚本以强智教务系统 2017 版本为基础，支持 2017 版本的所有功能，包括选修选课、专业内跨年级选课、本学期计划选课、公选课选课、计划外选课，其他版本未测试，但基本的请求 API 几乎类似，可以参考本脚本实现
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/W1ndys/QFNUCourseSelector)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/W1ndys/QFNUCourseGrabberPy)
 
 ## 本脚本初衷是为了告别卡顿页面，还学生一个流畅的选课体验，请谨慎使用，请勿滥用，请勿在大陆范围内所有社交媒体平台软件等传播，请勿用于商业用途。
 
@@ -56,7 +56,7 @@
 ### 1. 克隆项目
 
 ```bash
-git clone git@github.com:W1ndys/QFNUCourseSelector.git
+git clone git@github.com:W1ndys/QFNUCourseGrabberPy.git
 ```
 
 > 直接下载 zip 包也可以，但是需要把 bat 文件的行位序列改成 CRLF，否则会报错
@@ -64,7 +64,7 @@ git clone git@github.com:W1ndys/QFNUCourseSelector.git
 ### 2. 安装依赖
 
 ```bash
-cd QFNUCourseSelector
+cd QFNUCourseGrabberPy
 uv v
 uv pip install -r requirements.txt
 ```
@@ -224,7 +224,7 @@ flowchart TB
 TypeError:DdddOcr.__init__()got an unexpected keyword argument 'show_ad'
 ```
 
-解决办法：https://github.com/W1ndys/QFNUCourseSelector/issues/8
+解决办法：https://github.com/W1ndys/QFNUCourseGrabberPy/issues/8
 
 ## 🏆 战绩
 
@@ -237,11 +237,11 @@ TypeError:DdddOcr.__init__()got an unexpected keyword argument 'show_ad'
 
 <!-- 添加 Star History -->
 <p align="center">
-  <a href="https://star-history.com/#W1ndys/QFNUCourseSelector&Date">
+  <a href="https://star-history.com/#W1ndys/QFNUCourseGrabberPy&Date">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=W1ndys/QFNUCourseSelector&type=Date&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=W1ndys/QFNUCourseSelector&type=Date" />
-      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=W1ndys/QFNUCourseSelector&type=Date" />
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=W1ndys/QFNUCourseGrabberPy&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=W1ndys/QFNUCourseGrabberPy&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=W1ndys/QFNUCourseGrabberPy&type=Date" />
     </picture>
   </a>
 </p>
