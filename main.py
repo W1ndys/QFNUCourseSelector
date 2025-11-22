@@ -1,17 +1,24 @@
-from PIL import Image
-from io import BytesIO
-from src.utils.captcha_ocr import get_ocr_res
 import os
+import sys
 import json
+import time
+import datetime
+import traceback
+from io import BytesIO
+
+from PIL import Image
 from dotenv import load_dotenv
+from loguru import logger
+
+# 添加项目根目录到sys.path以支持相对导入
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from src.utils.captcha_ocr import get_ocr_res
 from src.core.course_selector import get_jx0502zbid
 from src.core.search_and_select_course import search_and_select_course
 from src.utils.session_manager import get_session
-from loguru import logger
-import sys
-import datetime
-import time
-import traceback
 from src.utils.feishu import feishu
 
 
