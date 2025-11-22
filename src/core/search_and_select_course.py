@@ -1,4 +1,4 @@
-from src.data.get_course_capacity import get_course_capacity_by_ids
+from core.get_course_capacity import get_course_capacity_by_ids
 from src.core.send_course_data import (
     send_ggxxkxkOper_course_jx02id_and_jx0404id,
     send_knjxkOper_course_jx02id_and_jx0404id,
