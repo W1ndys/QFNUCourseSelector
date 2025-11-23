@@ -336,7 +336,6 @@ def select_courses(courses):
                 if locked_rounds[course_key] is not None:
                     if locked_rounds[course_key] != round_id:
                         continue
-                    logger.info(f"课程【{course['course_name']}-{course['teacher_name']}】已锁定在轮次 {round_name}")
 
                 round_had_attempts = True
                 result = search_and_select_course(course)
