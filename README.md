@@ -132,17 +132,11 @@ uv run main.py
 >
 > **关于 jx02id 和 jx0404id 的获取方法：**
 >
-> jx02id 和 jx0404id 是教务系统中课程的唯一标识，必须手动获取。详细的获取方法请参考 [详细说明文档](./assets/docs/how_to_get_jx02id_and_jx0404id.md)
+> jx02id 和 jx0404id 是教务系统中课程的唯一标识，必须借助高年级账号手动获取
 >
 > 请确保在配置文件中填写正确，不要填反了，否则无法正常选课。
 >
 > **脚本运行过程中不要异地登录，否则会把脚本踢下线**
-
-### 5. 运行脚本
-
-Windows 用户双击 `run_app_in_venv_windows.bat` 运行脚本
-
-Linux 用户执行 `bash run_app_in_venv_linux.sh` 运行脚本
 
 ## 程序流程图
 
