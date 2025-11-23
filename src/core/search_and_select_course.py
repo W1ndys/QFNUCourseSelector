@@ -17,7 +17,8 @@ def search_and_select_course(course):
 
     Args:
         course (dict): 包含课程信息的字典，必须包含以下键：
-            - course_id_or_name: 课程编号（用于日志输出）
+            - course_name: 课程名称（用于日志输出）
+            - course_id: 课程编号（用于日志输出）
             - teacher_name: 教师姓名（用于日志输出）
             - jx02id: 课程jx02id（必填，用于选课请求和查询剩余量）
             - jx0404id: 课程jx0404id（必填，用于选课请求和查询剩余量）
@@ -29,11 +30,11 @@ def search_and_select_course(course):
     """
     try:
         logger.info(
-            f"开始处理课程: 【{course['course_id_or_name']}-{course['teacher_name']}】"
+            f"开始处理课程: 【{course['course_name']}-{course['teacher_name']}】"
         )
 
         # 验证必填字段
-        required_keys = ["course_id_or_name", "teacher_name", "jx02id", "jx0404id"]
+        required_keys = ["course_name", "course_id", "teacher_name", "jx02id", "jx0404id"]
         if not all(key in course for key in required_keys):
             logger.error(f"课程信息缺少必要的字段，需要: {', '.join(required_keys)}")
             return False
@@ -41,26 +42,26 @@ def search_and_select_course(course):
         # 验证jx02id和jx0404id不为空
         if not course["jx02id"].strip() or not course["jx0404id"].strip():
             logger.error(
-                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的jx02id或jx0404id为空，请检查配置文件"
+                f"课程【{course['course_name']}-{course['teacher_name']}】的jx02id或jx0404id为空，请检查配置文件"
             )
             return False
 
         # 通过jx02id和jx0404id直接查询课程剩余容量信息（仅用于日志记录）
         remaining_capacity = None
         logger.info(
-            f"正在通过ID查询课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量..."
+            f"正在通过ID查询课程【{course['course_name']}-{course['teacher_name']}】的剩余容量..."
         )
         course_info = get_course_capacity_by_ids(course["jx02id"], course["jx0404id"])
         if course_info:
             remaining_capacity = course_info.get("xxrs", "未知")
-            course_name = course_info.get("kcmc", course["course_id_or_name"])
+            course_name = course_info.get("kcmc", course["course_name"])
             teacher_name = course_info.get("skls", course["teacher_name"])
             logger.info(
                 f"课程信息: 课程名称：{course_name}，剩余容量：{remaining_capacity}，授课老师：{teacher_name}"
             )
         else:
             logger.warning(
-                f"无法获取课程【{course['course_id_or_name']}-{course['teacher_name']}】的剩余容量信息，将继续选课"
+                f"无法获取课程【{course['course_name']}-{course['teacher_name']}】的剩余容量信息，将继续选课"
             )
 
         # 准备选课数据
@@ -80,16 +81,16 @@ def search_and_select_course(course):
             f"使用配置的jx02id={course['jx02id']}和jx0404id={course['jx0404id']}直接选课"
         )
         for method_name, method_func in selection_methods:
-            result, message = method_func(course["course_id_or_name"], course_data)
+            result, message = method_func(course["course_id"], course_data)
             if result is True:
-                success_message = f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课成功！"
+                success_message = f"课程【{course['course_name']}-{course['teacher_name']}】选课成功！"
                 if remaining_capacity:
                     success_message += f" (选课前剩余容量: {remaining_capacity})"
                 feishu("选课成功 🎉 ✨ 🌟 🎊", success_message)
                 return True
             elif result == "permanent_failure":
                 # 永久失败，停止重试
-                permanent_failure_message = f"课程【{course['course_id_or_name']}-{course['teacher_name']}】遇到永久失败条件，停止重试。原因: {message}"
+                permanent_failure_message = f"课程【{course['course_name']}-{course['teacher_name']}】遇到永久失败条件，停止重试。原因: {message}"
                 logger.critical(permanent_failure_message)
                 feishu("选课永久失败 ⛔", permanent_failure_message)
                 return "permanent_failure"
@@ -101,7 +102,7 @@ def search_and_select_course(course):
         # 如果所有尝试都失败，发送错误汇总
         if error_messages:
             error_summary = (
-                f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课失败，遇到以下错误：\n\n"
+                f"课程【{course['course_name']}-{course['teacher_name']}】选课失败，遇到以下错误：\n\n"
                 + "\n\n".join(error_messages)
             )
             logger.error(error_summary)
