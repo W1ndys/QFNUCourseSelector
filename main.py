@@ -115,28 +115,27 @@ def get_user_config():
     返回:
         user_account: 用户账号
         user_password: 用户密码
-        select_semester: 选课学期
         courses: 课程列表
     """
     # 检查配置文件是否存在
     if not os.path.exists("config.json"):
         # 创建默认配置文件
         default_config = {
-            "user_account": "",
-            "user_password": "",
-            "select_semester": "",
+            "user_account": "你的学号",
+            "user_password": "你的教务系统密码",
             "feishu_webhook": "",
             "courses": [
                 {
-                    "course_id_or_name": "",  # 课程编号或名称（用于日志输出）
-                    "teacher_name": "",  # 教师姓名（用于日志输出）
-                    "jx02id": "",  # 课程jx02id（必填）
-                    "jx0404id": "",  # 课程jx0404id（必填）
+                    "course_name": "你的课程名称",
+                    "course_id": "你的课程编号",
+                    "teacher_name": "你的老师名称",
+                    "jx02id": "你的课程所属的jx02id",
+                    "jx0404id": "你的课程所属的jx0404id",
                 }
             ],
         }
         with open("config.json", "w", encoding="utf-8") as f:
-            json.dump(default_config, f, ensure_ascii=False, indent=4)
+            json.dump(default_config, f, ensure_ascii=False, indent=2)
         logger.error(
             "配置文件不存在，已创建默认配置文件 config.json\n请填写相关信息后重新运行程序"
         )
@@ -160,7 +159,7 @@ def get_user_config():
         # 验证课程配置
         for course in config.get("courses", []):
             # 检查必填字段
-            required_fields = ["course_id_or_name", "teacher_name", "jx02id", "jx0404id"]
+            required_fields = ["course_name", "course_id", "teacher_name", "jx02id", "jx0404id"]
             missing_fields = [field for field in required_fields if not course.get(field)]
             if missing_fields:
                 logger.error(
@@ -173,7 +172,7 @@ def get_user_config():
             # 验证jx02id和jx0404id不为空
             if not course["jx02id"].strip() or not course["jx0404id"].strip():
                 logger.error(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】的 jx02id 或 jx0404id 不能为空"
+                    f"课程【{course['course_name']}-{course['teacher_name']}】的 jx02id 或 jx0404id 不能为空"
                 )
                 input("按回车键退出程序...")
                 exit(1)
@@ -181,7 +180,6 @@ def get_user_config():
         return (
             config["user_account"],
             config["user_password"],
-            config.get("select_semester", ""),
             config.get("courses", []),
         )
     except json.JSONDecodeError:
@@ -257,9 +255,10 @@ def print_welcome():
     logger.info("5. 开发者对使用本脚本造成的任何直接或间接损失不承担任何责任。")
 
 
-def select_courses(courses, select_semester):
+def select_courses(courses):
     """
     蹲课模式：持续尝试选课，每个课程之间间隔0.5秒
+    依次遍历每个选课轮次，如果某课程在某轮次选课成功，则锁定该轮次
     """
     # 创建一个字典来跟踪每个课程的选课状态
     # 使用 jx02id 和 jx0404id 的联合作为唯一标识，避免相同课程名和老师的不同课程冲突
@@ -268,12 +267,17 @@ def select_courses(courses, select_semester):
         f"{c['jx02id']}-{c['jx0404id']}": False for c in courses
     }
 
+    # 记录每个课程锁定的轮次 ID，None 表示尚未锁定
+    locked_rounds = {
+        f"{c['jx02id']}-{c['jx0404id']}": None for c in courses
+    }
+
     start_time = time.time()  # 记录开始时间
     feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
 
     session = get_session()
 
-    # 蹲课模式：每次选课前刷新轮次，持续执行选课操作
+    # 蹲课模式：持续执行选课操作
     while True:
         # 检查是否所有课程都已选上或永久失败
         active_courses = [status for status in course_status.values() if status is False]
@@ -283,7 +287,7 @@ def select_courses(courses, select_semester):
             failed_count = sum(1 for status in course_status.values() if status == "permanent_failure")
             
             logger.info("所有课程处理完成，程序即将退出...")
-            logger.info(f"总耗时: {end_time - start_time} 秒")
+            logger.info(f"总耗时: {end_time - start_time:.2f} 秒")
             logger.info(f"成功选上: {success_count} 门课程")
             if failed_count > 0:
                 logger.info(f"永久失败: {failed_count} 门课程")
@@ -294,49 +298,73 @@ def select_courses(courses, select_semester):
             )
             return True
         
-        # 每次选课前刷新选课轮次ID
-        current_jx0502zbid = get_jx0502zbid(session, select_semester)
-        if not current_jx0502zbid:
+        # 获取所有选课轮次
+        all_rounds = get_jx0502zbid(session)
+        if not all_rounds:
             logger.warning(
                 "获取选课轮次失败，1秒后重试...若持续失败，可能是账号被踢，请重新运行脚本"
             )
             time.sleep(1)
             continue
 
-        response = session.get(
-            f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={current_jx0502zbid}"
-        )
-        logger.debug(f"选课页面响应状态码: {response.status_code}")
+        logger.info(f"获取到 {len(all_rounds)} 个选课轮次")
 
-        # 执行选课操作
-        for course in courses:
-            # 使用 jx02id 和 jx0404id 的联合作为课程唯一标识
-            course_key = f"{course['jx02id']}-{course['jx0404id']}"
+        # 遍历每个轮次
+        for round_info in all_rounds:
+            round_id = round_info["jx0502zbid"]
+            round_name = round_info["name"]
             
-            # 如果该课程已经选上或永久失败，则跳过
-            if course_status[course_key] is not False:
-                continue
+            logger.info(f"正在尝试轮次: {round_name} (ID: {round_id})")
 
-            result = search_and_select_course(course)
-            if result is True:
-                course_status[course_key] = True
-                logger.info(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课成功"
-                )
-            elif result == "permanent_failure":
-                course_status[course_key] = "permanent_failure"
-                logger.critical(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】永久失败，不再重试"
-                )
-            else:
-                logger.info(
-                    f"课程【{course['course_id_or_name']}-{course['teacher_name']}】选课操作结束，将继续重试"
-                )
-            
-            # 每个课程之间间隔0.5秒
-            time.sleep(0.5)
+            # 访问选课页面
+            response = session.get(
+                f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={round_id}"
+            )
+            logger.debug(f"选课页面响应状态码: {response.status_code}")
 
-        logger.info("本轮选课操作完成，准备开始新一轮选课...")
+            # 执行选课操作
+            round_had_attempts = False  # 标记本轮次是否有课程尝试
+            for course in courses:
+                # 使用 jx02id 和 jx0404id 的联合作为课程唯一标识
+                course_key = f"{course['jx02id']}-{course['jx0404id']}"
+                
+                # 如果该课程已经选上或永久失败，则跳过
+                if course_status[course_key] is not False:
+                    continue
+
+                # 如果该课程已经锁定了轮次，只在锁定的轮次尝试
+                if locked_rounds[course_key] is not None:
+                    if locked_rounds[course_key] != round_id:
+                        continue
+                    logger.info(f"课程【{course['course_name']}-{course['teacher_name']}】已锁定在轮次 {round_name}")
+
+                round_had_attempts = True
+                result = search_and_select_course(course)
+                if result is True:
+                    course_status[course_key] = True
+                    locked_rounds[course_key] = round_id
+                    logger.info(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功，已锁定该轮次"
+                    )
+                elif result == "permanent_failure":
+                    course_status[course_key] = "permanent_failure"
+                    logger.critical(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】永久失败，不再重试"
+                    )
+                else:
+                    # 如果尚未锁定轮次，且本次尝试有响应（无论成功失败），可以考虑锁定
+                    # 但根据需求，只有选课成功才锁定，失败继续尝试其他轮次
+                    logger.info(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败，将尝试下一轮次"
+                    )
+                
+                # 每个课程之间间隔0.5秒
+                time.sleep(0.5)
+
+            if not round_had_attempts:
+                logger.debug(f"轮次【{round_name}】没有需要尝试的课程，跳过")
+
+        logger.info("所有轮次尝试完成，准备重新开始...")
         time.sleep(0.5)
 
 
@@ -352,7 +380,7 @@ def main():
         )
 
         # 获取环境变量
-        user_account, user_password, select_semester, courses = get_user_config()
+        user_account, user_password, courses = get_user_config()
 
         # 添加文件日志
         start_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -402,19 +430,18 @@ def main():
                             )
                             continue
 
-                # 获取选课轮次编号
-                jx0502zbid = get_jx0502zbid(session, select_semester)
-                while not jx0502zbid:
-                    logger.warning("获取选课轮次编号失败，1秒后重试...")
+                # 获取选课轮次列表
+                all_rounds = get_jx0502zbid(session)
+                while not all_rounds:
+                    logger.warning("获取选课轮次失败，1秒后重试...")
                     time.sleep(1)
-                    jx0502zbid = get_jx0502zbid(session, select_semester)
+                    all_rounds = get_jx0502zbid(session)
 
-                logger.critical(f"成功获取到选课轮次ID: {jx0502zbid}")
-                response = session.get(
-                    f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={jx0502zbid}"
-                )
-                logger.debug(f"选课页面响应状态码: {response.status_code}")
-                select_courses(courses, select_semester)
+                logger.critical(f"成功获取到 {len(all_rounds)} 个选课轮次")
+                for round_info in all_rounds:
+                    logger.info(f"轮次: {round_info['name']} (ID: {round_info['jx0502zbid']})")
+                
+                select_courses(courses)
                 break  # 成功后退出循环
 
             except Exception as e:

@@ -15,8 +15,8 @@ def find_course_jx02id_and_jx0404id(course, course_data):
         if (
             len(course_data) == 1
             and (
-                course_data[0].get("kch") == course["course_id_or_name"]
-                or course_data[0].get("kcmc") == course["course_id_or_name"]
+                course_data[0].get("kch") == course["course_id"]
+                or course_data[0].get("kcmc") == course["course_id"]
             )
             and course_data[0].get("skls") == course["teacher_name"]
         ):
@@ -72,7 +72,7 @@ def find_course_jx02id_and_jx0404id(course, course_data):
 
             # 基本信息匹配，先判断名称老师是否匹配，以防后面匹配周次强包容性无问题但名称老师不匹配
             if (
-                data.get("kch") != course["course_id_or_name"]
+                data.get("kch") != course["course_id"]
                 or data.get("skls") != course["teacher_name"]
             ):
                 continue
@@ -193,7 +193,7 @@ def get_course_jx02id_and_jx0404id_xsxkGgxxkxk_by_api(course):
     """通过教务系统API获取公选课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
+        course_id = course["course_id"]
         teacher_name = course["teacher_name"]
         class_period = course["class_period"]
         week_day = course["week_day"]
@@ -260,7 +260,7 @@ def get_course_jx02id_and_jx0404id_xsxkXxxk_by_api(course):
     """通过教务系统API获取选修课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
+        course_id = course["course_id"]
         teacher_name = course["teacher_name"]
         class_period = course["class_period"]
         week_day = course["week_day"]
@@ -323,7 +323,7 @@ def get_course_jx02id_and_jx0404id_xsxkBxqjhxk_by_api(course):
     """通过教务系统API获取本学期计划选课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
+        course_id = course["course_id"]
         teacher_name = course["teacher_name"]
         class_period = course["class_period"]
         week_day = course["week_day"]
@@ -386,7 +386,7 @@ def get_course_jx02id_and_jx0404id_xsxkKnjxk_by_api(course):
     """通过教务系统API获取专业内跨年级选课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
+        course_id = course["course_id"]
         teacher_name = course["teacher_name"]
         class_period = course["class_period"]
         week_day = course["week_day"]
@@ -458,7 +458,7 @@ def get_course_jx02id_and_jx0404id_xsxkFawxk_by_api(course):
     """通过教务系统API获取计划外选课课程的jx02id和jx0404id"""
     try:
         session = get_session()
-        course_id = course["course_id_or_name"]
+        course_id = course["course_id"]
         teacher_name = course["teacher_name"]
         class_period = course["class_period"]
         week_day = course["week_day"]

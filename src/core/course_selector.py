@@ -5,14 +5,13 @@ from requests.exceptions import RequestException
 from loguru import logger
 
 
-def get_jx0502zbid(session, select_semester):
+def get_jx0502zbid(session):
     """
-    获取教务系统中的选课轮次编号
+    获取教务系统中的所有选课轮次编号列表
     Args:
         session: 请求会话
-        select_semester: 选课学期，如果为空则默认获取第一个可选课程
     Returns:
-        Optional[str]: 选课轮次编号(jx0502zbid)，如果未找到返回None
+        list: 选课轮次编号列表，每个元素是一个字典，包含 jx0502zbid 和 name
     Raises:
         RequestException: 当网络请求失败时
     """
@@ -26,22 +25,7 @@ def get_jx0502zbid(session, select_semester):
         soup = BeautifulSoup(response.text, "html.parser")
         rows = soup.find_all("tr")
 
-        # 如果没有指定学期，直接获取第一个有效的选课链接
-        if not select_semester:
-            for row in rows[1:]:  # 跳过表头行
-                try:
-                    link = row.find("a", href=True)
-                    if link and "jx0502zbid" in link["href"]:
-                        match = jx0502zbid_pattern.search(link["href"])
-                        if match:
-                            return match.group(1)
-                except (AttributeError, IndexError) as e:
-                    logger.warning(f"解析行数据时出错: {str(e)}")
-                    continue
-            return None
-
-        # 如果指定了学期，按学期匹配
-        first_valid_id = None  # 保存第一个有效的选课链接
+        rounds = []
         for row in rows[1:]:  # 跳过表头行
             try:
                 cells = row.find_all("td")
@@ -52,18 +36,16 @@ def get_jx0502zbid(session, select_semester):
                 if link and "jx0502zbid" in link["href"]:
                     match = jx0502zbid_pattern.search(link["href"])
                     if match:
-                        # 保存第一个有效的选课链接
-                        if first_valid_id is None:
-                            first_valid_id = match.group(1)
-                        # 如果找到指定学期，直接返回
-                        if select_semester in cells[1].text.strip():
-                            return match.group(1)
+                        round_info = {
+                            "jx0502zbid": match.group(1),
+                            "name": cells[1].text.strip()
+                        }
+                        rounds.append(round_info)
             except (AttributeError, IndexError) as e:
                 logger.warning(f"解析行数据时出错: {str(e)}")
                 continue
 
-        # 如果没有找到指定学期，返回第一个有效的选课链接
-        return first_valid_id
+        return rounds
 
     except RequestException as e:
         logger.error(f"请求选课页面失败: {str(e)}")
