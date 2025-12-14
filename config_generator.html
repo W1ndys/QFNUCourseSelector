@@ -4,7 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QFNU 抢课脚本配置生成器</title>
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- Element Plus JS -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <!-- Element Plus Icons -->
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
     <style>
+        :root {
+            --cookie-primary: #7D491E;
+            --cookie-light: #9E6A3A;
+            --cookie-lighter: #C4956A;
+            --cookie-cream: #E8D5C4;
+            --cookie-milk: #F5EDE5;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,583 +28,580 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, var(--cookie-milk) 0%, #fff 100%);
             min-height: 100vh;
+        }
+
+        #app {
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--cookie-primary) 0%, var(--cookie-light) 100%);
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(125, 73, 30, 0.2);
         }
 
-        h1 {
-            text-align: center;
+        .header h1 {
             color: white;
-            margin-bottom: 10px;
             font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
 
-        .subtitle {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 30px;
+        .header p {
+            color: rgba(255, 255, 255, 0.85);
             font-size: 14px;
         }
 
-        .card {
-            background: white;
+        .main-card {
             border-radius: 16px;
-            padding: 30px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-card .el-card__header {
+            background: var(--cookie-milk);
+            border-bottom: 1px solid var(--cookie-cream);
+            padding: 16px 20px;
         }
 
         .card-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #555;
-            font-size: 14px;
-        }
-
-        label .required {
-            color: #e74c3c;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-
-        input::placeholder {
-            color: #aaa;
+            color: var(--cookie-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .course-card {
-            background: #f8f9fa;
+            border: 1px solid var(--cookie-cream);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            position: relative;
-            border: 2px solid #e0e0e0;
+            margin-bottom: 16px;
+            overflow: hidden;
         }
 
-        .course-card.active {
-            border-color: #667eea;
+        .course-card .el-card__header {
+            background: linear-gradient(180deg, var(--cookie-cream) 0%, var(--cookie-milk) 100%);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--cookie-cream);
         }
 
         .course-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
         }
 
         .course-number {
             font-weight: 600;
-            color: #667eea;
-            font-size: 16px;
+            color: var(--cookie-primary);
         }
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-            padding: 8px 16px;
-            font-size: 12px;
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        .mode-switch {
-            display: flex;
-            gap: 10px;
+        .add-btn {
+            width: 100%;
+            height: 50px;
+            border: 2px dashed var(--cookie-cream);
+            border-radius: 12px;
+            color: var(--cookie-primary);
+            font-size: 15px;
             margin-bottom: 20px;
         }
 
-        .mode-btn {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
+        .add-btn:hover {
+            border-color: var(--cookie-primary);
+            background: var(--cookie-milk);
         }
 
-        .mode-btn.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        .action-btns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
-        .mode-btn:hover {
-            border-color: #667eea;
+        .generate-btn {
+            background: linear-gradient(135deg, var(--cookie-primary) 0%, var(--cookie-light) 100%);
+            border: none;
+            height: 50px;
         }
 
-        .mode-title {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
+        .generate-btn:hover {
+            background: linear-gradient(135deg, var(--cookie-light) 0%, var(--cookie-primary) 100%);
         }
 
-        .mode-desc {
-            font-size: 12px;
-            color: #666;
+        .output-card {
+            border-radius: 12px;
+            overflow: hidden;
         }
 
-        .hidden {
-            display: none;
+        .output-card .el-card__header {
+            background: #2d2d2d !important;
+            border-bottom: none !important;
+            padding: 12px 16px !important;
         }
 
-        .output-area {
-            background: #1e1e1e;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-            position: relative;
+        .output-card .el-card__body {
+            background: #1e1e1e !important;
+            padding: 16px !important;
         }
 
-        .output-area pre {
-            color: #d4d4d4;
-            font-family: 'Consolas', 'Monaco', monospace;
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .output-title {
+            color: rgba(255, 255, 255, 0.6);
             font-size: 13px;
-            overflow-x: auto;
+        }
+
+        .output-pre {
+            color: #f5f5f5 !important;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
             white-space: pre-wrap;
             word-wrap: break-word;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            background: transparent !important;
+        }
+
+        /* Element Plus Custom Theme */
+        :root {
+            --el-color-primary: #7D491E;
+            --el-color-primary-light-3: #9E6A3A;
+            --el-color-primary-light-5: #B8885A;
+            --el-color-primary-light-7: #D2A67A;
+            --el-color-primary-light-9: #F5EDE5;
+            --el-color-primary-dark-2: #5C3615;
+        }
+
+        .el-button--primary {
+            --el-button-bg-color: var(--cookie-primary);
+            --el-button-border-color: var(--cookie-primary);
+            --el-button-hover-bg-color: var(--cookie-light);
+            --el-button-hover-border-color: var(--cookie-light);
+        }
+
+        .el-radio-button__inner:hover {
+            color: var(--cookie-primary);
+        }
+
+        .el-radio-button__original-radio:checked + .el-radio-button__inner {
+            background-color: var(--cookie-primary);
+            border-color: var(--cookie-primary);
+        }
+
+        .el-input__wrapper:focus-within {
+            box-shadow: 0 0 0 1px var(--cookie-primary) inset;
+        }
+
+        .el-select .el-input.is-focus .el-input__wrapper {
+            box-shadow: 0 0 0 1px var(--cookie-primary) inset !important;
+        }
+
+        /* 修复el-select下拉框样式 */
+        .full-width-select {
+            width: 100% !important;
+            display: block !important;
+        }
+
+        .full-width-select .el-select__wrapper {
+            width: 100% !important;
+        }
+
+        /* 确保下拉菜单垂直显示 */
+        .el-select-dropdown__list {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .el-select-dropdown__item {
+            display: block !important;
+            width: 100% !important;
+        }
+
+        /* 修复el-input-number宽度 */
+        .el-input-number {
+            width: 100% !important;
+        }
+
+        .el-input-number .el-input__wrapper {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            #app {
+                padding: 12px;
+            }
+
+            .header {
+                padding: 30px 16px;
+                border-radius: 12px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .action-btns {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tips-alert {
+            margin-bottom: 20px;
+            border-radius: 12px;
         }
 
         .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .tip {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #856404;
-        }
-
-        .tip-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .section-divider {
-            border-top: 1px dashed #ddd;
-            margin: 20px 0;
-            padding-top: 20px;
-        }
-
-        .field-hint {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 600px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .mode-switch {
-                flex-direction: column;
-            }
+            color: white !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>QFNU 抢课脚本配置生成器</h1>
-        <p class="subtitle">曲阜师范大学教务系统抢课脚本 - 配置文件生成工具</p>
+    <div id="app">
+        <!-- Header -->
+        <div class="header">
+            <h1>QFNU 配置生成器</h1>
+            <p>曲阜师范大学抢课脚本配置工具</p>
+        </div>
+
+        <!-- 提示信息 -->
+        <el-alert
+            class="tips-alert"
+            title="使用提示"
+            type="warning"
+            description="支持两种模式：直接填写课程ID（推荐）或通过上课时间搜索"
+            :closable="false"
+            show-icon
+        />
 
         <!-- 基础配置 -->
-        <div class="card">
-            <h2 class="card-title">基础配置</h2>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>学号 <span class="required">*</span></label>
-                    <input type="text" id="user_account" placeholder="请输入学号">
-                </div>
-                <div class="form-group">
-                    <label>教务系统密码 <span class="required">*</span></label>
-                    <input type="password" id="user_password" placeholder="请输入密码">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>飞书 Webhook（可选）</label>
-                <input type="text" id="feishu_webhook" placeholder="用于选课成功通知，留空则不通知">
-            </div>
-        </div>
+        <el-card class="main-card">
+            <template #header>
+                <span class="card-title">
+                    <el-icon><User /></el-icon>
+                    账号信息
+                </span>
+            </template>
+            <el-form label-position="top">
+                <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12">
+                        <el-form-item label="学号" required>
+                            <el-input v-model="config.user_account" placeholder="请输入学号" />
+                        </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12">
+                        <el-form-item label="密码" required>
+                            <el-input v-model="config.user_password" type="password" placeholder="教务系统密码" show-password />
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-form-item label="飞书通知（可选）">
+                    <el-input v-model="config.feishu_webhook" placeholder="Webhook 地址，留空则不通知" />
+                </el-form-item>
+            </el-form>
+        </el-card>
 
         <!-- 课程配置 -->
-        <div class="card">
-            <h2 class="card-title">课程配置</h2>
+        <el-card class="main-card">
+            <template #header>
+                <span class="card-title">
+                    <el-icon><Collection /></el-icon>
+                    课程列表
+                </span>
+            </template>
 
-            <div class="tip">
-                <div class="tip-title">配置说明</div>
-                <div>每个课程支持两种选课模式：<br>
-                    <strong>模式一（直接ID）</strong>：填写 jx02id 和 jx0404id，速度最快<br>
-                    <strong>模式二（搜索）</strong>：填写上课时间信息，脚本自动搜索课程
+            <!-- 课程卡片列表 -->
+            <el-card v-for="(course, index) in config.courses" :key="index" class="course-card" shadow="never">
+                <template #header>
+                    <div class="course-header">
+                        <span class="course-number">课程 {{ index + 1 }}</span>
+                        <el-button type="danger" text @click="removeCourse(index)">
+                            <el-icon><Delete /></el-icon> 删除
+                        </el-button>
+                    </div>
+                </template>
+
+                <el-form label-position="top">
+                    <!-- 基础信息 -->
+                    <el-row :gutter="16">
+                        <el-col :xs="24" :sm="8">
+                            <el-form-item label="课程名称" required>
+                                <el-input v-model="course.course_name" placeholder="如：高等数学" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="24" :sm="8">
+                            <el-form-item label="课程编号" required>
+                                <el-input v-model="course.course_id" placeholder="如：g20062389" />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="24" :sm="8">
+                            <el-form-item label="教师姓名" required>
+                                <el-input v-model="course.teacher_name" placeholder="如：张三" />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+
+                    <!-- 模式切换 -->
+                    <el-form-item label="选课模式">
+                        <el-radio-group v-model="course.mode" size="default">
+                            <el-radio-button :value="1">直接 ID 模式</el-radio-button>
+                            <el-radio-button :value="2">搜索模式</el-radio-button>
+                        </el-radio-group>
+                    </el-form-item>
+
+                    <!-- 模式一：直接ID -->
+                    <template v-if="course.mode === 1">
+                        <el-row :gutter="16">
+                            <el-col :xs="24" :sm="12">
+                                <el-form-item label="jx02id" required>
+                                    <el-input v-model="course.jx02id" placeholder="课程 jx02id" />
+                                </el-form-item>
+                            </el-col>
+                            <el-col :xs="24" :sm="12">
+                                <el-form-item label="jx0404id" required>
+                                    <el-input v-model="course.jx0404id" placeholder="课程 jx0404id" />
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-text type="info" size="small">通过高年级账号或抓包获取课程 ID</el-text>
+                    </template>
+
+                    <!-- 模式二：搜索模式 -->
+                    <template v-else>
+                        <el-divider content-position="left">搜索条件</el-divider>
+                        <el-row :gutter="16">
+                            <el-col :xs="24" :sm="12">
+                                <el-form-item label="星期" required>
+                                    <el-select v-model="course.skxq" placeholder="请选择" class="full-width-select">
+                                        <el-option v-for="i in 7" :key="i" :label="'星期' + ['一','二','三','四','五','六','日'][i-1]" :value="String(i)"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :xs="24" :sm="12">
+                                <el-form-item label="节次范围" required>
+                                    <el-select v-model="course.skjc" placeholder="请选择" class="full-width-select">
+                                        <el-option label="1-2 节" value="1-2"></el-option>
+                                        <el-option label="3-4 节" value="3-4"></el-option>
+                                        <el-option label="5-6 节" value="5-6"></el-option>
+                                        <el-option label="7-8 节" value="7-8"></el-option>
+                                        <el-option label="9-11 节" value="9-11"></el-option>
+                                        <el-option label="12-13 节" value="12-13"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+
+                        <el-divider content-position="left">第一节课信息</el-divider>
+                        <el-row :gutter="16">
+                            <el-col :xs="24" :sm="8">
+                                <el-form-item label="周次" required>
+                                    <el-input-number v-model="course.first_week" :min="1" :max="20" placeholder="第几周" />
+                                </el-form-item>
+                            </el-col>
+                            <el-col :xs="24" :sm="8">
+                                <el-form-item label="星期" required>
+                                    <el-select v-model="course.first_xq" placeholder="请选择" class="full-width-select">
+                                        <el-option v-for="i in 7" :key="i" :label="'星期' + ['一','二','三','四','五','六','日'][i-1]" :value="String(i)"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :xs="24" :sm="8">
+                                <el-form-item label="节次" required>
+                                    <el-select v-model="course.first_jc" placeholder="请选择" class="full-width-select">
+                                        <el-option v-for="i in 13" :key="i" :label="'第 ' + i + ' 节'" :value="String(i).padStart(2, '0')"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-text type="info" size="small">填写该课程第一节课的具体时间用于精确匹配</el-text>
+                    </template>
+                </el-form>
+            </el-card>
+
+            <!-- 添加课程按钮 -->
+            <el-button class="add-btn" @click="addCourse">
+                <el-icon><Plus /></el-icon> 添加课程
+            </el-button>
+        </el-card>
+
+        <!-- 操作按钮 -->
+        <div class="action-btns">
+            <el-button type="primary" class="generate-btn" size="large" @click="generateConfig">
+                <el-icon><Lightning /></el-icon> 生成配置
+            </el-button>
+            <el-button type="success" size="large" @click="downloadConfig">
+                <el-icon><Download /></el-icon> 下载文件
+            </el-button>
+            <el-button size="large" @click="clearAll">
+                <el-icon><Delete /></el-icon> 清空全部
+            </el-button>
+        </div>
+
+        <!-- 输出区域 -->
+        <el-card class="output-card" shadow="always">
+            <template #header>
+                <div class="output-header">
+                    <span class="output-title">config.json</span>
+                    <el-button class="copy-btn" size="small" @click="copyConfig">
+                        <el-icon><CopyDocument /></el-icon> 复制
+                    </el-button>
                 </div>
-            </div>
-
-            <div id="courses-container"></div>
-
-            <button class="btn btn-primary" onclick="addCourse()">+ 添加课程</button>
-        </div>
-
-        <!-- 生成结果 -->
-        <div class="card">
-            <h2 class="card-title">生成配置</h2>
-            <div class="btn-group">
-                <button class="btn btn-success" onclick="generateConfig()">生成配置</button>
-                <button class="btn btn-primary" onclick="downloadConfig()">下载 config.json</button>
-                <button class="btn btn-secondary" onclick="clearAll()">清空所有</button>
-            </div>
-            <div class="output-area">
-                <button class="btn btn-secondary copy-btn" onclick="copyConfig()">复制</button>
-                <pre id="config-output">// 配置将在这里显示</pre>
-            </div>
-        </div>
+            </template>
+            <pre class="output-pre">{{ outputJson }}</pre>
+        </el-card>
     </div>
 
     <script>
-        let courseCount = 0;
+        const { createApp, ref, computed } = Vue;
 
-        function addCourse() {
-            courseCount++;
-            const container = document.getElementById('courses-container');
-            const courseDiv = document.createElement('div');
-            courseDiv.className = 'course-card';
-            courseDiv.id = `course-${courseCount}`;
-            courseDiv.innerHTML = `
-                <div class="course-header">
-                    <span class="course-number">课程 #${courseCount}</span>
-                    <button class="btn btn-danger" onclick="removeCourse(${courseCount})">删除</button>
-                </div>
+        const app = createApp({
+            setup() {
+                const config = ref({
+                    user_account: '',
+                    user_password: '',
+                    feishu_webhook: '',
+                    courses: []
+                });
 
-                <!-- 基础信息 -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>课程名称 <span class="required">*</span></label>
-                        <input type="text" id="course_name_${courseCount}" placeholder="如：高等数学">
-                    </div>
-                    <div class="form-group">
-                        <label>课程编号 <span class="required">*</span></label>
-                        <input type="text" id="course_id_${courseCount}" placeholder="如：g20062389">
-                    </div>
-                    <div class="form-group">
-                        <label>教师姓名 <span class="required">*</span></label>
-                        <input type="text" id="teacher_name_${courseCount}" placeholder="如：张三">
-                    </div>
-                </div>
+                const outputJson = ref('// 点击「生成配置」预览结果');
 
-                <!-- 模式切换 -->
-                <div class="section-divider">
-                    <label>选择配置模式</label>
-                    <div class="mode-switch">
-                        <div class="mode-btn active" id="mode1_btn_${courseCount}" onclick="switchMode(${courseCount}, 1)">
-                            <div class="mode-title">模式一：直接 ID</div>
-                            <div class="mode-desc">填写 jx02id 和 jx0404id（推荐）</div>
-                        </div>
-                        <div class="mode-btn" id="mode2_btn_${courseCount}" onclick="switchMode(${courseCount}, 2)">
-                            <div class="mode-title">模式二：搜索模式</div>
-                            <div class="mode-desc">填写上课时间信息自动搜索</div>
-                        </div>
-                    </div>
-                </div>
+                const createEmptyCourse = () => ({
+                    course_name: '',
+                    course_id: '',
+                    teacher_name: '',
+                    mode: 1,
+                    jx02id: '',
+                    jx0404id: '',
+                    skxq: '',
+                    skjc: '',
+                    first_week: null,
+                    first_xq: '',
+                    first_jc: ''
+                });
 
-                <!-- 模式一：直接ID -->
-                <div id="mode1_${courseCount}" class="mode-content">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>jx02id <span class="required">*</span></label>
-                            <input type="text" id="jx02id_${courseCount}" placeholder="课程的 jx02id">
-                            <div class="field-hint">通过高年级账号或抓包获取</div>
-                        </div>
-                        <div class="form-group">
-                            <label>jx0404id <span class="required">*</span></label>
-                            <input type="text" id="jx0404id_${courseCount}" placeholder="课程的 jx0404id">
-                            <div class="field-hint">通过高年级账号或抓包获取</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 模式二：搜索模式 -->
-                <div id="mode2_${courseCount}" class="mode-content hidden">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>星期几 <span class="required">*</span></label>
-                            <select id="skxq_${courseCount}">
-                                <option value="">请选择</option>
-                                <option value="1">星期一</option>
-                                <option value="2">星期二</option>
-                                <option value="3">星期三</option>
-                                <option value="4">星期四</option>
-                                <option value="5">星期五</option>
-                                <option value="6">星期六</option>
-                                <option value="7">星期日</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>节次范围 <span class="required">*</span></label>
-                            <select id="skjc_${courseCount}">
-                                <option value="">请选择</option>
-                                <option value="1-2">1-2 节</option>
-                                <option value="3-4">3-4 节</option>
-                                <option value="5-6">5-6 节</option>
-                                <option value="7-8">7-8 节</option>
-                                <option value="9-11">9-11 节</option>
-                                <option value="12-13">12-13 节</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>第一节课周次 <span class="required">*</span></label>
-                            <input type="number" id="first_week_${courseCount}" placeholder="如：1" min="1" max="20">
-                            <div class="field-hint">该课程第一节课在第几周</div>
-                        </div>
-                        <div class="form-group">
-                            <label>第一节课星期 <span class="required">*</span></label>
-                            <select id="first_xq_${courseCount}">
-                                <option value="">请选择</option>
-                                <option value="1">星期一</option>
-                                <option value="2">星期二</option>
-                                <option value="3">星期三</option>
-                                <option value="4">星期四</option>
-                                <option value="5">星期五</option>
-                                <option value="6">星期六</option>
-                                <option value="7">星期日</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>第一节课节次 <span class="required">*</span></label>
-                            <select id="first_jc_${courseCount}">
-                                <option value="">请选择</option>
-                                <option value="01">第 1 节</option>
-                                <option value="02">第 2 节</option>
-                                <option value="03">第 3 节</option>
-                                <option value="04">第 4 节</option>
-                                <option value="05">第 5 节</option>
-                                <option value="06">第 6 节</option>
-                                <option value="07">第 7 节</option>
-                                <option value="08">第 8 节</option>
-                                <option value="09">第 9 节</option>
-                                <option value="10">第 10 节</option>
-                                <option value="11">第 11 节</option>
-                                <option value="12">第 12 节</option>
-                                <option value="13">第 13 节</option>
-                            </select>
-                            <div class="field-hint">该课程第一节课是当天第几节</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            container.appendChild(courseDiv);
-        }
-
-        function removeCourse(id) {
-            const courseDiv = document.getElementById(`course-${id}`);
-            if (courseDiv) {
-                courseDiv.remove();
-            }
-        }
-
-        function switchMode(courseId, mode) {
-            const mode1Btn = document.getElementById(`mode1_btn_${courseId}`);
-            const mode2Btn = document.getElementById(`mode2_btn_${courseId}`);
-            const mode1Content = document.getElementById(`mode1_${courseId}`);
-            const mode2Content = document.getElementById(`mode2_${courseId}`);
-
-            if (mode === 1) {
-                mode1Btn.classList.add('active');
-                mode2Btn.classList.remove('active');
-                mode1Content.classList.remove('hidden');
-                mode2Content.classList.add('hidden');
-            } else {
-                mode1Btn.classList.remove('active');
-                mode2Btn.classList.add('active');
-                mode1Content.classList.add('hidden');
-                mode2Content.classList.remove('hidden');
-            }
-        }
-
-        function getCourseMode(courseId) {
-            const mode1Btn = document.getElementById(`mode1_btn_${courseId}`);
-            return mode1Btn.classList.contains('active') ? 1 : 2;
-        }
-
-        function generateConfig() {
-            const config = {
-                user_account: document.getElementById('user_account').value.trim(),
-                user_password: document.getElementById('user_password').value,
-                feishu_webhook: document.getElementById('feishu_webhook').value.trim(),
-                courses: []
-            };
-
-            const courseCards = document.querySelectorAll('.course-card');
-            courseCards.forEach(card => {
-                const id = card.id.split('-')[1];
-                const mode = getCourseMode(id);
-
-                const course = {
-                    course_name: document.getElementById(`course_name_${id}`).value.trim(),
-                    course_id: document.getElementById(`course_id_${id}`).value.trim(),
-                    teacher_name: document.getElementById(`teacher_name_${id}`).value.trim(),
-                    jx02id: "",
-                    jx0404id: "",
-                    skxq: "",
-                    skjc: "",
-                    first_week: "",
-                    first_xq: "",
-                    first_jc: ""
+                const addCourse = () => {
+                    config.value.courses.push(createEmptyCourse());
                 };
 
-                if (mode === 1) {
-                    course.jx02id = document.getElementById(`jx02id_${id}`).value.trim();
-                    course.jx0404id = document.getElementById(`jx0404id_${id}`).value.trim();
-                } else {
-                    course.skxq = document.getElementById(`skxq_${id}`).value;
-                    course.skjc = document.getElementById(`skjc_${id}`).value;
-                    course.first_week = document.getElementById(`first_week_${id}`).value;
-                    course.first_xq = document.getElementById(`first_xq_${id}`).value;
-                    course.first_jc = document.getElementById(`first_jc_${id}`).value;
-                }
+                const removeCourse = (index) => {
+                    config.value.courses.splice(index, 1);
+                };
 
-                config.courses.push(course);
-            });
+                const generateConfig = () => {
+                    const output = {
+                        user_account: config.value.user_account,
+                        user_password: config.value.user_password,
+                        feishu_webhook: config.value.feishu_webhook,
+                        courses: config.value.courses.map(course => {
+                            const base = {
+                                course_name: course.course_name,
+                                course_id: course.course_id,
+                                teacher_name: course.teacher_name,
+                                jx02id: '',
+                                jx0404id: '',
+                                skxq: '',
+                                skjc: '',
+                                first_week: '',
+                                first_xq: '',
+                                first_jc: ''
+                            };
 
-            const output = JSON.stringify(config, null, 2);
-            document.getElementById('config-output').textContent = output;
-            return config;
-        }
+                            if (course.mode === 1) {
+                                base.jx02id = course.jx02id;
+                                base.jx0404id = course.jx0404id;
+                            } else {
+                                base.skxq = course.skxq;
+                                base.skjc = course.skjc;
+                                base.first_week = course.first_week ? String(course.first_week) : '';
+                                base.first_xq = course.first_xq;
+                                base.first_jc = course.first_jc;
+                            }
 
-        function downloadConfig() {
-            const config = generateConfig();
-            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'config.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
+                            return base;
+                        })
+                    };
 
-        function copyConfig() {
-            const output = document.getElementById('config-output').textContent;
-            navigator.clipboard.writeText(output).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                btn.textContent = '已复制!';
-                setTimeout(() => {
-                    btn.textContent = '复制';
-                }, 2000);
-            });
-        }
+                    outputJson.value = JSON.stringify(output, null, 2);
+                    ElementPlus.ElMessage.success('配置已生成');
+                    return output;
+                };
 
-        function clearAll() {
-            if (confirm('确定要清空所有配置吗？')) {
-                document.getElementById('user_account').value = '';
-                document.getElementById('user_password').value = '';
-                document.getElementById('feishu_webhook').value = '';
-                document.getElementById('courses-container').innerHTML = '';
-                document.getElementById('config-output').textContent = '// 配置将在这里显示';
-                courseCount = 0;
+                const downloadConfig = () => {
+                    const output = generateConfig();
+                    const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'config.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    ElementPlus.ElMessage.success('文件下载成功');
+                };
+
+                const copyConfig = () => {
+                    navigator.clipboard.writeText(outputJson.value).then(() => {
+                        ElementPlus.ElMessage.success('已复制到剪贴板');
+                    });
+                };
+
+                const clearAll = () => {
+                    ElementPlus.ElMessageBox.confirm('确定要清空所有配置吗？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        config.value = {
+                            user_account: '',
+                            user_password: '',
+                            feishu_webhook: '',
+                            courses: [createEmptyCourse()]
+                        };
+                        outputJson.value = '// 点击「生成配置」预览结果';
+                        ElementPlus.ElMessage.success('已清空');
+                    }).catch(() => {});
+                };
+
+                // 初始化添加一个课程
+                addCourse();
+
+                return {
+                    config,
+                    outputJson,
+                    addCourse,
+                    removeCourse,
+                    generateConfig,
+                    downloadConfig,
+                    copyConfig,
+                    clearAll
+                };
             }
+        });
+
+        // 注册 Element Plus 图标
+        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+            app.component(key, component);
         }
 
-        // 页面加载时添加一个默认课程
-        window.onload = function() {
-            addCourse();
-        };
+        app.use(ElementPlus);
+        app.mount('#app');
     </script>
 </body>
 </html>
