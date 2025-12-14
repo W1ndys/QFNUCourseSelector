@@ -129,8 +129,13 @@ def get_user_config():
                     "course_name": "你的课程名称",
                     "course_id": "你的课程编号",
                     "teacher_name": "你的老师名称",
-                    "jx02id": "你的课程所属的jx02id",
-                    "jx0404id": "你的课程所属的jx0404id",
+                    "jx02id": "",
+                    "jx0404id": "",
+                    "skxq": "",
+                    "skjc": "",
+                    "first_week": "",
+                    "first_xq": "",
+                    "first_jc": "",
                 }
             ],
         }
@@ -158,24 +163,81 @@ def get_user_config():
 
         # 验证课程配置
         for course in config.get("courses", []):
-            # 检查必填字段
-            required_fields = ["course_name", "course_id", "teacher_name", "jx02id", "jx0404id"]
-            missing_fields = [field for field in required_fields if not course.get(field)]
+            # 检查基础必填字段
+            base_required_fields = ["course_name", "course_id", "teacher_name"]
+            missing_fields = [field for field in base_required_fields if not course.get(field)]
             if missing_fields:
                 logger.error(
-                    f"每个课程配置必须包含以下字段: {', '.join(required_fields)}\n"
+                    f"每个课程配置必须包含以下字段: {', '.join(base_required_fields)}\n"
                     f"缺失的字段: {', '.join(missing_fields)}"
                 )
                 input("按回车键退出程序...")
                 exit(1)
 
-            # 验证jx02id和jx0404id不为空
-            if not course["jx02id"].strip() or not course["jx0404id"].strip():
+            # 检查选课模式：要么填写jx02id和jx0404id，要么填写搜索参数
+            jx02id = course.get("jx02id", "").strip()
+            jx0404id = course.get("jx0404id", "").strip()
+            skxq = course.get("skxq", "").strip()
+            skjc = course.get("skjc", "").strip()
+            first_week = course.get("first_week", "").strip()
+            first_xq = course.get("first_xq", "").strip()
+            first_jc = course.get("first_jc", "").strip()
+
+            has_direct_ids = jx02id and jx0404id
+            has_search_params = skxq and skjc and first_week and first_xq and first_jc
+
+            if not has_direct_ids and not has_search_params:
                 logger.error(
-                    f"课程【{course['course_name']}-{course['teacher_name']}】的 jx02id 或 jx0404id 不能为空"
+                    f"课程【{course['course_name']}-{course['teacher_name']}】配置无效：\n"
+                    f"请填写以下两种方式之一：\n"
+                    f"1. 直接填写 jx02id 和 jx0404id\n"
+                    f"2. 填写搜索参数：skxq(星期几)、skjc(节次范围)、first_week(第一节课周次)、first_xq(第一节课星期几)、first_jc(第一节课节次)"
                 )
                 input("按回车键退出程序...")
                 exit(1)
+
+            # 如果使用搜索模式，验证参数格式
+            if has_search_params:
+                # 验证skxq为1-7的数字
+                if not skxq.isdigit() or not (1 <= int(skxq) <= 7):
+                    logger.error(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】的 skxq(星期几) 必须为1-7之间的数字"
+                    )
+                    input("按回车键退出程序...")
+                    exit(1)
+
+                # 验证skjc为有效的节次范围
+                valid_skjc = ["1-2", "3-4", "5-6", "7-8", "9-11", "12-13"]
+                if skjc not in valid_skjc:
+                    logger.error(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】的 skjc(节次范围) 必须为以下之一：{', '.join(valid_skjc)}"
+                    )
+                    input("按回车键退出程序...")
+                    exit(1)
+
+                # 验证first_week为数字
+                if not first_week.isdigit():
+                    logger.error(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】的 first_week(第一节课周次) 必须为数字"
+                    )
+                    input("按回车键退出程序...")
+                    exit(1)
+
+                # 验证first_xq为1-7的数字
+                if not first_xq.isdigit() or not (1 <= int(first_xq) <= 7):
+                    logger.error(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】的 first_xq(第一节课星期几) 必须为1-7之间的数字"
+                    )
+                    input("按回车键退出程序...")
+                    exit(1)
+
+                # 验证first_jc为两位数字的节次（01-13）
+                if not (len(first_jc) == 2 and first_jc.isdigit() and 1 <= int(first_jc) <= 13):
+                    logger.error(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】的 first_jc(第一节课节次) 必须为两位数字格式（01-13）"
+                    )
+                    input("按回车键退出程序...")
+                    exit(1)
 
         return (
             config["user_account"],
@@ -255,21 +317,35 @@ def print_welcome():
     logger.info("5. 开发者对使用本脚本造成的任何直接或间接损失不承担任何责任。")
 
 
+def get_course_key(course):
+    """
+    生成课程唯一标识
+    优先使用 jx02id 和 jx0404id，如果为空则使用 course_id + teacher_name + 搜索参数
+    """
+    jx02id = course.get("jx02id", "").strip()
+    jx0404id = course.get("jx0404id", "").strip()
+
+    if jx02id and jx0404id:
+        return f"{jx02id}-{jx0404id}"
+    else:
+        # 使用课程ID、教师名和搜索参数作为唯一标识
+        return f"{course['course_id']}-{course['teacher_name']}-{course.get('skxq', '')}-{course.get('skjc', '')}-{course.get('first_jc', '')}"
+
+
 def select_courses(courses):
     """
     蹲课模式：持续尝试选课，每个课程之间间隔0.5秒
     依次遍历每个选课轮次，如果某课程在某轮次选课成功，则锁定该轮次
     """
     # 创建一个字典来跟踪每个课程的选课状态
-    # 使用 jx02id 和 jx0404id 的联合作为唯一标识，避免相同课程名和老师的不同课程冲突
     # 状态值：False=未选上, True=已选上, "permanent_failure"=永久失败
     course_status = {
-        f"{c['jx02id']}-{c['jx0404id']}": False for c in courses
+        get_course_key(c): False for c in courses
     }
 
     # 记录每个课程锁定的轮次 ID，None 表示尚未锁定
     locked_rounds = {
-        f"{c['jx02id']}-{c['jx0404id']}": None for c in courses
+        get_course_key(c): None for c in courses
     }
 
     start_time = time.time()  # 记录开始时间
@@ -325,9 +401,9 @@ def select_courses(courses):
             # 执行选课操作
             round_had_attempts = False  # 标记本轮次是否有课程尝试
             for course in courses:
-                # 使用 jx02id 和 jx0404id 的联合作为课程唯一标识
-                course_key = f"{course['jx02id']}-{course['jx0404id']}"
-                
+                # 获取课程唯一标识
+                course_key = get_course_key(course)
+
                 # 如果该课程已经选上或永久失败，则跳过
                 if course_status[course_key] is not False:
                     continue
