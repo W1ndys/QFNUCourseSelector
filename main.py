@@ -134,13 +134,7 @@ def get_user_config():
                     "jx0404id": "",
                     "week_day": "",
                     "class_period": "",
-                    "class_times": [
-                        {
-                            "week": "",
-                            "week_day": "",
-                            "class_period": ""
-                        }
-                    ]
+                    "class_times": [{"week": "", "week_day": "", "class_period": ""}],
                 }
             ],
         }
@@ -170,7 +164,9 @@ def get_user_config():
         for course in config.get("courses", []):
             # 检查基础必填字段
             base_required_fields = ["course_name", "course_id", "teacher_name"]
-            missing_fields = [field for field in base_required_fields if not course.get(field)]
+            missing_fields = [
+                field for field in base_required_fields if not course.get(field)
+            ]
             if missing_fields:
                 logger.error(
                     f"每个课程配置必须包含以下字段: {', '.join(base_required_fields)}\n"
@@ -232,15 +228,23 @@ def get_user_config():
                     t_class_period = str(time_node.get("class_period", "")).strip()
 
                     if not t_week.isdigit():
-                        logger.error(f"课程【{course['course_name']}】第{idx+1}个时间节点的 week 必须为数字")
+                        logger.error(
+                            f"课程【{course['course_name']}】第{idx+1}个时间节点的 week 必须为数字"
+                        )
                         input("按回车键退出程序...")
                         exit(1)
                     if not t_week_day.isdigit() or not (1 <= int(t_week_day) <= 7):
-                        logger.error(f"课程【{course['course_name']}】第{idx+1}个时间节点的 week_day 必须为1-7之间的数字")
+                        logger.error(
+                            f"课程【{course['course_name']}】第{idx+1}个时间节点的 week_day 必须为1-7之间的数字"
+                        )
                         input("按回车键退出程序...")
                         exit(1)
-                    if not t_class_period.isdigit() or not (1 <= int(t_class_period) <= 13):
-                        logger.error(f"课程【{course['course_name']}】第{idx+1}个时间节点的 class_period 必须为数字(1-13)")
+                    if not t_class_period.isdigit() or not (
+                        1 <= int(t_class_period) <= 13
+                    ):
+                        logger.error(
+                            f"课程【{course['course_name']}】第{idx+1}个时间节点的 class_period 必须为数字(1-13)"
+                        )
                         input("按回车键退出程序...")
                         exit(1)
 
@@ -335,7 +339,12 @@ def get_course_key(course):
     else:
         # 使用课程ID、教师名和搜索参数作为唯一标识
         # 由于class_times是列表，将其转换为字符串作为key的一部分
-        class_times_str = "-".join([f"{t.get('week')}_{t.get('week_day')}_{t.get('class_period')}" for t in course.get('class_times', [])])
+        class_times_str = "-".join(
+            [
+                f"{t.get('week')}_{t.get('week_day')}_{t.get('class_period')}"
+                for t in course.get("class_times", [])
+            ]
+        )
         return f"{course['course_id']}-{course['teacher_name']}-{course.get('week_day', '')}-{course.get('class_period', '')}-{class_times_str}"
 
 
@@ -346,19 +355,15 @@ async def select_courses(courses):
     """
     # 创建一个字典来跟踪每个课程的选课状态
     # 状态值：False=未选上, True=已选上, "permanent_failure"=永久失败
-    course_status: dict[str, bool | str] = {
-        get_course_key(c): False for c in courses
-    }
+    course_status: dict[str, bool | str] = {get_course_key(c): False for c in courses}
 
     # 记录每个课程锁定的轮次 ID，None 表示尚未锁定
-    locked_rounds = {
-        get_course_key(c): None for c in courses
-    }
+    locked_rounds = {get_course_key(c): None for c in courses}
 
     # 对课程进行分组：相同课程名字和相同老师的视为同一组
     course_groups = {}
     for course in courses:
-        group_key = (course['course_name'], course['teacher_name'])
+        group_key = (course["course_name"], course["teacher_name"])
         if group_key not in course_groups:
             course_groups[group_key] = []
         course_groups[group_key].append(course)
@@ -375,7 +380,7 @@ async def select_courses(courses):
         group_attempted = False
         for course in group_courses:
             course_key = get_course_key(course)
-            
+
             # 如果该课程已经选上或永久失败，则跳过
             if course_status[course_key] is not False:
                 continue
@@ -384,47 +389,59 @@ async def select_courses(courses):
             if locked_rounds[course_key] is not None:
                 if locked_rounds[course_key] != round_id:
                     continue
-            
+
             group_attempted = True
             try:
                 result = await search_and_select_course(course)
-                
+
                 if result is True:
                     course_status[course_key] = True
                     locked_rounds[course_key] = round_id
-                    logger.info(f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功，已锁定该轮次")
+                    logger.info(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功，已锁定该轮次"
+                    )
                 elif result == "permanent_failure":
                     course_status[course_key] = "permanent_failure"
-                    logger.critical(f"课程【{course['course_name']}-{course['teacher_name']}】永久失败，不再重试")
+                    logger.critical(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】永久失败，不再重试"
+                    )
                 else:
-                    logger.info(f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败，将尝试下一轮次")
+                    logger.info(
+                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败，将尝试下一轮次"
+                    )
 
             except Exception as e:
                 logger.error(f"课程【{course['course_name']}】选课异常: {str(e)}")
-        
+
         return group_attempted
 
     # 蹲课模式：持续执行选课操作
     while True:
         # 检查是否所有课程都已选上或永久失败
-        active_courses = [status for status in course_status.values() if status is False]
+        active_courses = [
+            status for status in course_status.values() if status is False
+        ]
         if not active_courses:
             end_time = time.time()  # 记录结束时间
-            success_count = sum(1 for status in course_status.values() if status is True)
-            failed_count = sum(1 for status in course_status.values() if status == "permanent_failure")
-            
+            success_count = sum(
+                1 for status in course_status.values() if status is True
+            )
+            failed_count = sum(
+                1 for status in course_status.values() if status == "permanent_failure"
+            )
+
             logger.info("所有课程处理完成，程序即将退出...")
             logger.info(f"总耗时: {end_time - start_time:.2f} 秒")
             logger.info(f"成功选上: {success_count} 门课程")
             if failed_count > 0:
                 logger.info(f"永久失败: {failed_count} 门课程")
-            
+
             await feishu(
                 "曲阜师范大学教务系统抢课脚本",
                 f"所有课程处理完成\n成功选上: {success_count} 门\n永久失败: {failed_count} 门\n总耗时: {end_time - start_time:.2f} 秒",
             )
             return True
-        
+
         # 获取所有选课轮次
         all_rounds = await get_jx0502zbid(session)
         if not all_rounds:
@@ -440,7 +457,7 @@ async def select_courses(courses):
         for round_info in all_rounds:
             round_id = round_info["jx0502zbid"]
             round_name = round_info["name"]
-            
+
             logger.info(f"正在尝试轮次: {round_name} (ID: {round_id})")
 
             # 访问选课页面
@@ -461,14 +478,16 @@ async def select_courses(courses):
             if group_tasks:
                 # 并发执行所有组
                 results = await asyncio.gather(*group_tasks, return_exceptions=True)
-                
+
                 # 检查是否有任何组进行了尝试
-                round_had_attempts = any(res is True for res in results if not isinstance(res, Exception))
-                
+                round_had_attempts = any(
+                    res is True for res in results if not isinstance(res, Exception)
+                )
+
                 if not round_had_attempts:
                     logger.debug(f"轮次【{round_name}】没有需要尝试的课程，跳过")
             else:
-                 logger.debug(f"轮次【{round_name}】没有任务")
+                logger.debug(f"轮次【{round_name}】没有任务")
 
             # 每个轮次之间稍微停顿一下，避免过快请求
             await asyncio.sleep(0.5)
@@ -483,12 +502,6 @@ async def main_async():
     """
     try:
         print_welcome()
-
-        print(
-            "本项目具有严重的安全风险和非预期运行，有极大概率无法正常的选课，为避免影响正常选课，请勿继续使用，相关代码仅供学习研究使用，请勿用于实际的选课环境中，使用脚本造成的一切后果与开发者无关。\n"
-        )
-        # input在async中会阻塞，这里简单处理，实际可替换为非阻塞方式或直接去掉等待
-        await asyncio.to_thread(input, "按回车键继续...")
 
         # 获取环境变量
         user_account, user_password, courses = get_user_config()
@@ -550,8 +563,10 @@ async def main_async():
 
                 logger.critical(f"成功获取到 {len(all_rounds)} 个选课轮次")
                 for round_info in all_rounds:
-                    logger.info(f"轮次: {round_info['name']} (ID: {round_info['jx0502zbid']})")
-                
+                    logger.info(
+                        f"轮次: {round_info['name']} (ID: {round_info['jx0502zbid']})"
+                    )
+
                 await select_courses(courses)
                 break  # 成功后退出循环
 
@@ -561,7 +576,6 @@ async def main_async():
                 continue  # 重新登录
     except KeyboardInterrupt:
         logger.info("用户手动终止程序")
-        # await asyncio.to_thread(input, "按回车键退出程序...")
     except Exception as e:
         logger.error(f"程序发生未预期的错误: {str(e)}")
         logger.error(traceback.format_exc())
@@ -574,6 +588,7 @@ def main():
     except KeyboardInterrupt:
         # 处理 Ctrl+C
         pass
+
 
 if __name__ == "__main__":
     main()
