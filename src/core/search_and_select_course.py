@@ -81,54 +81,62 @@ def find_matching_course_in_results(results, course):
     """
     target_course_id = course.get("course_id", "").strip()
     target_teacher = course.get("teacher_name", "").strip()
+
+    def normalize_str(val):
+        """
+        数据清洗与归一化：统一转成字符串，去空格，去前导0
+        例如: "09" -> "9", " 1 " -> "1"
+        """
+        if val is None:
+            return ""
+        s = str(val).strip()
+        # 如果是数字字符串，转int再转str可去除前导0
+        if s.isdigit():
+            return str(int(s))
+        return s
     
     # 构建必需时间集合 (week, week_day, class_period)
+    # 集合元素为元组: (week, week_day, class_period)
     required_times = set()
     for t in course.get("class_times", []):
-        try:
-            required_times.add((
-                int(t.get("week", 0)),
-                int(t.get("week_day", 0)),
-                int(t.get("class_period", 0))
-            ))
-        except (ValueError, TypeError):
-            continue
+        w = normalize_str(t.get("week", ""))
+        wd = normalize_str(t.get("week_day", ""))
+        cp = normalize_str(t.get("class_period", ""))
+        
+        if w and wd and cp:
+            required_times.add((w, wd, cp))
 
     for result in results:
         # 1. 优先匹配课程ID (kch)
-        # 注意：接口返回的字段中课程号通常是 kch 或 kcbh, 这里尝试获取
-        # 如果没有kch字段, 尝试从kcmc判断或跳过此检查（视情况而定, 这里假设有kch）
-        result_kch = result.get("kch", "").strip()
-        if not result_kch:
-             # 备用：有些接口可能不返回kch, 尝试用kcxx或其他, 或者暂时忽略ID强匹配
-             pass
-        elif target_course_id and target_course_id not in result_kch:
-            # 如果明确有ID且不匹配, 则跳过
+        result_kch = str(result.get("kch") or "").strip()
+        if target_course_id and target_course_id not in result_kch:
             continue
 
         # 2. 匹配教师姓名
-        result_skls = result.get("skls", "").strip()
+        result_skls = str(result.get("skls") or "").strip()
         if target_teacher and target_teacher not in result_skls:
             continue
 
         # 3. 匹配时间 (验证搜索结果是否包含所有必需时间节点)
         zcxqjcList = result.get("zcxqjcList", [])
         if not zcxqjcList:
-            continue
+            # 如果结果没有时间表，但我们需要匹配时间，则跳过
+            if required_times:
+                continue
 
         # 构建搜索结果的时间集合
         result_times = set()
         for item in zcxqjcList:
-            try:
-                result_times.add((
-                    int(item.get("zc", 0)),
-                    int(item.get("xq", 0)),
-                    int(item.get("jc", 0))
-                ))
-            except (ValueError, TypeError):
-                continue
+            # 字段映射: zc -> week, xq -> week_day, jc -> class_period
+            w = normalize_str(item.get("zc", ""))
+            wd = normalize_str(item.get("xq", ""))
+            cp = normalize_str(item.get("jc", ""))
+            
+            if w and wd and cp:
+                result_times.add((w, wd, cp))
 
         # 检查必需时间集合是否是结果时间集合的子集
+        # 利用集合特性：判断配置的锚点是否全都在这个集合里
         if required_times.issubset(result_times):
             jx02id = result.get("jx02id", "")
             jx0404id = result.get("jx0404id", "")
