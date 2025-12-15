@@ -64,15 +64,7 @@ async def send_ggxxkxkOper_course_jx02id_and_jx0404id(
             f"已发送【{course_name}】的公选课选课请求, 响应代码: {response.status_code}"
         )
 
-        if "flag1" in response_json:
-            if response_json["flag1"] == 3:
-                message = response_json.get("msgContent", "未知原因")
-                logger.warning(f"登录状态异常: {message}")
-                return None, message
-            elif response_json["flag1"] == 1:
-                logger.info(f"【{course_name}】的公选课选课成功")
-                return True, None
-        elif "success" in response_json:
+        if "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
                 success = all(response_json["success"])
@@ -130,15 +122,7 @@ async def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_a
             f"已发送【{course_name}】的专业内跨年级选课请求, 响应代码: {response.status_code}"
         )
 
-        if "flag1" in response_json:
-            if response_json["flag1"] == 3:
-                message = response_json.get("msgContent", "未知原因")
-                logger.warning(f"登录状态异常: {message}")
-                return None, message
-            elif response_json["flag1"] == 1:
-                logger.info(f"【{course_name}】的专业内跨年级选课成功")
-                return True, None
-        elif "success" in response_json:
+        if "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
                 success = all(response_json["success"])
@@ -200,15 +184,7 @@ async def send_bxqjhxkOper_course_jx02id_and_jx0404id(
             f"已发送【{course_name}】的本学期计划选课请求, 响应代码: {response.status_code}"
         )
 
-        if "flag1" in response_json:
-            if response_json["flag1"] == 3:
-                message = response_json.get("msgContent", "未知原因")
-                logger.warning(f"登录状态异常: {message}")
-                return None, message
-            elif response_json["flag1"] == 1:
-                logger.info(f"【{course_name}】的本学期计划选课成功")
-                return True, None
-        elif "success" in response_json:
+        if "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
                 success = all(response_json["success"])
@@ -265,15 +241,7 @@ async def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_an
             f"已发送【{course_name}】的选修选课请求, 响应代码: {response.status_code}"
         )
 
-        if "flag1" in response_json:
-            if response_json["flag1"] == 3:
-                message = response_json.get("msgContent", "未知原因")
-                logger.warning(f"登录状态异常: {message}")
-                return None, message
-            elif response_json["flag1"] == 1:
-                logger.info(f"【{course_name}】的选修选课成功")
-                return True, None
-        elif "success" in response_json:
+        if "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
                 success = all(response_json["success"])
@@ -331,15 +299,7 @@ async def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_a
             f"已发送【{course_name}】的计划外选课请求, 响应代码: {response.status_code}"
         )
 
-        if "flag1" in response_json:
-            if response_json["flag1"] == 3:
-                message = response_json.get("msgContent", "未知原因")
-                logger.warning(f"登录状态异常: {message}")
-                return None, message
-            elif response_json["flag1"] == 1:
-                logger.info(f"【{course_name}】的计划外选课成功")
-                return True, None
-        elif "success" in response_json:
+        if "success" in response_json:
             message = response_json.get("message", "未知原因")
             if isinstance(response_json["success"], list):
                 success = all(response_json["success"])
