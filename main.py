@@ -305,24 +305,9 @@ def print_welcome():
     logger.info("https://github.com/W1ndys")
     logger.info("\n\n")
     logger.info(f"当前时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info("免责声明: ")
-    logger.info("1. 本脚本仅供学习和研究目的, 用于了解网络编程和自动化技术的实现原理。")
     logger.info(
-        "2. 使用本脚本可能违反学校相关规定。使用者应自行承担因使用本脚本而产生的一切后果, 包括但不限于："
+        "免责声明: 使用本脚本即视为你同意README中的免责声明内容和用户协议, 作者不承担任何责任"
     )
-    logger.info("   - 账号被封禁")
-    logger.info("   - 选课资格被取消")
-    logger.info("   - 受到学校纪律处分")
-    logger.info("   - 其他可能产生的不良影响")
-    logger.info("3. 严禁将本脚本用于：")
-    logger.info("   - 商业用途")
-    logger.info("   - 干扰教务系统正常运行")
-    logger.info("   - 影响其他同学正常选课")
-    logger.info("   - 其他任何非法或不当用途")
-    logger.info(
-        "4. 下载本脚本即视为您已完全理解并同意本免责声明。请在下载后 24 小时内删除。"
-    )
-    logger.info("5. 开发者对使用本脚本造成的任何直接或间接损失不承担任何责任。")
 
 
 def get_course_key(course):
