@@ -1,5 +1,4 @@
 from loguru import logger
-import asyncio
 from .send_course_data import (
     send_ggxxkxkOper_course_jx02id_and_jx0404id,
     send_knjxkOper_course_jx02id_and_jx0404id,
