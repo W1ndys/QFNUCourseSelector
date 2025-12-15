@@ -83,34 +83,53 @@ def run_mock_demo():
     check_single_pair(mock_course_a, mock_course_b, is_mock=True)
 
 def check_conflicts():
-    # 使用斜杠拼接路径，确保多平台兼容性
-    file_path = Path('course_data') / 'example-response.json'
+    # 指定数据目录
+    data_dir = Path('course_data')
     
-    if not file_path.exists():
-        print(f"Error: File not found at {file_path}")
+    if not data_dir.exists():
+        print(f"Error: Directory not found at {data_dir}")
         return
 
-    try:
-        with file_path.open('r', encoding='utf-8') as f:
-            data = json.load(f)
-            course_list = data.get('aaData', [])
-    except Exception as e:
-        print(f"Error reading JSON: {e}")
+    # 获取所有 JSON 文件
+    json_files = list(data_dir.glob('*.json'))
+    
+    if not json_files:
+        print(f"No JSON files found in {data_dir}")
         return
 
-    print(f"Total courses found: {len(course_list)}")
-    print("-" * 50)
+    print(f"Found {len(json_files)} JSON files to process.")
+    
+    any_conflicts_found = False
 
-    conflicts_found = False
+    for file_path in json_files:
+        print(f"\n{'='*20} Processing: {file_path.name} {'='*20}")
+        
+        try:
+            with file_path.open('r', encoding='utf-8') as f:
+                data = json.load(f)
+                course_list = data.get('aaData', [])
+        except Exception as e:
+            print(f"Error reading JSON {file_path.name}: {e}")
+            continue
 
-    # 遍历所有课程对 (compare every pair)
-    for i in range(len(course_list)):
-        for j in range(i + 1, len(course_list)):
-            if check_single_pair(course_list[i], course_list[j]):
-                conflicts_found = True
+        print(f"Total courses found: {len(course_list)}")
+        print("-" * 50)
 
-    if not conflicts_found:
-        print("未发现真实数据中同时满足 [同名、同ID、同老师、同时间] 的课程对。")
+        file_conflicts_found = False
+
+        # 遍历所有课程对 (compare every pair)
+        for i in range(len(course_list)):
+            for j in range(i + 1, len(course_list)):
+                if check_single_pair(course_list[i], course_list[j]):
+                    file_conflicts_found = True
+                    any_conflicts_found = True
+
+        if not file_conflicts_found:
+            print(f"文件 {file_path.name} 中未发现冲突。")
+
+    if not any_conflicts_found:
+        print("\n" + "=" * 50)
+        print("所有文件中均未发现真实数据中同时满足 [同名、同ID、同老师、同时间] 的课程对。")
         run_mock_demo()
 
 if __name__ == "__main__":
