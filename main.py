@@ -532,6 +532,10 @@ async def main_async():
                             and "教学一体化服务平台" in response.text
                         ):
                             logger.info(f"成功访问页面: {page_url}")
+                            await feishu(
+                                "曲阜师范大学教务系统抢课脚本",
+                                "登录成功, 已访问教务系统主页",
+                            )
                             break
                     except Exception as e:
                         if attempt == 2:
@@ -547,7 +551,7 @@ async def main_async():
                     await asyncio.sleep(1)
                     all_rounds = await get_jx0502zbid(session)
 
-                logger.critical(f"成功获取到 {len(all_rounds)} 个选课轮次")
+                logger.success(f"成功获取到 {len(all_rounds)} 个选课轮次")
                 for round_info in all_rounds:
                     logger.info(
                         f"轮次: {round_info['name']} (ID: {round_info['jx0502zbid']})"
