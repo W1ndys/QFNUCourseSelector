@@ -38,7 +38,7 @@ logger.add(
 load_dotenv()
 
 
-async def handle_captcha():
+async def handle_captcha() -> str | None:
     """
     获取并识别验证码
     返回: 识别出的验证码字符串
@@ -346,7 +346,7 @@ async def select_courses(courses):
     """
     # 创建一个字典来跟踪每个课程的选课状态
     # 状态值：False=未选上, True=已选上, "permanent_failure"=永久失败
-    course_status = {
+    course_status: dict[str, bool | str] = {
         get_course_key(c): False for c in courses
     }
 
