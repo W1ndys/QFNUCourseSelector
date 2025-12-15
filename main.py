@@ -4,6 +4,7 @@ import json
 import time
 import datetime
 import traceback
+import asyncio
 from io import BytesIO
 
 from PIL import Image
@@ -37,17 +38,17 @@ logger.add(
 load_dotenv()
 
 
-def handle_captcha():
+async def handle_captcha():
     """
     获取并识别验证码
     返回: 识别出的验证码字符串
     """
-    session = get_session()
+    session = await get_session()
 
     # 验证码请求URL
     RandCodeUrl = "http://zhjw.qfnu.edu.cn/jsxsd/verifycode.servlet"
 
-    response = session.get(RandCodeUrl)
+    response = await session.get(RandCodeUrl)
 
     if response.status_code != 200:
         logger.error(f"请求验证码失败，状态码: {response.status_code}")
@@ -83,7 +84,7 @@ def generate_encoded_string(user_account, user_password):
     return encoded
 
 
-def login(random_code, encoded):
+async def login(random_code, encoded):
     """
     执行登录操作
     返回: 登录响应结果
@@ -91,7 +92,7 @@ def login(random_code, encoded):
 
     # 登录请求URL
     loginUrl = "http://zhjw.qfnu.edu.cn/jsxsd/xk/LoginToXkLdap"
-    session = get_session()
+    session = await get_session()
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
@@ -106,7 +107,7 @@ def login(random_code, encoded):
         "encoded": encoded,
     }
 
-    return session.post(loginUrl, headers=headers, data=data, timeout=1000)
+    return await session.post(loginUrl, headers=headers, data=data, timeout=1000)
 
 
 def get_user_config():
@@ -254,14 +255,14 @@ def get_user_config():
         exit(1)
 
 
-def simulate_login(user_account, user_password):
+async def simulate_login(user_account, user_password):
     """
     模拟登录过程
     返回: 是否登录成功
     """
-    session = get_session()
+    session = await get_session()
     # 访问教务系统首页，获取必要的cookie
-    response = session.get("http://zhjw.qfnu.edu.cn/jsxsd/")
+    response = await session.get("http://zhjw.qfnu.edu.cn/jsxsd/")
     if response.status_code != 200:
         logger.error("无法访问教务系统首页，请检查网络连接或教务系统的可用性。")
         return False
@@ -271,11 +272,11 @@ def simulate_login(user_account, user_password):
     logger.info(f"获取到的cookie: {cookies}")
 
     for attempt in range(3):
-        random_code = handle_captcha()
+        random_code = await handle_captcha()
         logger.info(f"验证码: {random_code}")
         encoded = generate_encoded_string(user_account, user_password)
         logger.info(f"encoded: {encoded}")
-        response = login(random_code, encoded)
+        response = await login(random_code, encoded)
         logger.info(f"登录响应: {response.status_code}")
 
         if response.status_code == 200:
@@ -332,7 +333,7 @@ def get_course_key(course):
         return f"{course['course_id']}-{course['teacher_name']}-{course.get('skxq', '')}-{course.get('skjc', '')}-{course.get('first_jc', '')}"
 
 
-def select_courses(courses):
+async def select_courses(courses):
     """
     蹲课模式：持续尝试选课，每个课程之间间隔0.5秒
     依次遍历每个选课轮次，如果某课程在某轮次选课成功，则锁定该轮次
@@ -348,10 +349,54 @@ def select_courses(courses):
         get_course_key(c): None for c in courses
     }
 
-    start_time = time.time()  # 记录开始时间
-    feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
+    # 对课程进行分组：相同课程名字和相同老师的视为同一组
+    course_groups = {}
+    for course in courses:
+        group_key = (course['course_name'], course['teacher_name'])
+        if group_key not in course_groups:
+            course_groups[group_key] = []
+        course_groups[group_key].append(course)
 
-    session = get_session()
+    start_time = time.time()  # 记录开始时间
+    await feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
+
+    session = await get_session()
+
+    async def process_group(group_courses, round_id, round_name):
+        """
+        处理单个课程组：组内串行执行
+        """
+        group_attempted = False
+        for course in group_courses:
+            course_key = get_course_key(course)
+            
+            # 如果该课程已经选上或永久失败，则跳过
+            if course_status[course_key] is not False:
+                continue
+
+            # 如果该课程已经锁定了轮次，只在锁定的轮次尝试
+            if locked_rounds[course_key] is not None:
+                if locked_rounds[course_key] != round_id:
+                    continue
+            
+            group_attempted = True
+            try:
+                result = await search_and_select_course(course)
+                
+                if result is True:
+                    course_status[course_key] = True
+                    locked_rounds[course_key] = round_id
+                    logger.info(f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功，已锁定该轮次")
+                elif result == "permanent_failure":
+                    course_status[course_key] = "permanent_failure"
+                    logger.critical(f"课程【{course['course_name']}-{course['teacher_name']}】永久失败，不再重试")
+                else:
+                    logger.info(f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败，将尝试下一轮次")
+
+            except Exception as e:
+                logger.error(f"课程【{course['course_name']}】选课异常: {str(e)}")
+        
+        return group_attempted
 
     # 蹲课模式：持续执行选课操作
     while True:
@@ -368,19 +413,19 @@ def select_courses(courses):
             if failed_count > 0:
                 logger.info(f"永久失败: {failed_count} 门课程")
             
-            feishu(
+            await feishu(
                 "曲阜师范大学教务系统抢课脚本",
                 f"所有课程处理完成\n成功选上: {success_count} 门\n永久失败: {failed_count} 门\n总耗时: {end_time - start_time:.2f} 秒",
             )
             return True
         
         # 获取所有选课轮次
-        all_rounds = get_jx0502zbid(session)
+        all_rounds = await get_jx0502zbid(session)
         if not all_rounds:
             logger.warning(
                 "获取选课轮次失败，1秒后重试...若持续失败，可能是账号被踢，请重新运行脚本"
             )
-            time.sleep(1)
+            await asyncio.sleep(1)
             continue
 
         logger.info(f"获取到 {len(all_rounds)} 个选课轮次")
@@ -393,66 +438,51 @@ def select_courses(courses):
             logger.info(f"正在尝试轮次: {round_name} (ID: {round_id})")
 
             # 访问选课页面
-            response = session.get(
-                f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={round_id}"
-            )
-            logger.debug(f"选课页面响应状态码: {response.status_code}")
+            try:
+                response = await session.get(
+                    f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={round_id}"
+                )
+                logger.debug(f"选课页面响应状态码: {response.status_code}")
+            except Exception as e:
+                logger.error(f"访问选课页面失败: {e}")
+                continue
 
-            # 执行选课操作
-            round_had_attempts = False  # 标记本轮次是否有课程尝试
-            for course in courses:
-                # 获取课程唯一标识
-                course_key = get_course_key(course)
+            # 创建并发任务：每个课程组作为一个任务并行执行
+            group_tasks = []
+            for group_courses in course_groups.values():
+                group_tasks.append(process_group(group_courses, round_id, round_name))
 
-                # 如果该课程已经选上或永久失败，则跳过
-                if course_status[course_key] is not False:
-                    continue
-
-                # 如果该课程已经锁定了轮次，只在锁定的轮次尝试
-                if locked_rounds[course_key] is not None:
-                    if locked_rounds[course_key] != round_id:
-                        continue
-
-                round_had_attempts = True
-                result = search_and_select_course(course)
-                if result is True:
-                    course_status[course_key] = True
-                    locked_rounds[course_key] = round_id
-                    logger.info(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功，已锁定该轮次"
-                    )
-                elif result == "permanent_failure":
-                    course_status[course_key] = "permanent_failure"
-                    logger.critical(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】永久失败，不再重试"
-                    )
-                else:
-                    # 如果尚未锁定轮次，且本次尝试有响应（无论成功失败），可以考虑锁定
-                    # 但根据需求，只有选课成功才锁定，失败继续尝试其他轮次
-                    logger.info(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败，将尝试下一轮次"
-                    )
+            if group_tasks:
+                # 并发执行所有组
+                results = await asyncio.gather(*group_tasks, return_exceptions=True)
                 
-                # 每个课程之间间隔0.5秒
-                time.sleep(0.5)
+                # 检查是否有任何组进行了尝试
+                round_had_attempts = any(res is True for res in results if not isinstance(res, Exception))
+                
+                if not round_had_attempts:
+                    logger.debug(f"轮次【{round_name}】没有需要尝试的课程，跳过")
+            else:
+                 logger.debug(f"轮次【{round_name}】没有任务")
 
-            if not round_had_attempts:
-                logger.debug(f"轮次【{round_name}】没有需要尝试的课程，跳过")
+            # 每个轮次之间稍微停顿一下，避免过快请求
+            await asyncio.sleep(0.5)
 
         logger.info("所有轮次尝试完成，准备重新开始...")
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
 
 
-def main():
+async def main_async():
     """
     主函数，协调整个程序的执行流程
     """
     try:
         print_welcome()
 
-        input(
+        print(
             "本项目具有严重的安全风险和非预期运行，有极大概率无法正常的选课，为避免影响正常选课，请勿继续使用，相关代码仅供学习研究使用，请勿用于实际的选课环境中，使用脚本造成的一切后果与开发者无关。\n"
         )
+        # input在async中会阻塞，这里简单处理，实际可替换为非阻塞方式或直接去掉等待
+        await asyncio.to_thread(input, "按回车键继续...")
 
         # 获取环境变量
         user_account, user_password, courses = get_user_config()
@@ -474,15 +504,15 @@ def main():
         while True:  # 添加外层循环
             try:
                 # 模拟登录
-                if not simulate_login(user_account, user_password):
+                if not await simulate_login(user_account, user_password):
                     logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
-                    time.sleep(1)  # 添加重试间隔
+                    await asyncio.sleep(1)  # 添加重试间隔
                     continue  # 重试登录
 
-                session = get_session()
+                session = await get_session()
                 if not session:
                     logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
-                    time.sleep(1)
+                    await asyncio.sleep(1)
                     continue
 
                 # 访问主页和选课页面
@@ -492,7 +522,7 @@ def main():
                 ]:
                     for attempt in range(3):
                         try:
-                            response = session.get(page_url)
+                            response = await session.get(page_url)
                             logger.debug(f"页面响应状态码: {response.status_code}")
                             if response.status_code == 200:
                                 break
@@ -506,31 +536,38 @@ def main():
                             continue
 
                 # 获取选课轮次列表
-                all_rounds = get_jx0502zbid(session)
+                all_rounds = await get_jx0502zbid(session)
                 while not all_rounds:
                     logger.warning("获取选课轮次失败，1秒后重试...")
-                    time.sleep(1)
-                    all_rounds = get_jx0502zbid(session)
+                    await asyncio.sleep(1)
+                    all_rounds = await get_jx0502zbid(session)
 
                 logger.critical(f"成功获取到 {len(all_rounds)} 个选课轮次")
                 for round_info in all_rounds:
                     logger.info(f"轮次: {round_info['name']} (ID: {round_info['jx0502zbid']})")
                 
-                select_courses(courses)
+                await select_courses(courses)
                 break  # 成功后退出循环
 
             except Exception as e:
                 logger.error(f"发生错误: {str(e)}，正在重新登录...")
-                time.sleep(1)
+                await asyncio.sleep(1)
                 continue  # 重新登录
     except KeyboardInterrupt:
         logger.info("用户手动终止程序")
-        input("按回车键退出程序...")
+        # await asyncio.to_thread(input, "按回车键退出程序...")
     except Exception as e:
         logger.error(f"程序发生未预期的错误: {str(e)}")
         logger.error(traceback.format_exc())
-        input("按回车键退出程序...")
+        await asyncio.to_thread(input, "按回车键退出程序...")
 
+
+def main():
+    try:
+        asyncio.run(main_async())
+    except KeyboardInterrupt:
+        # 处理 Ctrl+C
+        pass
 
 if __name__ == "__main__":
     main()

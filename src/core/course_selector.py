@@ -1,11 +1,11 @@
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
-from requests.exceptions import RequestException
+import httpx
 from loguru import logger
 
 
-def get_jx0502zbid(session):
+async def get_jx0502zbid(session):
     """
     获取教务系统中的所有选课轮次编号列表
     Args:
@@ -13,13 +13,13 @@ def get_jx0502zbid(session):
     Returns:
         list: 选课轮次编号列表，每个元素是一个字典，包含 jx0502zbid 和 name
     Raises:
-        RequestException: 当网络请求失败时
+        httpx.RequestError: 当网络请求失败时
     """
     url = "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list"
     jx0502zbid_pattern = re.compile(r"jx0502zbid=([^&]+)")
 
     try:
-        response = session.get(url)
+        response = await session.get(url)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
@@ -33,90 +33,25 @@ def get_jx0502zbid(session):
                     continue
 
                 link = row.find("a", href=True)
-                if link and "jx0502zbid" in link["href"]:
-                    match = jx0502zbid_pattern.search(link["href"])
-                    if match:
-                        round_info = {
-                            "jx0502zbid": match.group(1),
-                            "name": cells[1].text.strip()
-                        }
-                        rounds.append(round_info)
+                if link:
+                    href = link.get("href")
+                    if isinstance(href, str) and "jx0502zbid" in href:
+                        match = jx0502zbid_pattern.search(href)
+                        if match:
+                            round_info = {
+                                "jx0502zbid": match.group(1),
+                                "name": cells[1].text.strip(),
+                            }
+                            rounds.append(round_info)
             except (AttributeError, IndexError) as e:
                 logger.warning(f"解析行数据时出错: {str(e)}")
                 continue
 
         return rounds
 
-    except RequestException as e:
+    except httpx.RequestError as e:
         logger.error(f"请求选课页面失败: {str(e)}")
         raise
     except Exception as e:
         logger.error(f"获取选课轮次时发生未知错误: {str(e)}")
-        raise
-
-
-def get_xxxk_course_list(session):
-    """
-    获取选修选课课程列表
-
-    Args:
-        session: 请求会话
-        cookies: cookies信息
-
-    Returns:
-        str: 选修选课课程列表的响应内容
-
-    Raises:
-        RequestException: 当网络请求失败时
-        Exception: 其他未知错误
-    """
-    try:
-        headers = {
-            "X-Requested-With": "XMLHttpRequest",
-            "Accept": "*/*",
-            "Accept-Encoding": "gzip, deflate",
-            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-            "Connection": "keep-alive",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 Edg/132.0.0.0",
-        }
-
-        url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xsxkXxxk"
-
-        params = {
-            "kcxx": "",
-            "skls": "",
-            "skxq": "",
-            "sfym": "false",
-            "sfct": "false",
-            "sfxx": "true",
-        }
-
-        data = {
-            "sEcho": "1",
-            "iColumns": "11",
-            "sColumns": "",
-            "iDisplayStart": "0",
-            "iDisplayLength": "15",
-            "mDataProp_0": "kch",
-            "mDataProp_1": "kcmc",
-            "mDataProp_2": "fzmc",
-            "mDataProp_3": "ktmc",
-            "mDataProp_4": "xf",
-            "mDataProp_5": "skls",
-            "mDataProp_6": "sksj",
-            "mDataProp_7": "skdd",
-            "mDataProp_8": "xqmc",
-            "mDataProp_9": "ctsm",
-            "mDataProp_10": "czOper",
-        }
-        response = session.post(url, data=data, headers=headers, params=params)
-        response.raise_for_status()
-        return response.text
-
-    except RequestException as e:
-        logger.error(f"获取选修选课课程列表失败: {str(e)}")
-        raise
-    except Exception as e:
-        logger.error(f"获取选修选课课程列表时发生未知错误: {str(e)}")
         raise
