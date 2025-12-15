@@ -132,11 +132,15 @@ def get_user_config():
                     "teacher_name": "你的老师名称",
                     "jx02id": "",
                     "jx0404id": "",
-                    "skxq": "",
-                    "skjc": "",
-                    "first_week": "",
-                    "first_xq": "",
-                    "first_jc": "",
+                    "week_day": "",
+                    "class_period": "",
+                    "class_times": [
+                        {
+                            "week": "",
+                            "week_day": "",
+                            "class_period": ""
+                        }
+                    ]
                 }
             ],
         }
@@ -178,67 +182,67 @@ def get_user_config():
             # 检查选课模式：要么填写jx02id和jx0404id，要么填写搜索参数
             jx02id = course.get("jx02id", "").strip()
             jx0404id = course.get("jx0404id", "").strip()
-            skxq = course.get("skxq", "").strip()
-            skjc = course.get("skjc", "").strip()
-            first_week = course.get("first_week", "").strip()
-            first_xq = course.get("first_xq", "").strip()
-            first_jc = course.get("first_jc", "").strip()
+            week_day = course.get("week_day", "").strip()
+            class_period = course.get("class_period", "").strip()
+            class_times = course.get("class_times", [])
 
             has_direct_ids = jx02id and jx0404id
-            has_search_params = skxq and skjc and first_week and first_xq and first_jc
+            has_search_params = week_day and class_period and class_times
 
             if not has_direct_ids and not has_search_params:
                 logger.error(
                     f"课程【{course['course_name']}-{course['teacher_name']}】配置无效：\n"
                     f"请填写以下两种方式之一：\n"
                     f"1. 直接填写 jx02id 和 jx0404id\n"
-                    f"2. 填写搜索参数：skxq(星期几)、skjc(节次范围)、first_week(第一节课周次)、first_xq(第一节课星期几)、first_jc(第一节课节次)"
+                    f"2. 填写搜索参数：week_day(星期几)、class_period(节次范围) 和 class_times(上课时间列表)"
                 )
                 input("按回车键退出程序...")
                 exit(1)
 
             # 如果使用搜索模式，验证参数格式
             if has_search_params:
-                # 验证skxq为1-7的数字
-                if not skxq.isdigit() or not (1 <= int(skxq) <= 7):
+                # 验证week_day为1-7的数字
+                if not week_day.isdigit() or not (1 <= int(week_day) <= 7):
                     logger.error(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】的 skxq(星期几) 必须为1-7之间的数字"
+                        f"课程【{course['course_name']}-{course['teacher_name']}】的 week_day(星期几) 必须为1-7之间的数字"
                     )
                     input("按回车键退出程序...")
                     exit(1)
 
-                # 验证skjc为有效的节次范围
-                valid_skjc = ["1-2", "3-4", "5-6", "7-8", "9-11", "12-13"]
-                if skjc not in valid_skjc:
+                # 验证class_period为有效的节次范围
+                valid_periods = ["1-2", "3-4", "5-6", "7-8", "9-11", "12-13"]
+                if class_period not in valid_periods:
                     logger.error(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】的 skjc(节次范围) 必须为以下之一：{', '.join(valid_skjc)}"
+                        f"课程【{course['course_name']}-{course['teacher_name']}】的 class_period(节次范围) 必须为以下之一：{', '.join(valid_periods)}"
                     )
                     input("按回车键退出程序...")
                     exit(1)
 
-                # 验证first_week为数字
-                if not first_week.isdigit():
+                # 验证class_times
+                if not isinstance(class_times, list) or not class_times:
                     logger.error(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】的 first_week(第一节课周次) 必须为数字"
+                        f"课程【{course['course_name']}-{course['teacher_name']}】的 class_times 必须为非空列表"
                     )
                     input("按回车键退出程序...")
                     exit(1)
 
-                # 验证first_xq为1-7的数字
-                if not first_xq.isdigit() or not (1 <= int(first_xq) <= 7):
-                    logger.error(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】的 first_xq(第一节课星期几) 必须为1-7之间的数字"
-                    )
-                    input("按回车键退出程序...")
-                    exit(1)
+                for idx, time_node in enumerate(class_times):
+                    t_week = str(time_node.get("week", "")).strip()
+                    t_week_day = str(time_node.get("week_day", "")).strip()
+                    t_class_period = str(time_node.get("class_period", "")).strip()
 
-                # 验证first_jc为两位数字的节次（01-13）
-                if not (len(first_jc) == 2 and first_jc.isdigit() and 1 <= int(first_jc) <= 13):
-                    logger.error(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】的 first_jc(第一节课节次) 必须为两位数字格式（01-13）"
-                    )
-                    input("按回车键退出程序...")
-                    exit(1)
+                    if not t_week.isdigit():
+                        logger.error(f"课程【{course['course_name']}】第{idx+1}个时间节点的 week 必须为数字")
+                        input("按回车键退出程序...")
+                        exit(1)
+                    if not t_week_day.isdigit() or not (1 <= int(t_week_day) <= 7):
+                        logger.error(f"课程【{course['course_name']}】第{idx+1}个时间节点的 week_day 必须为1-7之间的数字")
+                        input("按回车键退出程序...")
+                        exit(1)
+                    if not t_class_period.isdigit() or not (1 <= int(t_class_period) <= 13):
+                        logger.error(f"课程【{course['course_name']}】第{idx+1}个时间节点的 class_period 必须为数字(1-13)")
+                        input("按回车键退出程序...")
+                        exit(1)
 
         return (
             config["user_account"],
@@ -330,7 +334,9 @@ def get_course_key(course):
         return f"{jx02id}-{jx0404id}"
     else:
         # 使用课程ID、教师名和搜索参数作为唯一标识
-        return f"{course['course_id']}-{course['teacher_name']}-{course.get('skxq', '')}-{course.get('skjc', '')}-{course.get('first_jc', '')}"
+        # 由于class_times是列表，将其转换为字符串作为key的一部分
+        class_times_str = "-".join([f"{t.get('week')}_{t.get('week_day')}_{t.get('class_period')}" for t in course.get('class_times', [])])
+        return f"{course['course_id']}-{course['teacher_name']}-{course.get('week_day', '')}-{course.get('class_period', '')}-{class_times_str}"
 
 
 async def select_courses(courses):

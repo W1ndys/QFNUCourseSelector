@@ -11,7 +11,7 @@ from ..utils.feishu import feishu
 from ..utils.session_manager import get_session
 
 
-async def search_course_in_url(session, url, course_id, teacher_name, skxq, skjc):
+async def search_course_in_url(session, url, course_id, teacher_name, week_day, class_period):
     """
     在指定URL搜索课程
 
@@ -20,8 +20,8 @@ async def search_course_in_url(session, url, course_id, teacher_name, skxq, skjc
         url: 搜索接口URL
         course_id: 课程编号
         teacher_name: 教师姓名
-        skxq: 星期几
-        skjc: 节次范围
+        week_day: 星期几
+        class_period: 节次范围
 
     Returns:
         list: 搜索结果列表
@@ -40,8 +40,8 @@ async def search_course_in_url(session, url, course_id, teacher_name, skxq, skjc
         params = {
             "kcxx": course_id,
             "skls": teacher_name,
-            "skxq": skxq,
-            "skjc": skjc,
+            "skxq": week_day,
+            "skjc": class_period,
             "sfym": "false",
             "sfct": "false",
             "sfxx": "false",
@@ -71,7 +71,7 @@ async def search_course_in_url(session, url, course_id, teacher_name, skxq, skjc
 def find_matching_course_in_results(results, course):
     """
     在搜索结果中查找匹配的课程ID
-    匹配优先级：课程ID > 教师 > 周次+星期+节次
+    匹配优先级：课程ID > 教师 > 所有时间节点(class_times)
 
     Args:
         results: 搜索结果列表
@@ -82,9 +82,18 @@ def find_matching_course_in_results(results, course):
     """
     target_course_id = course.get("course_id", "").strip()
     target_teacher = course.get("teacher_name", "").strip()
-    target_week = course.get("first_week", "").strip()
-    target_xq = course.get("first_xq", "").strip()
-    target_jc = course.get("first_jc", "").strip()
+    
+    # 构建必需时间集合 (week, week_day, class_period)
+    required_times = set()
+    for t in course.get("class_times", []):
+        try:
+            required_times.add((
+                int(t.get("week", 0)),
+                int(t.get("week_day", 0)),
+                int(t.get("class_period", 0))
+            ))
+        except (ValueError, TypeError):
+            continue
 
     for result in results:
         # 1. 优先匹配课程ID (kch)
@@ -103,31 +112,25 @@ def find_matching_course_in_results(results, course):
         if target_teacher and target_teacher not in result_skls:
             continue
 
-        # 3. 匹配时间 (周次 + 星期 + 节次)
+        # 3. 匹配时间 (验证搜索结果是否包含所有必需时间节点)
         zcxqjcList = result.get("zcxqjcList", [])
-
         if not zcxqjcList:
             continue
 
-        # 获取第一个元组进行匹配
-        first_schedule = zcxqjcList[0]
-        zc = first_schedule.get("zc", "")  # 周次
-        xq = first_schedule.get("xq", "")  # 星期
-        jc = first_schedule.get("jc", "")  # 节次
+        # 构建搜索结果的时间集合
+        result_times = set()
+        for item in zcxqjcList:
+            try:
+                result_times.add((
+                    int(item.get("zc", 0)),
+                    int(item.get("xq", 0)),
+                    int(item.get("jc", 0))
+                ))
+            except (ValueError, TypeError):
+                continue
 
-        # 对比第一节课信息
-        zc_match = str(zc) == str(target_week)
-        xq_match = str(xq) == str(target_xq)
-        
-        # 处理节次：尝试转为整数比较，或者统一格式
-        try:
-            jc_int = int(jc)
-            first_jc_int = int(target_jc)
-            jc_match = jc_int == first_jc_int
-        except ValueError:
-            jc_match = str(jc) == str(target_jc)
-
-        if zc_match and xq_match and jc_match:
+        # 检查必需时间集合是否是结果时间集合的子集
+        if required_times.issubset(result_times):
             jx02id = result.get("jx02id", "")
             jx0404id = result.get("jx0404id", "")
 
@@ -232,8 +235,8 @@ async def search_and_select_course(course):
             
             course_id_param = course.get("course_id", "")
             teacher_name_param = course.get("teacher_name", "")
-            skxq_param = course.get("skxq", "").strip()
-            skjc_param = course.get("skjc", "").strip()
+            week_day_param = course.get("week_day", "").strip()
+            class_period_param = course.get("class_period", "").strip()
 
             search_found = False
 
@@ -244,7 +247,7 @@ async def search_and_select_course(course):
 
                 # 1. 搜索
                 results = await search_course_in_url(
-                    session, search_url, course_id_param, teacher_name_param, skxq_param, skjc_param
+                    session, search_url, course_id_param, teacher_name_param, week_day_param, class_period_param
                 )
 
                 if not results:
