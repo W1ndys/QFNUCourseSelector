@@ -283,7 +283,6 @@ async def simulate_login(user_account, user_password):
         random_code = await handle_captcha()
         logger.info(f"验证码: {random_code}")
         encoded = generate_encoded_string(user_account, user_password)
-        logger.info(f"encoded: {encoded}")
         response = await login(random_code, encoded)
         logger.info(f"登录响应: {response.status_code}")
 
@@ -534,25 +533,24 @@ async def main_async():
                     await asyncio.sleep(1)
                     continue
 
-                # 访问主页和选课页面
-                for page_url in [
-                    "http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp",
-                    "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list",
-                ]:
-                    for attempt in range(3):
-                        try:
-                            response = await session.get(page_url)
-                            logger.debug(f"页面响应状态码: {response.status_code}")
-                            if response.status_code == 200:
-                                break
-                        except Exception as e:
-                            if attempt == 2:
-                                logger.error(f"访问页面失败: {str(e)}")
-                                raise
-                            logger.warning(
-                                f"访问页面失败, 正在进行第{attempt + 2}次尝试"
-                            )
-                            continue
+                # 访问主页
+                page_url = "http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp"
+                for attempt in range(3):
+                    try:
+                        response = await session.get(page_url)
+                        logger.debug(f"页面响应状态码: {response.status_code}")
+                        if (
+                            response.status_code == 200
+                            and "教学一体化服务平台" in response.text
+                        ):
+                            logger.info(f"成功访问页面: {page_url}")
+                            break
+                    except Exception as e:
+                        if attempt == 2:
+                            logger.error(f"访问页面失败: {str(e)}")
+                            raise
+                        logger.warning(f"访问页面失败, 正在进行第{attempt + 2}次尝试")
+                        continue
 
                 # 获取选课轮次列表
                 all_rounds = await get_jx0502zbid(session)
