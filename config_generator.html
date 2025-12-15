@@ -270,6 +270,12 @@
                 weekDayOptions += `<option value="${i}">星期${weekDays[i-1]}</option>`;
             }
 
+            let periodOptions = '<option value="">节次</option>';
+            for (let i = 1; i <= 12; i++) {
+                const val = i.toString().padStart(2, '0');
+                periodOptions += `<option value="${val}">${val}</option>`;
+            }
+
             return `
                 <div class="time-node" id="time-${courseId}-${timeId}">
                     <select class="time-week" title="周次 (week)">
@@ -278,7 +284,9 @@
                     <select class="time-weekday" title="星期几 (1-7)">
                         ${weekDayOptions}
                     </select>
-                    <input type="text" class="time-period" placeholder="节次" title="节次 (1-13)">
+                    <select class="time-period" title="节次 (01-12)">
+                        ${periodOptions}
+                    </select>
                     <button class="remove-btn remove-btn-static" onclick="removeTimeNode('${courseId}', '${timeId}')">×</button>
                 </div>
             `;
