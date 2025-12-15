@@ -512,8 +512,259 @@
             URL.revokeObjectURL(url);
         }
 
-        // 初始化添加一个课程
-        addCourse();
+        // 缓存机制
+        function saveToCache() {
+            const config = {
+                user_account: document.getElementById('user_account').value,
+                user_password: document.getElementById('user_password').value,
+                feishu_webhook: document.getElementById('feishu_webhook').value,
+                courses: []
+            };
+
+            const courseCards = document.querySelectorAll('.course-card');
+            
+            courseCards.forEach(card => {
+                const mode = card.querySelector('input[type="radio"]:checked').value;
+                const course = {
+                    course_name: card.querySelector('.course-name').value,
+                    course_id: card.querySelector('.course-id').value,
+                    teacher_name: card.querySelector('.teacher-name').value,
+                    mode: mode,
+                    jx02id: card.querySelector('.jx02id').value,
+                    jx0404id: card.querySelector('.jx0404id').value,
+                    week_day: card.querySelector('.week-day').value,
+                    class_period: card.querySelector('.class-period').value,
+                    class_times: []
+                };
+
+                const timeNodes = card.querySelectorAll('.time-node');
+                timeNodes.forEach(node => {
+                    course.class_times.push({
+                        week: node.querySelector('.time-week').value,
+                        week_day: node.querySelector('.time-weekday').value,
+                        class_period: node.querySelector('.time-period').value
+                    });
+                });
+
+                config.courses.push(course);
+            });
+
+            localStorage.setItem('qfnu_course_config', JSON.stringify(config));
+        }
+
+        function loadFromCache() {
+            const cachedData = localStorage.getItem('qfnu_course_config');
+            if (!cachedData) {
+                addCourse(); // 如果没有缓存，添加一个默认课程
+                return;
+            }
+
+            try {
+                const config = JSON.parse(cachedData);
+                document.getElementById('user_account').value = config.user_account || '';
+                document.getElementById('user_password').value = config.user_password || '';
+                document.getElementById('feishu_webhook').value = config.feishu_webhook || '';
+
+                if (config.courses && config.courses.length > 0) {
+                    config.courses.forEach(courseData => {
+                        addCourse(courseData);
+                    });
+                } else {
+                    addCourse();
+                }
+            } catch (e) {
+                console.error('加载缓存失败:', e);
+                addCourse();
+            }
+        }
+
+        // 修改 addCourse 支持传入数据
+        const originalAddCourse = addCourse;
+        addCourse = function(data = null) {
+            courseCount++;
+            const container = document.getElementById('courses-container');
+            const courseCard = document.createElement('div');
+            courseCard.className = 'course-card';
+            courseCard.id = `course-${courseCount}`;
+            
+            courseCard.innerHTML = `
+                <button class="remove-btn" onclick="removeCourse(${courseCount})">删除课程</button>
+                <h3>课程 #${courseCount}</h3>
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>课程名称</label>
+                            <input type="text" class="course-name" placeholder="例如：高等数学" value="${data ? data.course_name : ''}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>课程编号</label>
+                            <input type="text" class="course-id" placeholder="例如：g20062389" value="${data ? data.course_id : ''}">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>教师姓名</label>
+                            <input type="text" class="teacher-name" placeholder="例如：张三" value="${data ? data.teacher_name : ''}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>选课模式</label>
+                    <div class="mode-switch">
+                        <label class="mode-option">
+                            <input type="radio" name="mode-${courseCount}" value="id" ${(!data || data.mode === 'id') ? 'checked' : ''} onchange="toggleMode(${courseCount}, 'id')">
+                            直接 ID 模式 (推荐)
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="mode-${courseCount}" value="search" ${(data && data.mode === 'search') ? 'checked' : ''} onchange="toggleMode(${courseCount}, 'search')">
+                            搜索模式
+                        </label>
+                    </div>
+                </div>
+
+                <div id="mode-id-${courseCount}" class="${(data && data.mode === 'search') ? 'hidden' : ''}">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label>jx02id</label>
+                                <input type="text" class="jx02id" placeholder="课程唯一标识 ID" value="${data ? data.jx02id : ''}">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label>jx0404id</label>
+                                <input type="text" class="jx0404id" placeholder="课程唯一标识 ID" value="${data ? data.jx0404id : ''}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="help-text">提示：ID 需要通过高年级账号抓包获取，如果不知道请使用搜索模式</div>
+                </div>
+
+                <div id="mode-search-${courseCount}" class="${(!data || data.mode === 'id') ? 'hidden' : ''}">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label>搜索星期 (week_day)</label>
+                                <select class="week-day">
+                                    <option value="">请选择</option>
+                                    <option value="1" ${(data && data.week_day === '1') ? 'selected' : ''}>星期一</option>
+                                    <option value="2" ${(data && data.week_day === '2') ? 'selected' : ''}>星期二</option>
+                                    <option value="3" ${(data && data.week_day === '3') ? 'selected' : ''}>星期三</option>
+                                    <option value="4" ${(data && data.week_day === '4') ? 'selected' : ''}>星期四</option>
+                                    <option value="5" ${(data && data.week_day === '5') ? 'selected' : ''}>星期五</option>
+                                    <option value="6" ${(data && data.week_day === '6') ? 'selected' : ''}>星期六</option>
+                                    <option value="7" ${(data && data.week_day === '7') ? 'selected' : ''}>星期日</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label>搜索节次范围 (class_period)</label>
+                                <select class="class-period">
+                                    <option value="">请选择</option>
+                                    <option value="1-2" ${(data && data.class_period === '1-2') ? 'selected' : ''}>1-2</option>
+                                    <option value="3-4" ${(data && data.class_period === '3-4') ? 'selected' : ''}>3-4</option>
+                                    <option value="5-6" ${(data && data.class_period === '5-6') ? 'selected' : ''}>5-6</option>
+                                    <option value="7-8" ${(data && data.class_period === '7-8') ? 'selected' : ''}>7-8</option>
+                                    <option value="9-11" ${(data && data.class_period === '9-11') ? 'selected' : ''}>9-11</option>
+                                    <option value="12-13" ${(data && data.class_period === '12-13') ? 'selected' : ''}>12-13</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>详细上课时间 (class_times) <button class="btn btn-small" onclick="addTimeNode(${courseCount})">+ 添加时间节点</button></label>
+                        <div id="times-container-${courseCount}">
+                            <!-- 时间节点 -->
+                        </div>
+                        <div class="help-text">请至少添加一个时间节点用于精确匹配课程</div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(courseCard);
+
+            // 恢复时间节点
+            if (data && data.class_times && data.class_times.length > 0) {
+                data.class_times.forEach(timeData => {
+                    addTimeNode(courseCount, timeData);
+                });
+            } else {
+                addTimeNode(courseCount);
+            }
+        };
+
+        // 修改 addTimeNode 支持传入数据
+        const originalAddTimeNode = addTimeNode;
+        addTimeNode = function(courseId, data = null) {
+            const container = document.getElementById(`times-container-${courseId}`);
+            const timeId = Date.now() + Math.random().toString(36).substr(2, 9);
+            
+            let weekOptions = '<option value="">周次</option>';
+            for (let i = 1; i <= 20; i++) {
+                const selected = (data && data.week === i.toString()) ? 'selected' : '';
+                weekOptions += `<option value="${i}" ${selected}>${i}</option>`;
+            }
+
+            let weekDayOptions = '<option value="">星期</option>';
+            const weekDays = ['一', '二', '三', '四', '五', '六', '日'];
+            for (let i = 1; i <= 7; i++) {
+                const selected = (data && data.week_day === i.toString()) ? 'selected' : '';
+                weekDayOptions += `<option value="${i}" ${selected}>星期${weekDays[i-1]}</option>`;
+            }
+
+            let periodOptions = '<option value="">节次</option>';
+            for (let i = 1; i <= 12; i++) {
+                const val = i.toString().padStart(2, '0');
+                const selected = (data && data.class_period === val) ? 'selected' : '';
+                periodOptions += `<option value="${val}" ${selected}>${val}</option>`;
+            }
+
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <div class="time-node" id="time-${courseId}-${timeId}">
+                    <select class="time-week" title="周次 (week)">
+                        ${weekOptions}
+                    </select>
+                    <select class="time-weekday" title="星期几 (1-7)">
+                        ${weekDayOptions}
+                    </select>
+                    <select class="time-period" title="节次 (01-12)">
+                        ${periodOptions}
+                    </select>
+                    <button class="remove-btn remove-btn-static" onclick="removeTimeNode('${courseId}', '${timeId}')">×</button>
+                </div>
+            `;
+            container.appendChild(div.firstElementChild);
+        };
+
+        // 监听所有输入变化以保存缓存
+        document.addEventListener('input', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                saveToCache();
+            }
+        });
+
+        // 监听删除操作
+        const originalRemoveCourse = removeCourse;
+        removeCourse = function(id) {
+            originalRemoveCourse(id);
+            saveToCache();
+        };
+
+        const originalRemoveTimeNode = removeTimeNode;
+        removeTimeNode = function(courseId, timeId) {
+            originalRemoveTimeNode(courseId, timeId);
+            saveToCache();
+        };
+
+        // 初始化加载缓存
+        loadFromCache();
     </script>
 </body>
 </html>
