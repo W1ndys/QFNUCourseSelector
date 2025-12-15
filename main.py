@@ -381,16 +381,16 @@ async def select_courses(courses):
                 if result is True:
                     course_status[course_key] = True
                     locked_rounds[course_key] = round_id
-                    logger.info(
+                    logger.success(
                         f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功, 已锁定该轮次"
                     )
                 elif result == "permanent_failure":
                     course_status[course_key] = "permanent_failure"
-                    logger.critical(
+                    logger.success(
                         f"课程【{course['course_name']}-{course['teacher_name']}】永久失败, 不再重试"
                     )
                 else:
-                    logger.info(
+                    logger.success(
                         f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败, 将尝试下一轮次"
                     )
 

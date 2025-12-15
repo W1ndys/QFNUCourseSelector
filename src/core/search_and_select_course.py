@@ -220,7 +220,7 @@ async def search_and_select_course(course):
                         await feishu("选课成功 🎉", success_msg)
                         return True
                     elif result == "permanent_failure":
-                        logger.critical(f"永久失败: {message}")
+                        logger.success(f"永久失败: {message}")
                         return "permanent_failure"
                     else:
                         error_messages.append(f"【{method_name}】失败: {message}")
@@ -283,7 +283,7 @@ async def search_and_select_course(course):
                         return True
                     elif result == "permanent_failure":
                         perm_msg = f"课程【{course['course_name']}】在【{module_name}】永久失败: {message}"
-                        logger.critical(perm_msg)
+                        logger.success(perm_msg)
                         await feishu("选课永久失败 ⛔", perm_msg)
                         return "permanent_failure"
                     else:
