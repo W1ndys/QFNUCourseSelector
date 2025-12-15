@@ -1,9 +1,6 @@
 import json
-import sys
 from pathlib import Path
 
-# 解决 Windows 终端中文乱码
-sys.stdout.reconfigure(encoding='utf-8')
 
 def check_single_pair(course_a, course_b, is_mock=False):
     # 1. 检查课程名称是否相同
