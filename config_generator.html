@@ -28,9 +28,10 @@
             max-width: 1000px;
             margin: 0 auto;
             background-color: var(--card-bg);
-            padding: 30px;
+            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
         h1, h2, h3 {
@@ -59,7 +60,7 @@
         input[type="password"],
         select {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 16px; /* Optimized for mobile readability and preventing zoom */
@@ -78,9 +79,17 @@
             background-color: #f8f9fa;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 20px;
+            padding: 15px;
             margin-bottom: 20px;
             position: relative;
+            transition: all 0.3s ease;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .course-card:hover {
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            background-color: #fff;
         }
 
         .remove-btn {
@@ -147,6 +156,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            animation: slideIn 0.3s ease-out;
         }
 
         .time-node input {
@@ -162,7 +172,7 @@
         textarea {
             width: 100%;
             height: 300px;
-            padding: 15px;
+            padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-family: 'Consolas', 'Monaco', monospace;
@@ -299,6 +309,17 @@
                 height: 200px;
             }
         }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -331,6 +352,8 @@
         <div class="text-center my-30">
             <button class="btn" onclick="addCourse()">+ 添加课程</button>
             <button class="btn btn-success" onclick="generateConfig()">生成配置文件</button>
+            <button class="btn" onclick="triggerImport()" style="background-color: #f39c12;">导入配置</button>
+            <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importConfig(this)">
         </div>
 
         <div class="output-area">
@@ -598,6 +621,60 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        function triggerImport() {
+            document.getElementById('import-file').click();
+        }
+
+        function importConfig(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    
+                    // 清空现有课程
+                    document.getElementById('courses-container').innerHTML = '';
+                    courseCount = 0;
+
+                    // 填充基本信息
+                    document.getElementById('user_account').value = config.user_account || '';
+                    document.getElementById('user_password').value = config.user_password || '';
+                    document.getElementById('feishu_webhook').value = config.feishu_webhook || '';
+
+                    // 填充课程信息
+                    if (config.courses && Array.isArray(config.courses)) {
+                        config.courses.forEach(course => {
+                            // 确定模式
+                            if (!course.mode) {
+                                // 尝试推断模式
+                                if (course.jx02id || course.jx0404id) {
+                                    course.mode = 'id';
+                                } else {
+                                    course.mode = 'search';
+                                }
+                            }
+                            addCourse(course);
+                        });
+                    }
+                    
+                    saveToCache();
+                    alert('配置导入成功！');
+                    
+                    // 自动生成一下预览
+                    generateConfig();
+                } catch (error) {
+                    console.error('导入失败:', error);
+                    alert('导入失败，请检查文件格式是否正确');
+                }
+                
+                // 清空 input 允许重复导入同一文件
+                input.value = '';
+            };
+            reader.readAsText(file);
         }
 
         // 缓存机制
