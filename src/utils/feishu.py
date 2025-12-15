@@ -10,11 +10,11 @@ def get_feishu_config():
             config = json.load(f)
         webhook = config.get("feishu_webhook")
         if not webhook:
-            logger.info("未配置飞书 webhook，跳过发送通知")
+            logger.info("未配置飞书 webhook, 跳过发送通知")
             return None
         return webhook
     except FileNotFoundError:
-        logger.info("未找到配置文件，跳过发送通知")
+        logger.info("未找到配置文件, 跳过发送通知")
         return None
 
 

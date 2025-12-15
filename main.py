@@ -51,7 +51,7 @@ async def handle_captcha() -> str | None:
     response = await session.get(RandCodeUrl)
 
     if response.status_code != 200:
-        logger.error(f"请求验证码失败，状态码: {response.status_code}")
+        logger.error(f"请求验证码失败, 状态码: {response.status_code}")
         return None
 
     try:
@@ -141,7 +141,7 @@ def get_user_config():
         with open("config.json", "w", encoding="utf-8") as f:
             json.dump(default_config, f, ensure_ascii=False, indent=2)
         logger.error(
-            "配置文件不存在，已创建默认配置文件 config.json\n请填写相关信息后重新运行程序"
+            "配置文件不存在, 已创建默认配置文件 config.json\n请填写相关信息后重新运行程序"
         )
         # 暂停让用户查看错误信息
         input("按回车键退出程序...")
@@ -175,7 +175,7 @@ def get_user_config():
                 input("按回车键退出程序...")
                 exit(1)
 
-            # 检查选课模式：要么填写jx02id和jx0404id，要么填写搜索参数
+            # 检查选课模式：要么填写jx02id和jx0404id, 要么填写搜索参数
             jx02id = course.get("jx02id", "").strip()
             jx0404id = course.get("jx0404id", "").strip()
             week_day = course.get("week_day", "").strip()
@@ -195,7 +195,7 @@ def get_user_config():
                 input("按回车键退出程序...")
                 exit(1)
 
-            # 如果使用搜索模式，验证参数格式
+            # 如果使用搜索模式, 验证参数格式
             if has_search_params:
                 # 验证week_day为1-7的数字
                 if not week_day.isdigit() or not (1 <= int(week_day) <= 7):
@@ -254,7 +254,7 @@ def get_user_config():
             config.get("courses", []),
         )
     except json.JSONDecodeError:
-        logger.error("配置文件格式错误，请检查 config.json 文件格式是否正确")
+        logger.error("配置文件格式错误, 请检查 config.json 文件格式是否正确")
         input("按回车键退出程序...")
         exit(1)
     except Exception as e:
@@ -269,10 +269,10 @@ async def simulate_login(user_account, user_password):
     返回: 是否登录成功
     """
     session = await get_session()
-    # 访问教务系统首页，获取必要的cookie
+    # 访问教务系统首页, 获取必要的cookie
     response = await session.get("http://zhjw.qfnu.edu.cn/jsxsd/")
     if response.status_code != 200:
-        logger.error("无法访问教务系统首页，请检查网络连接或教务系统的可用性。")
+        logger.error("无法访问教务系统首页, 请检查网络连接或教务系统的可用性。")
         return False
 
     # 获取必要的cookie
@@ -289,7 +289,7 @@ async def simulate_login(user_account, user_password):
 
         if response.status_code == 200:
             if "验证码错误" in response.text:
-                logger.warning(f"验证码识别错误，重试第 {attempt + 1} 次")
+                logger.warning(f"验证码识别错误, 重试第 {attempt + 1} 次")
                 continue
             if "密码错误" in response.text:
                 raise Exception("用户名或密码错误")
@@ -297,7 +297,7 @@ async def simulate_login(user_account, user_password):
         else:
             raise Exception("登录失败")
 
-    raise Exception("验证码识别错误，请重试")
+    raise Exception("验证码识别错误, 请重试")
 
 
 def print_welcome():
@@ -307,9 +307,9 @@ def print_welcome():
     logger.info("\n\n")
     logger.info(f"当前时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info("免责声明: ")
-    logger.info("1. 本脚本仅供学习和研究目的，用于了解网络编程和自动化技术的实现原理。")
+    logger.info("1. 本脚本仅供学习和研究目的, 用于了解网络编程和自动化技术的实现原理。")
     logger.info(
-        "2. 使用本脚本可能违反学校相关规定。使用者应自行承担因使用本脚本而产生的一切后果，包括但不限于："
+        "2. 使用本脚本可能违反学校相关规定。使用者应自行承担因使用本脚本而产生的一切后果, 包括但不限于："
     )
     logger.info("   - 账号被封禁")
     logger.info("   - 选课资格被取消")
@@ -329,7 +329,7 @@ def print_welcome():
 def get_course_key(course):
     """
     生成课程唯一标识
-    优先使用 jx02id 和 jx0404id，如果为空则使用 course_id + teacher_name + 搜索参数
+    优先使用 jx02id 和 jx0404id, 如果为空则使用 course_id + teacher_name + 搜索参数
     """
     jx02id = course.get("jx02id", "").strip()
     jx0404id = course.get("jx0404id", "").strip()
@@ -338,7 +338,7 @@ def get_course_key(course):
         return f"{jx02id}-{jx0404id}"
     else:
         # 使用课程ID、教师名和搜索参数作为唯一标识
-        # 由于class_times是列表，将其转换为字符串作为key的一部分
+        # 由于class_times是列表, 将其转换为字符串作为key的一部分
         class_times_str = "-".join(
             [
                 f"{t.get('week')}_{t.get('week_day')}_{t.get('class_period')}"
@@ -350,14 +350,14 @@ def get_course_key(course):
 
 async def select_courses(courses):
     """
-    蹲课模式：持续尝试选课，每个课程之间间隔0.5秒
-    依次遍历每个选课轮次，如果某课程在某轮次选课成功，则锁定该轮次
+    蹲课模式：持续尝试选课, 每个课程之间间隔0.5秒
+    依次遍历每个选课轮次, 如果某课程在某轮次选课成功, 则锁定该轮次
     """
     # 创建一个字典来跟踪每个课程的选课状态
     # 状态值：False=未选上, True=已选上, "permanent_failure"=永久失败
     course_status: dict[str, bool | str] = {get_course_key(c): False for c in courses}
 
-    # 记录每个课程锁定的轮次 ID，None 表示尚未锁定
+    # 记录每个课程锁定的轮次 ID, None 表示尚未锁定
     locked_rounds = {get_course_key(c): None for c in courses}
 
     # 对课程进行分组：相同课程名字和相同老师的视为同一组
@@ -381,11 +381,11 @@ async def select_courses(courses):
         for course in group_courses:
             course_key = get_course_key(course)
 
-            # 如果该课程已经选上或永久失败，则跳过
+            # 如果该课程已经选上或永久失败, 则跳过
             if course_status[course_key] is not False:
                 continue
 
-            # 如果该课程已经锁定了轮次，只在锁定的轮次尝试
+            # 如果该课程已经锁定了轮次, 只在锁定的轮次尝试
             if locked_rounds[course_key] is not None:
                 if locked_rounds[course_key] != round_id:
                     continue
@@ -398,16 +398,16 @@ async def select_courses(courses):
                     course_status[course_key] = True
                     locked_rounds[course_key] = round_id
                     logger.info(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功，已锁定该轮次"
+                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功, 已锁定该轮次"
                     )
                 elif result == "permanent_failure":
                     course_status[course_key] = "permanent_failure"
                     logger.critical(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】永久失败，不再重试"
+                        f"课程【{course['course_name']}-{course['teacher_name']}】永久失败, 不再重试"
                     )
                 else:
                     logger.info(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败，将尝试下一轮次"
+                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败, 将尝试下一轮次"
                     )
 
             except Exception as e:
@@ -430,7 +430,7 @@ async def select_courses(courses):
                 1 for status in course_status.values() if status == "permanent_failure"
             )
 
-            logger.info("所有课程处理完成，程序即将退出...")
+            logger.info("所有课程处理完成, 程序即将退出...")
             logger.info(f"总耗时: {end_time - start_time:.2f} 秒")
             logger.info(f"成功选上: {success_count} 门课程")
             if failed_count > 0:
@@ -446,7 +446,7 @@ async def select_courses(courses):
         all_rounds = await get_jx0502zbid(session)
         if not all_rounds:
             logger.warning(
-                "获取选课轮次失败，1秒后重试...若持续失败，可能是账号被踢，请重新运行脚本"
+                "获取选课轮次失败, 1秒后重试...若持续失败, 可能是账号被踢, 请重新运行脚本"
             )
             await asyncio.sleep(1)
             continue
@@ -485,20 +485,20 @@ async def select_courses(courses):
                 )
 
                 if not round_had_attempts:
-                    logger.debug(f"轮次【{round_name}】没有需要尝试的课程，跳过")
+                    logger.debug(f"轮次【{round_name}】没有需要尝试的课程, 跳过")
             else:
                 logger.debug(f"轮次【{round_name}】没有任务")
 
-            # 每个轮次之间稍微停顿一下，避免过快请求
+            # 每个轮次之间稍微停顿一下, 避免过快请求
             await asyncio.sleep(0.5)
 
-        logger.info("所有轮次尝试完成，准备重新开始...")
+        logger.info("所有轮次尝试完成, 准备重新开始...")
         await asyncio.sleep(0.5)
 
 
 async def main_async():
     """
-    主函数，协调整个程序的执行流程
+    主函数, 协调整个程序的执行流程
     """
     try:
         print_welcome()
@@ -524,13 +524,13 @@ async def main_async():
             try:
                 # 模拟登录
                 if not await simulate_login(user_account, user_password):
-                    logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+                    logger.error("无法建立会话, 请检查网络连接或教务系统的可用性。")
                     await asyncio.sleep(1)  # 添加重试间隔
                     continue  # 重试登录
 
                 session = await get_session()
                 if not session:
-                    logger.error("无法建立会话，请检查网络连接或教务系统的可用性。")
+                    logger.error("无法建立会话, 请检查网络连接或教务系统的可用性。")
                     await asyncio.sleep(1)
                     continue
 
@@ -550,14 +550,14 @@ async def main_async():
                                 logger.error(f"访问页面失败: {str(e)}")
                                 raise
                             logger.warning(
-                                f"访问页面失败，正在进行第{attempt + 2}次尝试"
+                                f"访问页面失败, 正在进行第{attempt + 2}次尝试"
                             )
                             continue
 
                 # 获取选课轮次列表
                 all_rounds = await get_jx0502zbid(session)
                 while not all_rounds:
-                    logger.warning("获取选课轮次失败，1秒后重试...")
+                    logger.warning("获取选课轮次失败, 1秒后重试...")
                     await asyncio.sleep(1)
                     all_rounds = await get_jx0502zbid(session)
 
@@ -571,7 +571,7 @@ async def main_async():
                 break  # 成功后退出循环
 
             except Exception as e:
-                logger.error(f"发生错误: {str(e)}，正在重新登录...")
+                logger.error(f"发生错误: {str(e)}, 正在重新登录...")
                 await asyncio.sleep(1)
                 continue  # 重新登录
     except KeyboardInterrupt:

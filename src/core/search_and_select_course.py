@@ -77,7 +77,7 @@ def find_matching_course_in_results(results, course):
         course: 课程配置信息
 
     Returns:
-        dict: 包含jx02id和jx0404id的字典，如果未找到则返回None
+        dict: 包含jx02id和jx0404id的字典, 如果未找到则返回None
     """
     target_course_id = course.get("course_id", "").strip()
     target_teacher = course.get("teacher_name", "").strip()
@@ -96,14 +96,14 @@ def find_matching_course_in_results(results, course):
 
     for result in results:
         # 1. 优先匹配课程ID (kch)
-        # 注意：接口返回的字段中课程号通常是 kch 或 kcbh，这里尝试获取
-        # 如果没有kch字段，尝试从kcmc判断或跳过此检查（视情况而定，这里假设有kch）
+        # 注意：接口返回的字段中课程号通常是 kch 或 kcbh, 这里尝试获取
+        # 如果没有kch字段, 尝试从kcmc判断或跳过此检查（视情况而定, 这里假设有kch）
         result_kch = result.get("kch", "").strip()
         if not result_kch:
-             # 备用：有些接口可能不返回kch，尝试用kcxx或其他，或者暂时忽略ID强匹配
+             # 备用：有些接口可能不返回kch, 尝试用kcxx或其他, 或者暂时忽略ID强匹配
              pass
         elif target_course_id and target_course_id not in result_kch:
-            # 如果明确有ID且不匹配，则跳过
+            # 如果明确有ID且不匹配, 则跳过
             continue
 
         # 2. 匹配教师姓名
@@ -146,8 +146,8 @@ def find_matching_course_in_results(results, course):
 async def search_and_select_course(course):
     """
     根据配置进行选课：
-    1. 如果配置了jx02id和jx0404id，直接发送选课请求
-    2. 如果未配置，则依次在各模块搜索，搜到即选
+    1. 如果配置了jx02id和jx0404id, 直接发送选课请求
+    2. 如果未配置, 则依次在各模块搜索, 搜到即选
     """
     try:
         logger.info(
@@ -158,7 +158,7 @@ async def search_and_select_course(course):
         base_required_keys = ["course_name", "course_id", "teacher_name"]
         if not all(key in course for key in base_required_keys):
             logger.error(
-                f"课程信息缺少必要的字段，需要: {', '.join(base_required_keys)}"
+                f"课程信息缺少必要的字段, 需要: {', '.join(base_required_keys)}"
             )
             return False
 
@@ -250,7 +250,7 @@ async def search_and_select_course(course):
                 )
 
                 if not results:
-                    # 当前模块未搜到，继续下一个模块
+                    # 当前模块未搜到, 继续下一个模块
                     continue
                 
                 search_found = True
@@ -266,7 +266,7 @@ async def search_and_select_course(course):
                 current_jx0404id = match_ids["jx0404id"]
                 course_data = {"jx02id": current_jx02id, "jx0404id": current_jx0404id}
                 
-                logger.info(f"在【{module_name}】找到课程，尝试选课: jx02id={current_jx02id}")
+                logger.info(f"在【{module_name}】找到课程, 尝试选课: jx02id={current_jx02id}")
                 
                 try:
                     result_data = await select_func(course["course_id"], course_data)
@@ -288,7 +288,7 @@ async def search_and_select_course(course):
                         return "permanent_failure"
                     else:
                         error_messages.append(f"【{module_name}】选课失败: {message}")
-                        # 选课失败，虽然搜到了，但可能需要继续在其他模块尝试（虽然不太可能在其他模块能选，但保持逻辑完整）
+                        # 选课失败, 虽然搜到了, 但可能需要继续在其他模块尝试（虽然不太可能在其他模块能选, 但保持逻辑完整）
                         continue
                         
                 except Exception as e:
@@ -300,7 +300,7 @@ async def search_and_select_course(course):
 
         if error_messages:
             error_summary = (
-                f"课程【{course['course_name']}-{course['teacher_name']}】选课失败，错误汇总：\n"
+                f"课程【{course['course_name']}-{course['teacher_name']}】选课失败, 错误汇总：\n"
                 + "\n".join(error_messages)
             )
             logger.error(error_summary)

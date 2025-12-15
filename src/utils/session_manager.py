@@ -26,7 +26,7 @@ async def init_session():
 
 
 async def get_session():
-    """获取当前会话，如果不存在则初始化"""
+    """获取当前会话, 如果不存在则初始化"""
     global _session
     if _session is None:
         return await init_session()

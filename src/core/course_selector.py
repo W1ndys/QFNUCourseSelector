@@ -11,7 +11,7 @@ async def get_jx0502zbid(session):
     Args:
         session: 请求会话
     Returns:
-        list: 选课轮次编号列表，每个元素是一个字典，包含 jx0502zbid 和 name
+        list: 选课轮次编号列表, 每个元素是一个字典, 包含 jx0502zbid 和 name
     Raises:
         httpx.RequestError: 当网络请求失败时
     """
