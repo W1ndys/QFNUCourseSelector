@@ -422,7 +422,10 @@ async def select_courses(courses):
 
             await feishu(
                 "曲阜师范大学教务系统抢课脚本",
-                f"所有课程处理完成\n成功选上: {success_count} 门\n永久失败: {failed_count} 门\n总耗时: {end_time - start_time:.2f} 秒",
+                f"所有课程处理完成\n"
+                f"成功选上: {success_count} 门\n"
+                f"永久失败: {failed_count} 门\n"
+                f"总耗时: {end_time - start_time:.3f} 秒",
             )
             return True
 
