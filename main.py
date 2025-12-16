@@ -344,60 +344,10 @@ async def select_courses(courses):
     # 记录每个课程锁定的轮次 ID, None 表示尚未锁定
     locked_rounds = {get_course_key(c): None for c in courses}
 
-    # 对课程进行分组：相同课程名字和相同老师的视为同一组
-    course_groups = {}
-    for course in courses:
-        group_key = (course["course_name"], course["teacher_name"])
-        if group_key not in course_groups:
-            course_groups[group_key] = []
-        course_groups[group_key].append(course)
-
     start_time = time.time()  # 记录开始时间
     await feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
 
     session = await get_session()
-
-    async def process_group(group_courses, round_id, round_name):
-        """
-        处理单个课程组：组内串行执行
-        """
-        group_attempted = False
-        for course in group_courses:
-            course_key = get_course_key(course)
-
-            # 如果该课程已经选上或永久失败, 则跳过
-            if course_status[course_key] is not False:
-                continue
-
-            # 如果该课程已经锁定了轮次, 只在锁定的轮次尝试
-            if locked_rounds[course_key] is not None:
-                if locked_rounds[course_key] != round_id:
-                    continue
-
-            group_attempted = True
-            try:
-                result = await search_and_select_course(course)
-
-                if result is True:
-                    course_status[course_key] = True
-                    locked_rounds[course_key] = round_id
-                    logger.success(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功, 已锁定该轮次"
-                    )
-                elif result == "permanent_failure":
-                    course_status[course_key] = "permanent_failure"
-                    logger.success(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】永久失败, 不再重试"
-                    )
-                else:
-                    logger.success(
-                        f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败, 将尝试下一轮次"
-                    )
-
-            except Exception as e:
-                logger.error(f"课程【{course['course_name']}】选课异常: {str(e)}")
-
-        return group_attempted
 
     # 蹲课模式：持续执行选课操作
     while True:
@@ -457,24 +407,45 @@ async def select_courses(courses):
                 logger.error(f"访问选课页面失败: {e}")
                 continue
 
-            # 创建并发任务：每个课程组作为一个任务并行执行
-            group_tasks = []
-            for group_courses in course_groups.values():
-                group_tasks.append(process_group(group_courses, round_id, round_name))
+            # 按照配置顺序串行执行每个课程
+            round_had_attempts = False
+            for course in courses:
+                course_key = get_course_key(course)
 
-            if group_tasks:
-                # 并发执行所有组
-                results = await asyncio.gather(*group_tasks, return_exceptions=True)
+                # 如果该课程已经选上或永久失败, 则跳过
+                if course_status[course_key] is not False:
+                    continue
 
-                # 检查是否有任何组进行了尝试
-                round_had_attempts = any(
-                    res is True for res in results if not isinstance(res, Exception)
-                )
+                # 如果该课程已经锁定了轮次, 只在锁定的轮次尝试
+                if locked_rounds[course_key] is not None:
+                    if locked_rounds[course_key] != round_id:
+                        continue
 
-                if not round_had_attempts:
-                    logger.debug(f"轮次【{round_name}】没有需要尝试的课程, 跳过")
-            else:
-                logger.debug(f"轮次【{round_name}】没有任务")
+                round_had_attempts = True
+                try:
+                    result = await search_and_select_course(course)
+
+                    if result is True:
+                        course_status[course_key] = True
+                        locked_rounds[course_key] = round_id
+                        logger.success(
+                            f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课成功, 已锁定该轮次"
+                        )
+                    elif result == "permanent_failure":
+                        course_status[course_key] = "permanent_failure"
+                        logger.success(
+                            f"课程【{course['course_name']}-{course['teacher_name']}】永久失败, 不再重试"
+                        )
+                    else:
+                        logger.info(
+                            f"课程【{course['course_name']}-{course['teacher_name']}】在轮次【{round_name}】选课失败, 将尝试下一轮次"
+                        )
+
+                except Exception as e:
+                    logger.error(f"课程【{course['course_name']}】选课异常: {str(e)}")
+
+            if not round_had_attempts:
+                logger.debug(f"轮次【{round_name}】没有需要尝试的课程, 跳过")
 
             # 每个轮次之间稍微停顿一下, 避免过快请求
             await asyncio.sleep(0.5)
