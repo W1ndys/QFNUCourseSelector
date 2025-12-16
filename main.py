@@ -506,8 +506,8 @@ def main():
         user_account, user_password, courses, start_time = get_user_config()
 
         # 添加文件日志
-        start_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file_path = os.path.join("logs", f"{user_account}_{start_time}.log")
+        log_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file_path = os.path.join("logs", f"{user_account}_{log_time_str}.log")
         logger.add(
             log_file_path,
             encoding="utf-8",
