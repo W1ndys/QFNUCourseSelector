@@ -71,7 +71,13 @@ uv run main.py
 
 ### 4. 配置文件说明
 
-`config.json` 配置示例：
+💡 **提示：建议使用 [配置生成器](./config_generator.html) 生成配置文件，简单快捷，不易出错！**
+
+1. 浏览器打开项目目录下的 `config_generator.html`
+2. 填写相关信息
+3. 点击“生成配置文件”并保存为 `config.json`
+
+手动配置示例（`config.json`）：
 
 ```json
 {
