@@ -3,18 +3,12 @@ import sys
 import json
 import time
 import datetime
-import traceback
-import asyncio
 from io import BytesIO
 
 from PIL import Image
 from dotenv import load_dotenv
 from loguru import logger
 
-# 添加项目根目录到sys.path以支持相对导入
-project_root = os.path.dirname(os.path.abspath(__file__))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
 
 from src.utils.captcha_ocr import get_ocr_res
 from src.core.course_selector import get_jx0502zbid
@@ -28,6 +22,7 @@ from src.utils.feishu import feishu
 if not os.path.exists("logs"):
     os.makedirs("logs")
 logger.remove()
+
 # 设置控制台输出
 logger.add(
     sys.stderr,
@@ -454,6 +449,45 @@ def select_courses(courses):
         time.sleep(0.5)
 
 
+def wait_for_start_time():
+    """
+    等待直到下一个整点前10秒
+    如果在整点后10分钟内，则直接启动
+    """
+    now = datetime.datetime.now()
+
+    # 检查是否在整点后10分钟内
+    current_hour = now.replace(minute=0, second=0, microsecond=0)
+    ten_minutes_after = current_hour + datetime.timedelta(minutes=10)
+
+    if now < ten_minutes_after:
+        logger.info("当前时间在整点后10分钟内，直接启动")
+        return
+
+    # 计算下一个整点
+    next_hour = (now + datetime.timedelta(hours=1)).replace(
+        minute=0, second=0, microsecond=0
+    )
+    target_time = next_hour - datetime.timedelta(seconds=10)
+
+    if now >= target_time:
+        return
+
+    logger.info(f"正在等待启动... 目标时间: {target_time}")
+
+    while True:
+        now = datetime.datetime.now()
+        if now >= target_time:
+            break
+
+        remaining = (target_time - now).total_seconds()
+        logger.info(
+            f"当前时间: {now.strftime('%Y-%m-%d %H:%M:%S')} | 启动时间: {target_time.strftime('%Y-%m-%d %H:%M:%S')} | 距离启动还剩: {int(remaining)} 秒"
+        )
+
+        time.sleep(min(5, remaining))
+
+
 def main():
     """
     主函数, 协调整个程序的执行流程
@@ -477,6 +511,8 @@ def main():
         if user_account:
             logger.info("成功获取配置文件")
             logger.info(f"用户名: {user_account}")
+
+        wait_for_start_time()
 
         while True:  # 添加外层循环
             try:
@@ -539,7 +575,6 @@ def main():
         logger.info("用户手动终止程序")
     except Exception as e:
         logger.error(f"程序发生未预期的错误: {str(e)}")
-        logger.error(traceback.format_exc())
         input("按回车键退出程序...")
 
 
