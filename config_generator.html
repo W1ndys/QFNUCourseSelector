@@ -159,6 +159,18 @@
                     </el-col>
                 </el-row>
 
+                <el-row :gutter="20">
+                    <el-col :span="24">
+                        <el-form-item label="选课轮次关键词 (选填)">
+                            <el-input v-model="form.target_round_keyword"
+                                placeholder="例如：2022级选课"></el-input>
+                            <div class="help-text">
+                                程序扫描选课轮次的时候，会优先处理选课轮次名称里包含预设关键词的选课轮次，如果该字段为空或未设置，则默认按顺序获取所有选课轮次执行
+                            </div>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
                 <transition-group name="list" tag="div">
                     <el-card v-for="(course, index) in form.courses" :key="course.key" class="course-card">
                         <template #header>
@@ -328,6 +340,7 @@
                     user_password: '',
                     feishu_webhook: '',
                     start_time: '',
+                    target_round_keyword: '',
                     courses: []
                 });
 
@@ -414,6 +427,7 @@
                         user_password: form.user_password,
                         feishu_webhook: form.feishu_webhook,
                         start_time: form.start_time,
+                        target_round_keyword: form.target_round_keyword,
                         courses: form.courses.map(c => {
                             // Filter incomplete time nodes
                             const validTimes = c.class_times.filter(t => t.week && t.week_day && t.class_period);
@@ -489,6 +503,7 @@
                             form.user_password = config.user_password || '';
                             form.feishu_webhook = config.feishu_webhook || '';
                             form.start_time = config.start_time || '';
+                            form.target_round_keyword = config.target_round_keyword || '';
 
                             form.courses = [];
                             if (config.courses && Array.isArray(config.courses)) {
@@ -523,6 +538,7 @@
                         user_password: form.user_password,
                         feishu_webhook: form.feishu_webhook,
                         start_time: form.start_time,
+                        target_round_keyword: form.target_round_keyword,
                         courses: form.courses
                     };
                     localStorage.setItem('qfnu_course_config_v2', JSON.stringify(dataToCache));
@@ -537,6 +553,7 @@
                             form.user_password = data.user_password || '';
                             form.feishu_webhook = data.feishu_webhook || '';
                             form.start_time = data.start_time || '';
+                            form.target_round_keyword = data.target_round_keyword || '';
                             if (data.courses && Array.isArray(data.courses)) {
                                 data.courses.forEach(c => {
                                     // Ensure key is unique
