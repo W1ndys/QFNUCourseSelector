@@ -33,26 +33,26 @@ def check_single_pair(course_a, course_b, is_mock=False, report_file=None):
 
     if conflict_times:
         msgs = []
-        title = "【模拟演示：发现符合条件的课程对】" if is_mock else "【发现符合条件的课程对】"
+        title = "### 模拟演示：发现符合条件的课程对" if is_mock else "### 发现符合条件的课程对"
         msgs.append(f"\n{title}")
-        msgs.append(f"课程名称: {course_a.get('kcmc')}")
-        msgs.append(f"课程号 (kch): {course_a.get('kch')}")
-        msgs.append(f"共有老师: {', '.join(common_teachers)}")
-        msgs.append(f"\n--- 课程 A (jx0404id: {course_a.get('jx0404id')}) ---")
-        msgs.append(f"老师: {course_a.get('skls')}")
-        msgs.append(f"上课时间描述: {course_a.get('sksj')}")
+        msgs.append(f"- **课程名称**: {course_a.get('kcmc')}")
+        msgs.append(f"- **课程号 (kch)**: {course_a.get('kch')}")
+        msgs.append(f"- **共有老师**: {', '.join(common_teachers)}")
         
-        msgs.append(f"\n--- 课程 B (jx0404id: {course_b.get('jx0404id')}) ---")
-        msgs.append(f"老师: {course_b.get('skls')}")
-        msgs.append(f"上课时间描述: {course_b.get('sksj')}")
+        msgs.append(f"\n#### 课程 A (jx0404id: {course_a.get('jx0404id')})")
+        msgs.append(f"- **老师**: {course_a.get('skls')}")
+        msgs.append(f"- **上课时间描述**: {course_a.get('sksj')}")
+        
+        msgs.append(f"\n#### 课程 B (jx0404id: {course_b.get('jx0404id')})")
+        msgs.append(f"- **老师**: {course_b.get('skls')}")
+        msgs.append(f"- **上课时间描述**: {course_b.get('sksj')}")
 
-        msgs.append(f"\n--- 具体冲突的时间点 (周次, 星期, 节次) [共 {len(conflict_times)} 个] ---")
+        msgs.append(f"\n#### 具体冲突的时间点 (周次, 星期, 节次) [共 {len(conflict_times)} 个]")
+        msgs.append("| 周次 | 星期 | 节次 |")
+        msgs.append("| --- | --- | --- |")
         for idx, (zc, xq, jc) in enumerate(conflict_times):
-            if idx >= 10:
-                msgs.append(f"... 等共 {len(conflict_times)} 个冲突时间点")
-                break
-            msgs.append(f"周次: {zc}, 星期: {xq}, 节次: {jc}")
-        msgs.append("=" * 50)
+            msgs.append(f"| {zc} | {xq} | {jc} |")
+        msgs.append("\n" + "-" * 50)
         
         full_msg = "\n".join(msgs)
         print(full_msg)
@@ -106,11 +106,10 @@ def check_conflicts():
     print(f"Found {len(json_files)} JSON files to process.")
     
     any_conflicts_found = False
-    report_path = Path('conflict_report.txt')
+    report_path = Path('conflict_report.md')
 
     with report_path.open('w', encoding='utf-8') as report_file:
-        report_file.write("Conflict Detection Report\n")
-        report_file.write("=========================\n")
+        report_file.write("# Conflict Detection Report\n\n")
 
         for file_path in json_files:
             print(f"\n{'='*20} Processing: {file_path.name} {'='*20}")
