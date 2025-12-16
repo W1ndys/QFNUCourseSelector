@@ -1,13 +1,13 @@
 from loguru import logger
-from .send_course_data import (
+from src.core.send_course_data import (
     send_ggxxkxkOper_course_jx02id_and_jx0404id,
     send_knjxkOper_course_jx02id_and_jx0404id,
     send_bxqjhxkOper_course_jx02id_and_jx0404id,
     send_xxxkOper_course_jx02id_and_jx0404id,
     send_fawxkOper_course_jx02id_and_jx0404id,
 )
-from ..utils.feishu import feishu
-from ..utils.session_manager import get_session
+from src.utils.feishu import feishu
+from src.utils.session_manager import get_session
 
 
 def search_course_in_url(session, url, course_id, teacher_name, week_day, class_period):
