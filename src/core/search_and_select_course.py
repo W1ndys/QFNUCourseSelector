@@ -77,10 +77,12 @@ def find_matching_course_in_results(results, course):
         course: 课程配置信息
 
     Returns:
-        dict: 包含jx02id和jx0404id的字典, 如果未找到则返回None
+        list: 包含jx02id和jx0404id的字典列表
     """
     target_course_id = course.get("course_id", "").strip()
     target_teacher = course.get("teacher_name", "").strip()
+    
+    matches = []
 
     def normalize_str(val):
         """
@@ -146,9 +148,9 @@ def find_matching_course_in_results(results, course):
                     f"找到匹配的课程: {result.get('kcmc', '未知')}, "
                     f"jx02id={jx02id}, jx0404id={jx0404id}"
                 )
-                return {"jx02id": jx02id, "jx0404id": jx0404id}
+                matches.append({"jx02id": jx02id, "jx0404id": jx0404id})
     
-    return None
+    return matches
 
 
 async def search_and_select_course(course):
@@ -264,44 +266,45 @@ async def search_and_select_course(course):
                 search_found = True
                 
                 # 2. 匹配
-                match_ids = find_matching_course_in_results(results, course)
-                if not match_ids:
+                matched_list = find_matching_course_in_results(results, course)
+                if not matched_list:
                     logger.debug(f"在【{module_name}】搜到课程但不匹配期望时间")
                     continue
                 
-                # 3. 选课
-                current_jx02id = match_ids["jx02id"]
-                current_jx0404id = match_ids["jx0404id"]
-                course_data = {"jx02id": current_jx02id, "jx0404id": current_jx0404id}
-                
-                logger.info(f"在【{module_name}】找到课程, 尝试选课: jx02id={current_jx02id}")
-                
-                try:
-                    result_data = await select_func(course["course_id"], course_data)
+                # 3. 选课 (遍历所有匹配项)
+                for match_item in matched_list:
+                    current_jx02id = match_item["jx02id"]
+                    current_jx0404id = match_item["jx0404id"]
+                    course_data = {"jx02id": current_jx02id, "jx0404id": current_jx0404id}
                     
-                    if result_data is None:
-                        error_messages.append(f"【{module_name}】选课异常: 返回None")
-                        continue
-
-                    result, message = result_data
+                    logger.info(f"在【{module_name}】找到课程, 尝试选课: jx02id={current_jx02id}, jx0404id={current_jx0404id}")
                     
-                    if result is True:
-                        success_msg = f"课程【{course['course_name']}-{course['teacher_name']}】通过【{module_name}】选课成功！"
-                        await feishu("选课成功 🎉", success_msg)
-                        return True
-                    elif result == "permanent_failure":
-                        perm_msg = f"课程【{course['course_name']}】在【{module_name}】永久失败: {message}"
-                        logger.success(perm_msg)
-                        await feishu("选课永久失败 ⛔", perm_msg)
-                        return "permanent_failure"
-                    else:
-                        error_messages.append(f"【{module_name}】选课失败: {message}")
-                        # 选课失败, 虽然搜到了, 但可能需要继续在其他模块尝试（虽然不太可能在其他模块能选, 但保持逻辑完整）
-                        continue
+                    try:
+                        result_data = await select_func(course["course_id"], course_data)
                         
-                except Exception as e:
-                    error_messages.append(f"【{module_name}】执行异常: {str(e)}")
-                    continue
+                        if result_data is None:
+                            error_messages.append(f"【{module_name}】选课异常: 返回None")
+                            continue
+
+                        result, message = result_data
+                        
+                        if result is True:
+                            success_msg = f"课程【{course['course_name']}-{course['teacher_name']}】通过【{module_name}】选课成功！"
+                            await feishu("选课成功 🎉", success_msg)
+                            return True
+                        elif result == "permanent_failure":
+                            perm_msg = f"课程【{course['course_name']}】在【{module_name}】永久失败: {message}"
+                            logger.success(perm_msg)
+                            await feishu("选课永久失败 ⛔", perm_msg)
+                            return "permanent_failure"
+                        else:
+                            error_messages.append(f"【{module_name}】选课失败: {message}")
+                            # 继续尝试下一个匹配项
+                            continue
+                            
+                    except Exception as e:
+                        error_messages.append(f"【{module_name}】执行异常: {str(e)}")
+                        continue
 
             if not search_found:
                  logger.warning(f"课程【{course['course_name']}-{course['teacher_name']}】在所有模块均未搜索到")
