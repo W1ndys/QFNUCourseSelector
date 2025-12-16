@@ -142,11 +142,22 @@
                     </el-col>
                 </el-row>
 
-                <el-form-item label="飞书 Webhook (选填)">
-                    <el-input v-model="form.feishu_webhook"
-                        placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..."></el-input>
-                    <div class="help-text">用于接收选课结果通知，不填则不发送通知</div>
-                </el-form-item>
+                <el-row :gutter="20">
+                    <el-col :span="12" :xs="24">
+                        <el-form-item label="启动时间 (选填)">
+                            <el-time-picker v-model="form.start_time" placeholder="选择启动时间" value-format="HH:mm:ss"
+                                class="full-width"></el-time-picker>
+                            <div class="help-text">设置程序自动启动的时间，格式 HH:MM:SS，不填则直接启动</div>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12" :xs="24">
+                        <el-form-item label="飞书 Webhook (选填)">
+                            <el-input v-model="form.feishu_webhook"
+                                placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..."></el-input>
+                            <div class="help-text">用于接收选课结果通知，不填则不发送通知</div>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
 
                 <transition-group name="list" tag="div">
                     <el-card v-for="(course, index) in form.courses" :key="course.key" class="course-card">
@@ -237,7 +248,7 @@
                                     </el-select>
                                     <el-select v-model="time.class_period" placeholder="节次" size="small"
                                         class="time-select-period">
-                                        <el-option v-for="i in 12" :key="i" :label="String(i).padStart(2, '0')"
+                                        <el-option v-for="i in 13" :key="i" :label="String(i).padStart(2, '0')"
                                             :value="String(i).padStart(2, '0')"></el-option>
                                     </el-select>
                                     <el-button type="danger" circle size="small"
@@ -316,6 +327,7 @@
                     user_account: '',
                     user_password: '',
                     feishu_webhook: '',
+                    start_time: '',
                     courses: []
                 });
 
@@ -366,14 +378,45 @@
                 };
 
                 const generateConfig = () => {
+                    // Validate required fields
+                    if (!form.user_account || !form.user_password) {
+                        ElementPlus.ElMessage.warning('请填写学号和密码');
+                        return;
+                    }
+
+                    for (let i = 0; i < form.courses.length; i++) {
+                        const c = form.courses[i];
+                        if (!c.course_name || !c.course_id || !c.teacher_name) {
+                            ElementPlus.ElMessage.warning(`课程 #${i + 1} 信息不完整（需填写名称、编号、教师）`);
+                            return;
+                        }
+                        if (c.mode === 'id') {
+                            if (!c.jx02id || !c.jx0404id) {
+                                ElementPlus.ElMessage.warning(`课程 #${i + 1} ID模式需填写 jx02id 和 jx0404id`);
+                                return;
+                            }
+                        } else {
+                            if (!c.week_day || !c.class_period) {
+                                ElementPlus.ElMessage.warning(`课程 #${i + 1} 搜索模式需填写搜索星期和节次范围`);
+                                return;
+                            }
+                            const validTimes = c.class_times.filter(t => t.week && t.week_day && t.class_period);
+                            if (validTimes.length === 0) {
+                                ElementPlus.ElMessage.warning(`课程 #${i + 1} 搜索模式需至少填写一个完整的时间节点`);
+                                return;
+                            }
+                        }
+                    }
+
                     // Deep copy to avoid modifying reactive state during processing
                     const configToExport = {
                         user_account: form.user_account,
                         user_password: form.user_password,
                         feishu_webhook: form.feishu_webhook,
+                        start_time: form.start_time,
                         courses: form.courses.map(c => {
-                            // Filter empty strings from class_times
-                            const validTimes = c.class_times.filter(t => t.week || t.week_day || t.class_period);
+                            // Filter incomplete time nodes
+                            const validTimes = c.class_times.filter(t => t.week && t.week_day && t.class_period);
 
                             const courseData = {
                                 course_name: c.course_name,
@@ -445,6 +488,7 @@
                             form.user_account = config.user_account || '';
                             form.user_password = config.user_password || '';
                             form.feishu_webhook = config.feishu_webhook || '';
+                            form.start_time = config.start_time || '';
 
                             form.courses = [];
                             if (config.courses && Array.isArray(config.courses)) {
@@ -478,6 +522,7 @@
                         user_account: form.user_account,
                         user_password: form.user_password,
                         feishu_webhook: form.feishu_webhook,
+                        start_time: form.start_time,
                         courses: form.courses
                     };
                     localStorage.setItem('qfnu_course_config_v2', JSON.stringify(dataToCache));
@@ -491,6 +536,7 @@
                             form.user_account = data.user_account || '';
                             form.user_password = data.user_password || '';
                             form.feishu_webhook = data.feishu_webhook || '';
+                            form.start_time = data.start_time || '';
                             if (data.courses && Array.isArray(data.courses)) {
                                 data.courses.forEach(c => {
                                     // Ensure key is unique

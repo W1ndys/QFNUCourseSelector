@@ -112,6 +112,7 @@ def get_user_config():
         user_account: 用户账号
         user_password: 用户密码
         courses: 课程列表
+        start_time: 启动时间 (HH:MM:SS)
     """
     # 检查配置文件是否存在
     if not os.path.exists("config.json"):
@@ -120,6 +121,7 @@ def get_user_config():
             "user_account": "你的学号",
             "user_password": "你的教务系统密码",
             "feishu_webhook": "",
+            "start_time": "",
             "courses": [
                 {
                     "course_name": "你的课程名称",
@@ -247,6 +249,7 @@ def get_user_config():
             config["user_account"],
             config["user_password"],
             config.get("courses", []),
+            config.get("start_time", ""),
         )
     except json.JSONDecodeError:
         logger.error("配置文件格式错误, 请检查 config.json 文件格式是否正确")
@@ -449,43 +452,43 @@ def select_courses(courses):
         time.sleep(0.5)
 
 
-def wait_for_start_time():
+def wait_for_start_time(start_time_str):
     """
-    等待直到下一个整点前10秒
-    如果在整点后10分钟内，则直接启动
+    等待直到指定启动时间
+    如果未配置启动时间，则直接启动
     """
-    now = datetime.datetime.now()
-
-    # 检查是否在整点后10分钟内
-    current_hour = now.replace(minute=0, second=0, microsecond=0)
-    ten_minutes_after = current_hour + datetime.timedelta(minutes=10)
-
-    if now < ten_minutes_after:
-        logger.info("当前时间在整点后10分钟内，直接启动")
+    if not start_time_str:
+        logger.info("未配置启动时间，直接启动")
         return
 
-    # 计算下一个整点
-    next_hour = (now + datetime.timedelta(hours=1)).replace(
-        minute=0, second=0, microsecond=0
-    )
-    target_time = next_hour - datetime.timedelta(seconds=10)
-
-    if now >= target_time:
-        return
-
-    logger.info(f"正在等待启动... 目标时间: {target_time}")
-
-    while True:
+    try:
+        # 解析启动时间
         now = datetime.datetime.now()
-        if now >= target_time:
-            break
+        target_time = datetime.datetime.strptime(start_time_str, "%H:%M:%S").time()
+        target_datetime = datetime.datetime.combine(now.date(), target_time)
 
-        remaining = (target_time - now).total_seconds()
-        logger.info(
-            f"当前时间: {now.strftime('%Y-%m-%d %H:%M:%S')} | 启动时间: {target_time.strftime('%Y-%m-%d %H:%M:%S')} | 距离启动还剩: {int(remaining)} 秒"
-        )
+        # 如果目标时间已经过了，则设置为明天的这个时间
+        if now > target_datetime:
+            target_datetime += datetime.timedelta(days=1)
 
-        time.sleep(min(5, remaining))
+        logger.info(f"已配置启动时间: {start_time_str}")
+        logger.info(f"目标启动时间: {target_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+
+        while True:
+            now = datetime.datetime.now()
+            if now >= target_datetime:
+                break
+
+            remaining = (target_datetime - now).total_seconds()
+            logger.info(
+                f"当前时间: {now.strftime('%Y-%m-%d %H:%M:%S')} | 启动时间: {target_datetime.strftime('%Y-%m-%d %H:%M:%S')} | 距离启动还剩: {int(remaining)} 秒"
+            )
+
+            time.sleep(1)  # 每秒打印一次
+
+    except ValueError:
+        logger.error("启动时间格式错误，请使用 HH:MM:SS 格式 (例如 13:59:50)")
+        logger.info("将直接启动程序")
 
 
 def main():
@@ -496,7 +499,7 @@ def main():
         print_welcome()
 
         # 获取环境变量
-        user_account, user_password, courses = get_user_config()
+        user_account, user_password, courses, start_time = get_user_config()
 
         # 添加文件日志
         start_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -512,7 +515,7 @@ def main():
             logger.info("成功获取配置文件")
             logger.info(f"用户名: {user_account}")
 
-        wait_for_start_time()
+        wait_for_start_time(start_time)
 
         while True:  # 添加外层循环
             try:
