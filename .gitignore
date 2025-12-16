@@ -175,3 +175,4 @@ config.json
 
 # Cursor 配置文件
 .cursorrules
+.spec-workflow
