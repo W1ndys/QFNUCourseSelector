@@ -12,8 +12,8 @@ def check_single_pair(course_a, course_b, is_mock=False):
         return False
 
     # 3. 检查是否含有相同老师
-    teachers_a = set(t.strip() for t in course_a.get('skls', '').split(',') if t.strip())
-    teachers_b = set(t.strip() for t in course_b.get('skls', '').split(',') if t.strip())
+    teachers_a = set(t.strip() for t in (course_a.get('skls') or '').split(',') if t.strip())
+    teachers_b = set(t.strip() for t in (course_b.get('skls') or '').split(',') if t.strip())
     
     common_teachers = teachers_a.intersection(teachers_b)
     if not common_teachers:
