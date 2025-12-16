@@ -1,11 +1,11 @@
 import re
 from typing import Optional
 from bs4 import BeautifulSoup
-import httpx
+import requests
 from loguru import logger
 
 
-async def get_jx0502zbid(session):
+def get_jx0502zbid(session):
     """
     获取教务系统中的所有选课轮次编号列表
     Args:
@@ -13,13 +13,13 @@ async def get_jx0502zbid(session):
     Returns:
         list: 选课轮次编号列表, 每个元素是一个字典, 包含 jx0502zbid 和 name
     Raises:
-        httpx.RequestError: 当网络请求失败时
+        requests.RequestException: 当网络请求失败时
     """
     url = "http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xklc_list"
     jx0502zbid_pattern = re.compile(r"jx0502zbid=([^&]+)")
 
     try:
-        response = await session.get(url)
+        response = session.get(url)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
@@ -49,7 +49,7 @@ async def get_jx0502zbid(session):
 
         return rounds
 
-    except httpx.RequestError as e:
+    except requests.RequestException as e:
         logger.error(f"请求选课页面失败: {str(e)}")
         raise
     except Exception as e:

@@ -32,12 +32,12 @@ def check_permanent_failure(message):
     return False, None
 
 
-async def send_ggxxkxkOper_course_jx02id_and_jx0404id(
+def send_ggxxkxkOper_course_jx02id_and_jx0404id(
     course_name, course_jx02id_and_jx0404id
 ):
     """发送公选课选课请求"""
     try:
-        session = await get_session()
+        session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/ggxxkxkOper"
         params = {
@@ -57,7 +57,7 @@ async def send_ggxxkxkOper_course_jx02id_and_jx0404id(
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         }
 
-        response = await session.get(url, params=params, headers=headers)
+        response = session.get(url, params=params, headers=headers)
         response_json = response.json()
 
         logger.info(
@@ -92,10 +92,10 @@ async def send_ggxxkxkOper_course_jx02id_and_jx0404id(
         return None, error_msg
 
 
-async def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0404id):
+def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0404id):
     """发送专业内跨年级选课请求"""
     try:
-        session = await get_session()
+        session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/knjxkOper"
         params = {
@@ -115,7 +115,7 @@ async def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_a
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         }
 
-        response = await session.get(url, params=params, headers=headers)
+        response = session.get(url, params=params, headers=headers)
         response_json = response.json()
 
         logger.info(
@@ -152,12 +152,12 @@ async def send_knjxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_a
         return None, error_msg
 
 
-async def send_bxqjhxkOper_course_jx02id_and_jx0404id(
+def send_bxqjhxkOper_course_jx02id_and_jx0404id(
     course_name, course_jx02id_and_jx0404id
 ):
     """发送本学期计划选课请求"""
     try:
-        session = await get_session()
+        session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/bxqjhxkOper"
         params = {
@@ -177,7 +177,7 @@ async def send_bxqjhxkOper_course_jx02id_and_jx0404id(
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         }
 
-        response = await session.get(url, params=params, headers=headers)
+        response = session.get(url, params=params, headers=headers)
         response_json = response.json()
 
         logger.info(
@@ -212,10 +212,10 @@ async def send_bxqjhxkOper_course_jx02id_and_jx0404id(
         return None, error_msg
 
 
-async def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0404id):
+def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0404id):
     """发送选修选课请求"""
     try:
-        session = await get_session()
+        session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/xxxkOper"
         params = {
@@ -234,7 +234,7 @@ async def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_an
             "Accept-Encoding": "gzip, deflate, br",
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         }
-        response = await session.get(url, params=params, headers=headers)
+        response = session.get(url, params=params, headers=headers)
         response_json = response.json()
 
         logger.info(
@@ -269,10 +269,10 @@ async def send_xxxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_an
         return None, error_msg
 
 
-async def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0404id):
+def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_and_jx0404id):
     """发送计划外选课请求"""
     try:
-        session = await get_session()
+        session = get_session()
 
         url = f"http://zhjw.qfnu.edu.cn/jsxsd/xsxkkc/fawxkOper"
         params = {
@@ -292,7 +292,7 @@ async def send_fawxkOper_course_jx02id_and_jx0404id(course_name, course_jx02id_a
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         }
 
-        response = await session.get(url, params=params, headers=headers)
+        response = session.get(url, params=params, headers=headers)
         response_json = response.json()
 
         logger.info(

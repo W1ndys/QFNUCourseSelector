@@ -38,17 +38,17 @@ logger.add(
 load_dotenv()
 
 
-async def handle_captcha() -> str | None:
+def handle_captcha() -> str | None:
     """
     获取并识别验证码
     返回: 识别出的验证码字符串
     """
-    session = await get_session()
+    session = get_session()
 
     # 验证码请求URL
     RandCodeUrl = "http://zhjw.qfnu.edu.cn/jsxsd/verifycode.servlet"
 
-    response = await session.get(RandCodeUrl)
+    response = session.get(RandCodeUrl)
 
     if response.status_code != 200:
         logger.error(f"请求验证码失败, 状态码: {response.status_code}")
@@ -84,7 +84,7 @@ def generate_encoded_string(user_account, user_password):
     return encoded
 
 
-async def login(random_code, encoded):
+def login(random_code, encoded):
     """
     执行登录操作
     返回: 登录响应结果
@@ -92,7 +92,7 @@ async def login(random_code, encoded):
 
     # 登录请求URL
     loginUrl = "http://zhjw.qfnu.edu.cn/jsxsd/xk/LoginToXkLdap"
-    session = await get_session()
+    session = get_session()
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
@@ -107,7 +107,7 @@ async def login(random_code, encoded):
         "encoded": encoded,
     }
 
-    return await session.post(loginUrl, headers=headers, data=data, timeout=1000)
+    return session.post(loginUrl, headers=headers, data=data, timeout=1000)
 
 
 def get_user_config():
@@ -263,14 +263,14 @@ def get_user_config():
         exit(1)
 
 
-async def simulate_login(user_account, user_password):
+def simulate_login(user_account, user_password):
     """
     模拟登录过程
     返回: 是否登录成功
     """
-    session = await get_session()
+    session = get_session()
     # 访问教务系统首页, 获取必要的cookie
-    response = await session.get("http://zhjw.qfnu.edu.cn/jsxsd/")
+    response = session.get("http://zhjw.qfnu.edu.cn/jsxsd/")
     if response.status_code != 200:
         logger.error("无法访问教务系统首页, 请检查网络连接或教务系统的可用性。")
         return False
@@ -280,10 +280,10 @@ async def simulate_login(user_account, user_password):
     logger.info(f"获取到的cookie: {cookies}")
 
     for attempt in range(3):
-        random_code = await handle_captcha()
+        random_code = handle_captcha()
         logger.info(f"验证码: {random_code}")
         encoded = generate_encoded_string(user_account, user_password)
-        response = await login(random_code, encoded)
+        response = login(random_code, encoded)
         logger.info(f"登录响应: {response.status_code}")
 
         if response.status_code == 200:
@@ -332,7 +332,7 @@ def get_course_key(course):
         return f"{course['course_id']}-{course['teacher_name']}-{course.get('week_day', '')}-{course.get('class_period', '')}-{class_times_str}"
 
 
-async def select_courses(courses):
+def select_courses(courses):
     """
     蹲课模式：持续尝试选课, 每个课程之间间隔0.5秒
     依次遍历每个选课轮次, 如果某课程在某轮次选课成功, 则锁定该轮次
@@ -345,9 +345,9 @@ async def select_courses(courses):
     locked_rounds = {get_course_key(c): None for c in courses}
 
     start_time = time.time()  # 记录开始时间
-    await feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
+    feishu("曲阜师范大学教务系统抢课脚本", "选课开始")
 
-    session = await get_session()
+    session = get_session()
 
     # 蹲课模式：持续执行选课操作
     while True:
@@ -370,7 +370,7 @@ async def select_courses(courses):
             if failed_count > 0:
                 logger.info(f"永久失败: {failed_count} 门课程")
 
-            await feishu(
+            feishu(
                 "曲阜师范大学教务系统抢课脚本",
                 f"所有课程处理完成\n"
                 f"成功选上: {success_count} 门\n"
@@ -380,12 +380,12 @@ async def select_courses(courses):
             return True
 
         # 获取所有选课轮次
-        all_rounds = await get_jx0502zbid(session)
+        all_rounds = get_jx0502zbid(session)
         if not all_rounds:
             logger.warning(
                 "获取选课轮次失败, 1秒后重试...若持续失败, 可能是账号被踢, 请重新运行脚本"
             )
-            await asyncio.sleep(1)
+            time.sleep(1)
             continue
 
         logger.info(f"获取到 {len(all_rounds)} 个选课轮次")
@@ -399,7 +399,7 @@ async def select_courses(courses):
 
             # 访问选课页面
             try:
-                response = await session.get(
+                response = session.get(
                     f"http://zhjw.qfnu.edu.cn/jsxsd/xsxk/xsxk_index?jx0502zbid={round_id}"
                 )
                 logger.debug(f"选课页面响应状态码: {response.status_code}")
@@ -423,7 +423,7 @@ async def select_courses(courses):
 
                 round_had_attempts = True
                 try:
-                    result = await search_and_select_course(course)
+                    result = search_and_select_course(course)
 
                     if result is True:
                         course_status[course_key] = True
@@ -448,13 +448,13 @@ async def select_courses(courses):
                 logger.debug(f"轮次【{round_name}】没有需要尝试的课程, 跳过")
 
             # 每个轮次之间稍微停顿一下, 避免过快请求
-            await asyncio.sleep(0.5)
+            time.sleep(0.5)
 
         logger.info("所有轮次尝试完成, 准备重新开始...")
-        await asyncio.sleep(0.5)
+        time.sleep(0.5)
 
 
-async def main_async():
+def main():
     """
     主函数, 协调整个程序的执行流程
     """
@@ -481,29 +481,29 @@ async def main_async():
         while True:  # 添加外层循环
             try:
                 # 模拟登录
-                if not await simulate_login(user_account, user_password):
+                if not simulate_login(user_account, user_password):
                     logger.error("无法建立会话, 请检查网络连接或教务系统的可用性。")
-                    await asyncio.sleep(1)  # 添加重试间隔
+                    time.sleep(1)  # 添加重试间隔
                     continue  # 重试登录
 
-                session = await get_session()
+                session = get_session()
                 if not session:
                     logger.error("无法建立会话, 请检查网络连接或教务系统的可用性。")
-                    await asyncio.sleep(1)
+                    time.sleep(1)
                     continue
 
                 # 访问主页
                 page_url = "http://zhjw.qfnu.edu.cn/jsxsd/framework/xsMain.jsp"
                 for attempt in range(3):
                     try:
-                        response = await session.get(page_url)
+                        response = session.get(page_url)
                         logger.debug(f"页面响应状态码: {response.status_code}")
                         if (
                             response.status_code == 200
                             and "教学一体化服务平台" in response.text
                         ):
                             logger.info(f"成功访问页面: {page_url}")
-                            await feishu(
+                            feishu(
                                 "曲阜师范大学教务系统抢课脚本",
                                 "登录成功, 已访问教务系统主页",
                             )
@@ -516,11 +516,11 @@ async def main_async():
                         continue
 
                 # 获取选课轮次列表
-                all_rounds = await get_jx0502zbid(session)
+                all_rounds = get_jx0502zbid(session)
                 while not all_rounds:
                     logger.warning("获取选课轮次失败, 1秒后重试...")
-                    await asyncio.sleep(1)
-                    all_rounds = await get_jx0502zbid(session)
+                    time.sleep(1)
+                    all_rounds = get_jx0502zbid(session)
 
                 logger.success(f"成功获取到 {len(all_rounds)} 个选课轮次")
                 for round_info in all_rounds:
@@ -528,27 +528,19 @@ async def main_async():
                         f"轮次: {round_info['name']} (ID: {round_info['jx0502zbid']})"
                     )
 
-                await select_courses(courses)
+                select_courses(courses)
                 break  # 成功后退出循环
 
             except Exception as e:
                 logger.error(f"发生错误: {str(e)}, 正在重新登录...")
-                await asyncio.sleep(1)
+                time.sleep(1)
                 continue  # 重新登录
     except KeyboardInterrupt:
         logger.info("用户手动终止程序")
     except Exception as e:
         logger.error(f"程序发生未预期的错误: {str(e)}")
         logger.error(traceback.format_exc())
-        await asyncio.to_thread(input, "按回车键退出程序...")
-
-
-def main():
-    try:
-        asyncio.run(main_async())
-    except KeyboardInterrupt:
-        # 处理 Ctrl+C
-        pass
+        input("按回车键退出程序...")
 
 
 if __name__ == "__main__":

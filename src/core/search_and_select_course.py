@@ -10,12 +10,12 @@ from ..utils.feishu import feishu
 from ..utils.session_manager import get_session
 
 
-async def search_course_in_url(session, url, course_id, teacher_name, week_day, class_period):
+def search_course_in_url(session, url, course_id, teacher_name, week_day, class_period):
     """
     在指定URL搜索课程
 
     Args:
-        session: aiohttp session
+        session: requests session
         url: 搜索接口URL
         course_id: 课程编号
         teacher_name: 教师姓名
@@ -51,7 +51,7 @@ async def search_course_in_url(session, url, course_id, teacher_name, week_day, 
             "iDisplayLength": "30000",
         }
 
-        response = await session.post(
+        response = session.post(
             url, data=data, headers=headers, params=params
         )
         if response.status_code == 200:
@@ -153,7 +153,7 @@ def find_matching_course_in_results(results, course):
     return matches
 
 
-async def search_and_select_course(course):
+def search_and_select_course(course):
     """
     根据配置进行选课：
     1. 如果配置了jx02id和jx0404id, 直接发送选课请求
@@ -219,7 +219,7 @@ async def search_and_select_course(course):
                 method_func = module["select_func"]
                 
                 try:
-                    result_data = await method_func(course["course_id"], course_data)
+                    result_data = method_func(course["course_id"], course_data)
                     if result_data is None:
                         error_messages.append(f"【{method_name}】异常: 返回None")
                         continue
@@ -227,7 +227,7 @@ async def search_and_select_course(course):
                     result, message = result_data
                     if result is True:
                         success_msg = f"课程【{course['course_name']}-{course['teacher_name']}】通过【{method_name}】选课成功！"
-                        await feishu("选课成功 🎉", success_msg)
+                        feishu("选课成功 🎉", success_msg)
                         return True
                     elif result == "permanent_failure":
                         logger.success(f"永久失败: {message}")
@@ -240,7 +240,7 @@ async def search_and_select_course(course):
         # 模式2: 搜索并选课 (优化：按模块搜到即选)
         else:
             logger.info("使用搜索模式: 逐个模块搜索并尝试选课...")
-            session = await get_session()
+            session = get_session()
             
             course_id_param = course.get("course_id", "")
             teacher_name_param = course.get("teacher_name", "")
@@ -255,7 +255,7 @@ async def search_and_select_course(course):
                 select_func = module["select_func"]
 
                 # 1. 搜索
-                results = await search_course_in_url(
+                results = search_course_in_url(
                     session, search_url, course_id_param, teacher_name_param, week_day_param, class_period_param
                 )
 
@@ -280,7 +280,7 @@ async def search_and_select_course(course):
                     logger.info(f"在【{module_name}】找到课程, 尝试选课: jx02id={current_jx02id}, jx0404id={current_jx0404id}")
                     
                     try:
-                        result_data = await select_func(course["course_id"], course_data)
+                        result_data = select_func(course["course_id"], course_data)
                         
                         if result_data is None:
                             error_messages.append(f"【{module_name}】选课异常: 返回None")
@@ -290,12 +290,12 @@ async def search_and_select_course(course):
                         
                         if result is True:
                             success_msg = f"课程【{course['course_name']}-{course['teacher_name']}】通过【{module_name}】选课成功！"
-                            await feishu("选课成功 🎉", success_msg)
+                            feishu("选课成功 🎉", success_msg)
                             return True
                         elif result == "permanent_failure":
                             perm_msg = f"课程【{course['course_name']}】在【{module_name}】永久失败: {message}"
                             logger.success(perm_msg)
-                            await feishu("选课永久失败 ⛔", perm_msg)
+                            feishu("选课永久失败 ⛔", perm_msg)
                             return "permanent_failure"
                         else:
                             error_messages.append(f"【{module_name}】选课失败: {message}")

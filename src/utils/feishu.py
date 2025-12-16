@@ -1,4 +1,4 @@
-import httpx
+import requests
 import json
 from loguru import logger
 
@@ -18,7 +18,7 @@ def get_feishu_config():
         return None
 
 
-async def feishu(title: str, content: str) -> dict:
+def feishu(title: str, content: str) -> dict:
     """
     发送飞书机器人消息
 
@@ -62,13 +62,11 @@ async def feishu(title: str, content: str) -> dict:
         if not isinstance(feishu_webhook, str):
             return {"error": "飞书webhook未配置"}
         
-        async with httpx.AsyncClient() as client:
-            response = await client.post(feishu_webhook, headers=headers, json=msg)
-            return response.json()
+        response = requests.post(feishu_webhook, headers=headers, json=msg)
+        return response.json()
     except Exception as e:
         return {"error": str(e)}
 
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(feishu("测试", "测试内容"))
+    feishu("测试", "测试内容")
