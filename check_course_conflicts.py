@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 
-def check_single_pair(course_a, course_b, is_mock=False):
+def check_single_pair(course_a, course_b, is_mock=False, report_file=None):
     # 1. 检查课程名称是否相同
     if course_a.get('kcmc') != course_b.get('kcmc'):
         return False
@@ -32,26 +32,32 @@ def check_single_pair(course_a, course_b, is_mock=False):
             conflict_times.append(time_key)
 
     if conflict_times:
+        msgs = []
         title = "【模拟演示：发现符合条件的课程对】" if is_mock else "【发现符合条件的课程对】"
-        print(f"\n{title}")
-        print(f"课程名称: {course_a.get('kcmc')}")
-        print(f"课程号 (kch): {course_a.get('kch')}")
-        print(f"共有老师: {', '.join(common_teachers)}")
-        print(f"\n--- 课程 A (jx0404id: {course_a.get('jx0404id')}) ---")
-        print(f"老师: {course_a.get('skls')}")
-        print(f"上课时间描述: {course_a.get('sksj')}")
+        msgs.append(f"\n{title}")
+        msgs.append(f"课程名称: {course_a.get('kcmc')}")
+        msgs.append(f"课程号 (kch): {course_a.get('kch')}")
+        msgs.append(f"共有老师: {', '.join(common_teachers)}")
+        msgs.append(f"\n--- 课程 A (jx0404id: {course_a.get('jx0404id')}) ---")
+        msgs.append(f"老师: {course_a.get('skls')}")
+        msgs.append(f"上课时间描述: {course_a.get('sksj')}")
         
-        print(f"\n--- 课程 B (jx0404id: {course_b.get('jx0404id')}) ---")
-        print(f"老师: {course_b.get('skls')}")
-        print(f"上课时间描述: {course_b.get('sksj')}")
+        msgs.append(f"\n--- 课程 B (jx0404id: {course_b.get('jx0404id')}) ---")
+        msgs.append(f"老师: {course_b.get('skls')}")
+        msgs.append(f"上课时间描述: {course_b.get('sksj')}")
 
-        print(f"\n--- 具体冲突的时间点 (周次, 星期, 节次) [共 {len(conflict_times)} 个] ---")
+        msgs.append(f"\n--- 具体冲突的时间点 (周次, 星期, 节次) [共 {len(conflict_times)} 个] ---")
         for idx, (zc, xq, jc) in enumerate(conflict_times):
             if idx >= 10:
-                print(f"... 等共 {len(conflict_times)} 个冲突时间点")
+                msgs.append(f"... 等共 {len(conflict_times)} 个冲突时间点")
                 break
-            print(f"周次: {zc}, 星期: {xq}, 节次: {jc}")
-        print("=" * 50)
+            msgs.append(f"周次: {zc}, 星期: {xq}, 节次: {jc}")
+        msgs.append("=" * 50)
+        
+        full_msg = "\n".join(msgs)
+        print(full_msg)
+        if report_file:
+            report_file.write(full_msg + "\n")
         return True
     return False
 
@@ -100,37 +106,44 @@ def check_conflicts():
     print(f"Found {len(json_files)} JSON files to process.")
     
     any_conflicts_found = False
+    report_path = Path('conflict_report.txt')
 
-    for file_path in json_files:
-        print(f"\n{'='*20} Processing: {file_path.name} {'='*20}")
-        
-        try:
-            with file_path.open('r', encoding='utf-8') as f:
-                data = json.load(f)
-                course_list = data.get('aaData', [])
-        except Exception as e:
-            print(f"Error reading JSON {file_path.name}: {e}")
-            continue
+    with report_path.open('w', encoding='utf-8') as report_file:
+        report_file.write("Conflict Detection Report\n")
+        report_file.write("=========================\n")
 
-        print(f"Total courses found: {len(course_list)}")
-        print("-" * 50)
+        for file_path in json_files:
+            print(f"\n{'='*20} Processing: {file_path.name} {'='*20}")
+            
+            try:
+                with file_path.open('r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    course_list = data.get('aaData', [])
+            except Exception as e:
+                print(f"Error reading JSON {file_path.name}: {e}")
+                continue
 
-        file_conflicts_found = False
+            print(f"Total courses found: {len(course_list)}")
+            print("-" * 50)
 
-        # 遍历所有课程对 (compare every pair)
-        for i in range(len(course_list)):
-            for j in range(i + 1, len(course_list)):
-                if check_single_pair(course_list[i], course_list[j]):
-                    file_conflicts_found = True
-                    any_conflicts_found = True
+            file_conflicts_found = False
 
-        if not file_conflicts_found:
-            print(f"文件 {file_path.name} 中未发现冲突。")
+            # 遍历所有课程对 (compare every pair)
+            for i in range(len(course_list)):
+                for j in range(i + 1, len(course_list)):
+                    if check_single_pair(course_list[i], course_list[j], report_file=report_file):
+                        file_conflicts_found = True
+                        any_conflicts_found = True
+
+            if not file_conflicts_found:
+                print(f"文件 {file_path.name} 中未发现冲突。")
 
     if not any_conflicts_found:
         print("\n" + "=" * 50)
         print("所有文件中均未发现真实数据中同时满足 [同名、同ID、同老师、同时间] 的课程对。")
         run_mock_demo()
+    else:
+        print(f"\n冲突检测完成，结果已保存至: {report_path.absolute()}")
 
 if __name__ == "__main__":
     check_conflicts()
