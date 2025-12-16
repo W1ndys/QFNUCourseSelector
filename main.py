@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import time
+import random
 import datetime
 from io import BytesIO
 
@@ -442,14 +443,17 @@ def select_courses(courses):
                 except Exception as e:
                     logger.error(f"课程【{course['course_name']}】选课异常: {str(e)}")
 
+                # 每个课程之间随机停顿
+                time.sleep(random.uniform(0.3, 0.7))
+
             if not round_had_attempts:
                 logger.debug(f"轮次【{round_name}】没有需要尝试的课程, 跳过")
 
             # 每个轮次之间稍微停顿一下, 避免过快请求
-            time.sleep(0.5)
+            time.sleep(random.uniform(0.3, 0.7))
 
         logger.info("所有轮次尝试完成, 准备重新开始...")
-        time.sleep(0.5)
+        time.sleep(random.uniform(0.3, 0.7))
 
 
 def wait_for_start_time(start_time_str):
