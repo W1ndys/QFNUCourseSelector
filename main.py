@@ -123,6 +123,7 @@ def get_user_config():
             "user_password": "你的教务系统密码",
             "feishu_webhook": "",
             "start_time": "",
+            "target_round_keyword": "",
             "courses": [
                 {
                     "course_name": "你的课程名称",
@@ -251,6 +252,7 @@ def get_user_config():
             config["user_password"],
             config.get("courses", []),
             config.get("start_time", ""),
+            config.get("target_round_keyword", ""),
         )
     except json.JSONDecodeError:
         logger.error("配置文件格式错误, 请检查 config.json 文件格式是否正确")
@@ -331,7 +333,7 @@ def get_course_key(course):
         return f"{course['course_id']}-{course['teacher_name']}-{course.get('week_day', '')}-{course.get('class_period', '')}-{class_times_str}"
 
 
-def select_courses(courses):
+def select_courses(courses, target_round_keyword=""):
     """
     蹲课模式：持续尝试选课, 每个课程之间间隔0.5秒
     依次遍历每个选课轮次, 如果某课程在某轮次选课成功, 则锁定该轮次
@@ -388,6 +390,27 @@ def select_courses(courses):
             continue
 
         logger.info(f"获取到 {len(all_rounds)} 个选课轮次")
+
+        # 如果设置了选课轮次关键词，则优先处理匹配的轮次
+        if target_round_keyword:
+            matched_rounds = []
+            other_rounds = []
+            for r in all_rounds:
+                if target_round_keyword in r["name"]:
+                    matched_rounds.append(r)
+                else:
+                    other_rounds.append(r)
+
+            if matched_rounds:
+                logger.info(
+                    f"根据关键词 '{target_round_keyword}' 优先处理 {len(matched_rounds)} 个轮次"
+                )
+                # 将匹配的轮次放在前面
+                all_rounds = matched_rounds + other_rounds
+            else:
+                logger.warning(
+                    f"未找到包含关键词 '{target_round_keyword}' 的选课轮次，将按默认顺序执行"
+                )
 
         # 遍历每个轮次
         for round_info in all_rounds:
@@ -503,7 +526,9 @@ def main():
         print_welcome()
 
         # 获取环境变量
-        user_account, user_password, courses, start_time = get_user_config()
+        user_account, user_password, courses, start_time, target_round_keyword = (
+            get_user_config()
+        )
 
         # 添加文件日志
         log_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -571,7 +596,7 @@ def main():
                         f"轮次: {round_info['name']} (ID: {round_info['jx0502zbid']})"
                     )
 
-                select_courses(courses)
+                select_courses(courses, target_round_keyword)
                 break  # 成功后退出循环
 
             except Exception as e:
