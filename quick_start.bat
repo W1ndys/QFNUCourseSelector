@@ -22,6 +22,9 @@ if exist "%~1" (
 :: 检查 uv 是否已安装
 where uv >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
+    echo [信息] 检测到 uv 已安装：
+    uv --version
+    echo.
     goto :Run
 )
 
