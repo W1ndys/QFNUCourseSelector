@@ -36,7 +36,7 @@ def check_single_pair(course_a, course_b, is_mock=False, report_file=None):
         title = "### 模拟演示：发现符合条件的课程对" if is_mock else "### 发现符合条件的课程对"
         msgs.append(f"\n{title}")
         msgs.append(f"- **课程名称**: {course_a.get('kcmc')}")
-        msgs.append(f"- **课程号 (kch)**: {course_a.get('kch')}")
+        msgs.append(f"- **课程编号 (kch)**: {course_a.get('kch')}")
         msgs.append(f"- **共有老师**: {', '.join(common_teachers)}")
         
         msgs.append(f"\n#### 课程 A (jx0404id: {course_a.get('jx0404id')})")
