@@ -72,7 +72,7 @@ uv run main.py
 {
   "user_account": "你的学号",
   "user_password": "你的教务系统密码",
-  "feishu_webhook": "",
+  "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/xxx",
   "target_round_keyword": "",
   "courses": [
     {
