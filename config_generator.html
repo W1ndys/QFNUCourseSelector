@@ -9,39 +9,210 @@
     <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
     <!-- Custom Styles -->
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #f2f2f7;
+            min-height: 100vh;
             margin: 0;
             padding: 20px;
+            background-image:
+                radial-gradient(circle at 30% 20%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 90% 10%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                flex-direction: column;
+            }
+        }
+
+        .left-panel {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .right-panel {
+            width: 450px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        @media (max-width: 1200px) {
+            .right-panel {
+                width: 100%;
+                position: static;
+            }
         }
 
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.85);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 22px;
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.08),
+                0 2px 10px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            animation: fadeIn 0.5s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .right-panel .container {
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                border-radius: 18px;
+            }
+
+            .right-panel .container {
+                padding: 20px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             color: #409EFF;
-            border-bottom: 2px solid #f5f7fa;
-            padding-bottom: 15px;
+            padding-bottom: 20px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, #409EFF, #764ba2);
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                margin-bottom: 30px;
+                padding-bottom: 15px;
+            }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 0;
+            background: linear-gradient(135deg, #409EFF, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
         }
 
         .course-card {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             position: relative;
             transition: all 0.3s;
+            border-radius: 20px;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
         }
 
         .course-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .course-card {
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Animation for course cards */
+        .transition-group .course-card {
+            animation: slideUp 0.4s ease-out;
+            animation-fill-mode: both;
+        }
+
+        /* 优化小按钮样式 */
+        .el-button--small {
+            font-weight: 500;
+        }
+
+        .el-button--small.is-plain {
+            background-color: rgba(64, 158, 255, 0.1);
+            border-color: rgba(64, 158, 255, 0.3);
+            color: #409EFF;
+        }
+
+        .el-button--small.is-plain:hover {
+            background-color: rgba(64, 158, 255, 0.2);
+            border-color: rgba(64, 158, 255, 0.5);
+            color: #409EFF;
+        }
+
+        /* 删除按钮样式优化 */
+        .el-button--danger.is-circle {
+            background-color: rgba(245, 108, 108, 0.9);
+            border-color: rgba(245, 108, 108, 0.9);
+        }
+
+        .el-button--danger.is-circle:hover {
+            background-color: #F56C6C;
+            border-color: #F56C6C;
         }
 
         .remove-course-btn {
@@ -51,16 +222,24 @@
         }
 
         .time-node-row {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        .output-area {
-            margin-top: 30px;
-            border-top: 2px solid #f5f7fa;
-            padding-top: 20px;
+        @media (max-width: 768px) {
+            .time-node-row {
+                gap: 8px;
+            }
+        }
+
+        /* 右侧面板输出区域样式 */
+        .right-panel .output-area {
+            margin-top: 0;
+            border-top: none;
+            padding-top: 0;
         }
 
         .action-bar {
@@ -69,6 +248,22 @@
             display: flex;
             justify-content: center;
             gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .action-bar {
+                gap: 10px;
+            }
+
+            .action-bar .el-button {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .right-panel .output-area h3 {
+                font-size: 1.2rem;
+            }
         }
 
         /* Animation classes provided by Element Plus usually, but custom ones here for specific enter */
@@ -91,14 +286,26 @@
 
         .time-select-week {
             width: 100px;
+            min-width: 80px;
         }
 
         .time-select-day {
             width: 120px;
+            min-width: 100px;
         }
 
         .time-select-period {
             width: 100px;
+            min-width: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .time-select-week,
+            .time-select-day,
+            .time-select-period {
+                width: calc(33.333% - 8px);
+                min-width: 70px;
+            }
         }
 
         .full-width {
@@ -111,32 +318,196 @@
 
         .output-actions {
             text-align: right;
-            margin-top: 10px;
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .output-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .output-actions .el-button {
+                flex: 1;
+                min-width: 120px;
+            }
         }
 
         .time-node-help {
             font-size: 12px;
             color: #909399;
-            margin-top: 5px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        /* 美化表单项 */
+        .el-form-item {
+            margin-bottom: 22px;
+        }
+
+        @media (max-width: 768px) {
+            .el-form-item {
+                margin-bottom: 18px;
+            }
+        }
+
+        .el-input__wrapper,
+        .el-select .el-input__wrapper,
+        .el-time-picker .el-input__wrapper {
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .el-input__wrapper:hover,
+        .el-select .el-input__wrapper:hover,
+        .el-time-picker .el-input__wrapper:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .el-input__wrapper.is-focus,
+        .el-select .el-input__wrapper.is-focus,
+        .el-time-picker .el-input__wrapper.is-focus {
+            box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
+        }
+
+        /* 美化按钮 - iOS风格 */
+        .el-button {
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .el-button--primary {
+            background: linear-gradient(135deg, #409EFF 0%, #667eea 100%);
+            border: none;
+        }
+
+        .el-button--primary:hover {
+            background: linear-gradient(135deg, #66b1ff 0%, #764ba2 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(64, 158, 255, 0.3);
+        }
+
+        .el-button--success {
+            background: linear-gradient(135deg, #67C23A 0%, #85ce61 100%);
+            border: none;
+        }
+
+        .el-button--success:hover {
+            background: linear-gradient(135deg, #85ce61 0%, #95d475 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(103, 194, 58, 0.3);
+        }
+
+        /* 美化开关 */
+        .el-switch {
+            --el-switch-on-color: #409EFF;
+            --el-switch-off-color: #C0C4CC;
+        }
+
+        .el-switch__core {
+            border-radius: 20px;
+        }
+
+        /* 美化卡片头部 */
+        .el-card__header {
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+            border-bottom: 1px solid #f0f2f5;
+            padding: 18px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .el-card__header {
+                padding: 15px;
+            }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        /* 美化输出区域 */
+        .output-area h3 {
+            color: #303133;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .output-area h3 {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+        }
+
+        .el-textarea__inner {
+            border-radius: 12px;
+            padding: 15px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            background-color: rgba(248, 249, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            .el-textarea__inner {
+                font-size: 12px;
+                padding: 12px;
+            }
+        }
+
+        .header-icon {
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .radio-icon {
+            margin-right: 5px;
+        }
+
+        .alert-margin {
+            margin-bottom: 20px;
+        }
+
+        .full-width-btn {
+            width: 100%;
+        }
+
+        .download-btn-container {
+            margin-top: 15px;
         }
     </style>
 </head>
 
 <body>
     <div id="app">
-        <div class="container">
-            <h1 class="header">
-                <el-icon style="vertical-align: middle; margin-right: 10px;"><Setting /></el-icon>
-                QFNU 选课脚本配置文件生成器
-            </h1>
+        <div class="main-layout">
+            <div class="left-panel">
+                <div class="container">
+                    <h1 class="header">
+                        <el-icon class="header-icon"><EpSetting /></el-icon>
+                        QFNU 选课脚本配置文件生成器
+                    </h1>
 
-            <el-form :model="form" label-position="top">
+                    <el-form :model="form" label-position="top">
                 <el-row :gutter="20">
                     <el-col :span="12" :xs="24">
                         <el-form-item label="学号 (user_account)">
                             <el-input v-model="form.user_account" placeholder="请输入学号" clearable>
                                 <template #prefix>
-                                    <el-icon><User /></el-icon>
+                                    <el-icon><EpUser /></el-icon>
                                 </template>
                             </el-input>
                         </el-form-item>
@@ -146,7 +517,7 @@
                             <el-input v-model="form.user_password" type="password" placeholder="请输入教务系统密码"
                                 show-password>
                                 <template #prefix>
-                                    <el-icon><Lock /></el-icon>
+                                    <el-icon><EpLock /></el-icon>
                                 </template>
                             </el-input>
                         </el-form-item>
@@ -159,7 +530,7 @@
                             <el-time-picker v-model="form.start_time" placeholder="选择启动时间" value-format="HH:mm:ss"
                                 class="full-width">
                                 <template #prefix>
-                                    <el-icon><Clock /></el-icon>
+                                    <el-icon><EpClock /></el-icon>
                                 </template>
                             </el-time-picker>
                             <div class="help-text">设置程序自动启动的时间，格式 HH:MM:SS，不填则直接启动</div>
@@ -170,7 +541,7 @@
                             <el-input v-model="form.feishu_webhook"
                                 placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/...">
                                 <template #prefix>
-                                    <el-icon><Message /></el-icon>
+                                    <el-icon><EpMessage /></el-icon>
                                 </template>
                             </el-input>
                             <div class="help-text">用于接收选课结果通知，不填则不发送通知</div>
@@ -184,7 +555,7 @@
                             <el-input v-model="form.target_round_keyword"
                                 placeholder="例如：2022级选课">
                                 <template #prefix>
-                                    <el-icon><Search /></el-icon>
+                                    <el-icon><EpSearch /></el-icon>
                                 </template>
                             </el-input>
                             <div class="help-text">
@@ -200,7 +571,7 @@
                             <div class="card-header">
                                 <span>课程 #{{ index + 1 }}</span>
                                 <el-button class="remove-course-btn" type="danger" link @click="removeCourse(index)">
-                                    <el-icon><Delete /></el-icon> 删除课程
+                                    <el-icon><EpDelete /></el-icon> 删除课程
                                 </el-button>
                             </div>
                         </template>
@@ -210,7 +581,7 @@
                                 <el-form-item label="课程名称">
                                     <el-input v-model="course.course_name" placeholder="例如：高等数学">
                                         <template #prefix>
-                                            <el-icon><Reading /></el-icon>
+                                            <el-icon><EpReading /></el-icon>
                                         </template>
                                     </el-input>
                                 </el-form-item>
@@ -219,7 +590,7 @@
                                 <el-form-item label="课程编号">
                                     <el-input v-model="course.course_id" placeholder="例如：g20062389">
                                         <template #prefix>
-                                            <el-icon><Key /></el-icon>
+                                            <el-icon><EpKey /></el-icon>
                                         </template>
                                     </el-input>
                                 </el-form-item>
@@ -228,7 +599,7 @@
                                 <el-form-item label="教师姓名">
                                     <el-input v-model="course.teacher_name" placeholder="例如：张三">
                                         <template #prefix>
-                                            <el-icon><Avatar /></el-icon>
+                                            <el-icon><EpAvatar /></el-icon>
                                         </template>
                                     </el-input>
                                 </el-form-item>
@@ -238,10 +609,10 @@
                         <el-form-item label="选课模式">
                             <el-radio-group v-model="course.mode">
                                 <el-radio label="search">
-                                    <el-icon style="margin-right: 5px;"><Search /></el-icon>搜索模式 (推荐)
+                                    <el-icon class="radio-icon"><EpSearch /></el-icon>搜索模式 (推荐)
                                 </el-radio>
                                 <el-radio label="id">
-                                    <el-icon style="margin-right: 5px;"><Link /></el-icon>直接 ID 模式
+                                    <el-icon class="radio-icon"><EpLink /></el-icon>直接 ID 模式
                                 </el-radio>
                             </el-radio-group>
                         </el-form-item>
@@ -252,7 +623,7 @@
                                     <el-form-item label="jx02id">
                                         <el-input v-model="course.jx02id" placeholder="课程唯一标识 ID">
                                             <template #prefix>
-                                                <el-icon><Link /></el-icon>
+                                                <el-icon><EpLink /></el-icon>
                                             </template>
                                         </el-input>
                                     </el-form-item>
@@ -261,7 +632,7 @@
                                     <el-form-item label="jx0404id">
                                         <el-input v-model="course.jx0404id" placeholder="课程唯一标识 ID">
                                             <template #prefix>
-                                                <el-icon><Link /></el-icon>
+                                                <el-icon><EpLink /></el-icon>
                                             </template>
                                         </el-input>
                                     </el-form-item>
@@ -273,9 +644,9 @@
 
                         <div v-else>
                             <el-alert title="推荐使用搜索模式，只需填写上课时间即可自动匹配课程" type="success" show-icon
-                                :closable="false" style="margin-bottom: 20px;">
+                                :closable="false" class="alert-margin">
                                 <template #icon>
-                                    <el-icon><Star /></el-icon>
+                                    <el-icon><EpStar /></el-icon>
                                 </template>
                             </el-alert>
                             <el-row :gutter="20">
@@ -316,11 +687,11 @@
                                     </el-select>
                                     <el-button type="danger" circle size="small"
                                         @click="removeTimeNode(course, tIndex)">
-                                        <el-icon><Close /></el-icon>
+                                        <el-icon><EpClose /></el-icon>
                                     </el-button>
                                 </div>
-                                <el-button type="primary" size="small" plain @click="addTimeNode(course)">
-                                    <el-icon><Plus /></el-icon> 添加时间节点
+                                <el-button type="primary" size="small" @click="addTimeNode(course)">
+                                    <el-icon><EpPlus /></el-icon> 添加时间节点
                                 </el-button>
                                 <div class="time-node-help">
                                     请至少添加一个时间节点用于精确匹配课程。如果目标课程是分段课程，建议每段配置一节课的时间。
@@ -332,31 +703,41 @@
 
                 <div class="action-bar">
                     <el-button type="primary" size="large" @click="addCourse">
-                        <el-icon><Plus /></el-icon> 添加课程
+                        <el-icon><EpPlus /></el-icon> 添加课程
                     </el-button>
                     <el-button type="success" size="large" @click="generateConfig">
-                        <el-icon><Document /></el-icon> 生成配置文件
+                        <el-icon><EpDocument /></el-icon> 生成配置文件
                     </el-button>
                     <el-button color="#e6a23c" size="large" @click="triggerImport">
-                        <el-icon><Upload /></el-icon> 导入配置
+                        <el-icon><EpUpload /></el-icon> 导入配置
                     </el-button>
                     <input type="file" ref="fileInput" class="file-input" accept=".json" @change="handleImport">
                 </div>
 
-                <div class="output-area">
-                    <h3>生成的配置内容 (config.json)</h3>
-                    <el-input v-model="outputJson" type="textarea" :rows="10" readonly
-                        placeholder="点击“生成配置文件”按钮生成内容"></el-input>
-                    <div class="output-actions">
-                        <el-button @click="copyConfig">
-                            <el-icon><CopyDocument /></el-icon> 复制内容
-                        </el-button>
-                        <el-button type="success" @click="downloadConfig">
-                            <el-icon><Download /></el-icon> 下载 config.json
-                        </el-button>
+                
+                            </el-form>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="container">
+                    <div class="output-area">
+                        <h3>配置输出</h3>
+                        <el-input v-model="outputJson" type="textarea" :rows="25" readonly
+                            placeholder="点击"生成配置"按钮后，配置内容将显示在这里"></el-input>
+                        <div class="output-actions">
+                            <el-button @click="copyConfig" class="full-width-btn">
+                                <el-icon><EpCopyDocument /></el-icon> 复制配置
+                            </el-button>
+                        </div>
+                        <div class="download-btn-container">
+                            <el-button type="success" @click="downloadConfig" class="full-width-btn">
+                                <el-icon><EpDownload /></el-icon> 下载 config.json
+                            </el-button>
+                        </div>
                     </div>
                 </div>
-            </el-form>
+            </div>
         </div>
     </div>
 
@@ -368,7 +749,7 @@
     <script src="https://unpkg.com/@element-plus/icons-vue"></script>
 
     <script>
-        const { createApp, reactive, ref, watch, onMounted } = Vue;
+        const { createApp, reactive, ref, watch, onMounted, nextTick } = Vue;
 
         const app = createApp({
             setup() {
@@ -496,6 +877,7 @@
                     ElementPlus.ElMessage.success('配置生成成功！');
                 };
 
+                
                 const copyConfig = () => {
                     if (!outputJson.value) {
                         ElementPlus.ElMessage.warning('请先生成配置内容');
@@ -597,9 +979,12 @@
                                     c.key = keyCounter++;
                                     form.courses.push(c);
                                 });
+                            } else {
+                                addCourse(); // Default empty course if no courses in cache
                             }
                         } catch (e) {
                             console.error('Cache load failed', e);
+                            addCourse(); // Default empty course on error
                         }
                     } else {
                         // Attempt to load legacy cache
@@ -637,9 +1022,9 @@
             }
         });
 
-        // Register Element Plus Icons
+        // Register Element Plus Icons with prefix to avoid conflicts (e.g. <Search> vs <search>)
         for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-            app.component(key, component);
+            app.component(`Ep${key}`, component);
         }
 
         app.use(ElementPlus);
