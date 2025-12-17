@@ -1,6 +1,23 @@
 @echo off
-chcp 65001 >nul
-setlocal
+:: 设置控制台编码为UTF-8
+chcp 65001 >nul 2>&1
+:: 检查是否成功设置
+if %ERRORLEVEL% NEQ 0 (
+    echo [警告] 无法设置UTF-8编码，可能影响中文显示
+    :: UTF-8失败时的GBK fallback
+    chcp 936 >nul 2>&1
+    if %ERRORLEVEL% EQU 0 (
+        echo [提示] 已切换到GBK编码
+    )
+)
+setlocal enabledelayedexpansion
+
+:: 批量设置安装路径检查函数
+:check_uv_path
+if exist "%~1" (
+    set "PATH=%~1;!PATH!"
+    goto :eof
+)
 
 :: 检查 uv 是否已安装
 where uv >nul 2>nul
@@ -11,20 +28,16 @@ if %ERRORLEVEL% EQU 0 (
 echo [警告] 系统内未检测到 uv 环境。
 echo 本项目依赖 uv 进行环境管理。
 set /p "choice=是否现在安装 uv? (Y/N): "
-if /i "%choice%"=="Y" (
+if /i "!choice!"=="Y" (
     echo 正在通过 PowerShell 安装 uv...
     powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://astral.sh/uv/install.ps1 | iex"
     
     echo.
     echo 正在验证安装...
     
-    :: 尝试查找默认安装路径并添加到临时 PATH，以便在当前会话中使用
-    if exist "%USERPROFILE%\.cargo\bin\uv.exe" (
-        set "PATH=%USERPROFILE%\.cargo\bin;%PATH%"
-    )
-    if exist "%LOCALAPPDATA%\bin\uv.exe" (
-        set "PATH=%LOCALAPPDATA%\bin;%PATH%"
-    )
+    :: 批量检查常见安装路径
+    call :check_uv_path "%USERPROFILE%\.cargo\bin"
+    call :check_uv_path "%LOCALAPPDATA%\bin"
 
     uv --version >nul 2>nul
     if %ERRORLEVEL% EQU 0 (
