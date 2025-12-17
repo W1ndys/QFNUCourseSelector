@@ -125,19 +125,30 @@
 <body>
     <div id="app">
         <div class="container">
-            <h1 class="header">QFNU 选课脚本配置文件生成器</h1>
+            <h1 class="header">
+                <el-icon style="vertical-align: middle; margin-right: 10px;"><Setting /></el-icon>
+                QFNU 选课脚本配置文件生成器
+            </h1>
 
             <el-form :model="form" label-position="top">
                 <el-row :gutter="20">
                     <el-col :span="12" :xs="24">
                         <el-form-item label="学号 (user_account)">
-                            <el-input v-model="form.user_account" placeholder="请输入学号" clearable></el-input>
+                            <el-input v-model="form.user_account" placeholder="请输入学号" clearable>
+                                <template #prefix>
+                                    <el-icon><User /></el-icon>
+                                </template>
+                            </el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12" :xs="24">
                         <el-form-item label="密码 (user_password)">
                             <el-input v-model="form.user_password" type="password" placeholder="请输入教务系统密码"
-                                show-password></el-input>
+                                show-password>
+                                <template #prefix>
+                                    <el-icon><Lock /></el-icon>
+                                </template>
+                            </el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -146,14 +157,22 @@
                     <el-col :span="12" :xs="24">
                         <el-form-item label="启动时间 (选填)">
                             <el-time-picker v-model="form.start_time" placeholder="选择启动时间" value-format="HH:mm:ss"
-                                class="full-width"></el-time-picker>
+                                class="full-width">
+                                <template #prefix>
+                                    <el-icon><Clock /></el-icon>
+                                </template>
+                            </el-time-picker>
                             <div class="help-text">设置程序自动启动的时间，格式 HH:MM:SS，不填则直接启动</div>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12" :xs="24">
                         <el-form-item label="飞书 Webhook (选填)">
                             <el-input v-model="form.feishu_webhook"
-                                placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..."></el-input>
+                                placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/...">
+                                <template #prefix>
+                                    <el-icon><Message /></el-icon>
+                                </template>
+                            </el-input>
                             <div class="help-text">用于接收选课结果通知，不填则不发送通知</div>
                         </el-form-item>
                     </el-col>
@@ -163,7 +182,11 @@
                     <el-col :span="24">
                         <el-form-item label="选课轮次关键词 (选填)">
                             <el-input v-model="form.target_round_keyword"
-                                placeholder="例如：2022级选课"></el-input>
+                                placeholder="例如：2022级选课">
+                                <template #prefix>
+                                    <el-icon><Search /></el-icon>
+                                </template>
+                            </el-input>
                             <div class="help-text">
                                 程序扫描选课轮次的时候，会优先处理选课轮次名称里包含预设关键词的选课轮次，如果该字段为空或未设置，则默认按顺序获取所有选课轮次执行
                             </div>
@@ -177,9 +200,7 @@
                             <div class="card-header">
                                 <span>课程 #{{ index + 1 }}</span>
                                 <el-button class="remove-course-btn" type="danger" link @click="removeCourse(index)">
-                                    <el-icon>
-                                        <Delete />
-                                    </el-icon> 删除课程
+                                    <el-icon><Delete /></el-icon> 删除课程
                                 </el-button>
                             </div>
                         </template>
@@ -187,25 +208,41 @@
                         <el-row :gutter="20">
                             <el-col :span="8" :xs="24">
                                 <el-form-item label="课程名称">
-                                    <el-input v-model="course.course_name" placeholder="例如：高等数学"></el-input>
+                                    <el-input v-model="course.course_name" placeholder="例如：高等数学">
+                                        <template #prefix>
+                                            <el-icon><Reading /></el-icon>
+                                        </template>
+                                    </el-input>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="8" :xs="24">
                                 <el-form-item label="课程编号">
-                                    <el-input v-model="course.course_id" placeholder="例如：g20062389"></el-input>
+                                    <el-input v-model="course.course_id" placeholder="例如：g20062389">
+                                        <template #prefix>
+                                            <el-icon><Key /></el-icon>
+                                        </template>
+                                    </el-input>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="8" :xs="24">
                                 <el-form-item label="教师姓名">
-                                    <el-input v-model="course.teacher_name" placeholder="例如：张三"></el-input>
+                                    <el-input v-model="course.teacher_name" placeholder="例如：张三">
+                                        <template #prefix>
+                                            <el-icon><Avatar /></el-icon>
+                                        </template>
+                                    </el-input>
                                 </el-form-item>
                             </el-col>
                         </el-row>
 
                         <el-form-item label="选课模式">
                             <el-radio-group v-model="course.mode">
-                                <el-radio label="id">直接 ID 模式 (推荐)</el-radio>
-                                <el-radio label="search">搜索模式</el-radio>
+                                <el-radio label="search">
+                                    <el-icon style="margin-right: 5px;"><Search /></el-icon>搜索模式 (推荐)
+                                </el-radio>
+                                <el-radio label="id">
+                                    <el-icon style="margin-right: 5px;"><Link /></el-icon>直接 ID 模式
+                                </el-radio>
                             </el-radio-group>
                         </el-form-item>
 
@@ -213,20 +250,34 @@
                             <el-row :gutter="20">
                                 <el-col :span="12" :xs="24">
                                     <el-form-item label="jx02id">
-                                        <el-input v-model="course.jx02id" placeholder="课程唯一标识 ID"></el-input>
+                                        <el-input v-model="course.jx02id" placeholder="课程唯一标识 ID">
+                                            <template #prefix>
+                                                <el-icon><Link /></el-icon>
+                                            </template>
+                                        </el-input>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="12" :xs="24">
                                     <el-form-item label="jx0404id">
-                                        <el-input v-model="course.jx0404id" placeholder="课程唯一标识 ID"></el-input>
+                                        <el-input v-model="course.jx0404id" placeholder="课程唯一标识 ID">
+                                            <template #prefix>
+                                                <el-icon><Link /></el-icon>
+                                            </template>
+                                        </el-input>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
-                            <el-alert title="提示：ID 需要通过高年级账号抓包获取，如果不知道请使用搜索模式" type="info" show-icon
+                            <el-alert title="提示：ID 模式需要通过抓包获取 jx02id 和 jx0404id，适用于已知课程 ID 的高级用户。推荐使用搜索模式" type="info" show-icon
                                 :closable="false" />
                         </div>
 
                         <div v-else>
+                            <el-alert title="推荐使用搜索模式，只需填写上课时间即可自动匹配课程" type="success" show-icon
+                                :closable="false" style="margin-bottom: 20px;">
+                                <template #icon>
+                                    <el-icon><Star /></el-icon>
+                                </template>
+                            </el-alert>
                             <el-row :gutter="20">
                                 <el-col :span="12" :xs="24">
                                     <el-form-item label="搜索星期 (week_day)">
@@ -265,15 +316,11 @@
                                     </el-select>
                                     <el-button type="danger" circle size="small"
                                         @click="removeTimeNode(course, tIndex)">
-                                        <el-icon>
-                                            <Close />
-                                        </el-icon>
+                                        <el-icon><Close /></el-icon>
                                     </el-button>
                                 </div>
                                 <el-button type="primary" size="small" plain @click="addTimeNode(course)">
-                                    <el-icon>
-                                        <Plus />
-                                    </el-icon> 添加时间节点
+                                    <el-icon><Plus /></el-icon> 添加时间节点
                                 </el-button>
                                 <div class="time-node-help">
                                     请至少添加一个时间节点用于精确匹配课程。如果目标课程是分段课程，建议每段配置一节课的时间。
@@ -285,19 +332,13 @@
 
                 <div class="action-bar">
                     <el-button type="primary" size="large" @click="addCourse">
-                        <el-icon>
-                            <Plus />
-                        </el-icon> 添加课程
+                        <el-icon><Plus /></el-icon> 添加课程
                     </el-button>
                     <el-button type="success" size="large" @click="generateConfig">
-                        <el-icon>
-                            <Document />
-                        </el-icon> 生成配置文件
+                        <el-icon><Document /></el-icon> 生成配置文件
                     </el-button>
                     <el-button color="#e6a23c" size="large" @click="triggerImport">
-                        <el-icon>
-                            <Upload />
-                        </el-icon> 导入配置
+                        <el-icon><Upload /></el-icon> 导入配置
                     </el-button>
                     <input type="file" ref="fileInput" class="file-input" accept=".json" @change="handleImport">
                 </div>
@@ -308,14 +349,10 @@
                         placeholder="点击“生成配置文件”按钮生成内容"></el-input>
                     <div class="output-actions">
                         <el-button @click="copyConfig">
-                            <el-icon>
-                                <CopyDocument />
-                            </el-icon> 复制内容
+                            <el-icon><CopyDocument /></el-icon> 复制内容
                         </el-button>
                         <el-button type="success" @click="downloadConfig">
-                            <el-icon>
-                                <Download />
-                            </el-icon> 下载 config.json
+                            <el-icon><Download /></el-icon> 下载 config.json
                         </el-button>
                     </div>
                 </div>
@@ -356,7 +393,7 @@
                         course_name: '',
                         course_id: '',
                         teacher_name: '',
-                        mode: 'id',
+                        mode: 'search',
                         jx02id: '',
                         jx0404id: '',
                         week_day: '',
