@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QFNU 选课脚本配置文件生成器</title>
     <!-- Element Plus CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.7.5/dist/index.css"/>
     <!-- Custom Styles -->
     <style>
         * {
@@ -511,7 +511,7 @@
             <div class="container">
                 <h1 class="header">
                     <el-icon class="header-icon">
-                        <EpSetting/>
+                        <ep-setting/>
                     </el-icon>
                     QFNU 选课脚本配置文件生成器
                 </h1>
@@ -523,7 +523,7 @@
                                 <el-input v-model="form.user_account" placeholder="请输入学号" clearable>
                                     <template #prefix>
                                         <el-icon>
-                                            <EpUser/>
+                                            <ep-user/>
                                         </el-icon>
                                     </template>
                                 </el-input>
@@ -535,7 +535,7 @@
                                           show-password>
                                     <template #prefix>
                                         <el-icon>
-                                            <EpLock/>
+                                            <ep-lock/>
                                         </el-icon>
                                     </template>
                                 </el-input>
@@ -551,7 +551,7 @@
                                                 class="full-width">
                                     <template #prefix>
                                         <el-icon>
-                                            <EpClock/>
+                                            <ep-clock/>
                                         </el-icon>
                                     </template>
                                 </el-time-picker>
@@ -564,7 +564,7 @@
                                           placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/...">
                                     <template #prefix>
                                         <el-icon>
-                                            <EpMessage/>
+                                            <ep-message/>
                                         </el-icon>
                                     </template>
                                 </el-input>
@@ -580,7 +580,7 @@
                                           placeholder="例如：2022级选课">
                                     <template #prefix>
                                         <el-icon>
-                                            <EpSearch/>
+                                            <ep-search/>
                                         </el-icon>
                                     </template>
                                 </el-input>
@@ -606,7 +606,7 @@
                                                     title="上移"
                                             >
                                                 <el-icon>
-                                                    <EpArrowUp/>
+                                                    <ep-arrow-up/>
                                                 </el-icon>
                                             </el-button>
                                             <el-button
@@ -616,7 +616,7 @@
                                                     title="下移"
                                             >
                                                 <el-icon>
-                                                    <EpArrowDown/>
+                                                    <ep-arrow-down/>
                                                 </el-icon>
                                             </el-button>
                                         </el-button-group>
@@ -624,7 +624,7 @@
                                         <el-button class="remove-course-btn" type="danger" link
                                                    @click="removeCourse(index)">
                                             <el-icon>
-                                                <EpDelete/>
+                                                <ep-delete/>
                                             </el-icon>
                                             删除课程
                                         </el-button>
@@ -638,7 +638,7 @@
                                         <el-input v-model="course.course_name" placeholder="例如：高等数学">
                                             <template #prefix>
                                                 <el-icon>
-                                                    <EpReading/>
+                                                    <ep-reading/>
                                                 </el-icon>
                                             </template>
                                         </el-input>
@@ -649,7 +649,7 @@
                                         <el-input v-model="course.course_id" placeholder="例如：g20062389">
                                             <template #prefix>
                                                 <el-icon>
-                                                    <EpKey/>
+                                                    <ep-key/>
                                                 </el-icon>
                                             </template>
                                         </el-input>
@@ -660,7 +660,7 @@
                                         <el-input v-model="course.teacher_name" placeholder="例如：张三">
                                             <template #prefix>
                                                 <el-icon>
-                                                    <EpAvatar/>
+                                                    <ep-avatar/>
                                                 </el-icon>
                                             </template>
                                         </el-input>
@@ -672,13 +672,13 @@
                                 <el-radio-group v-model="course.mode">
                                     <el-radio label="search">
                                         <el-icon class="radio-icon">
-                                            <EpSearch/>
+                                            <ep-search/>
                                         </el-icon>
                                         搜索模式 (推荐)
                                     </el-radio>
                                     <el-radio label="id">
                                         <el-icon class="radio-icon">
-                                            <EpLink/>
+                                            <ep-link/>
                                         </el-icon>
                                         直接 ID 模式
                                     </el-radio>
@@ -692,7 +692,7 @@
                                             <el-input v-model="course.jx02id" placeholder="课程唯一标识 ID">
                                                 <template #prefix>
                                                     <el-icon>
-                                                        <EpLink/>
+                                                        <ep-link/>
                                                     </el-icon>
                                                 </template>
                                             </el-input>
@@ -703,7 +703,7 @@
                                             <el-input v-model="course.jx0404id" placeholder="课程唯一标识 ID">
                                                 <template #prefix>
                                                     <el-icon>
-                                                        <EpLink/>
+                                                        <ep-link/>
                                                     </el-icon>
                                                 </template>
                                             </el-input>
@@ -722,7 +722,7 @@
                                           :closable="false" class="alert-margin">
                                     <template #icon>
                                         <el-icon>
-                                            <EpStar/>
+                                            <ep-star/>
                                         </el-icon>
                                     </template>
                                 </el-alert>
@@ -771,13 +771,13 @@
                                         <el-button type="danger" circle size="small"
                                                    @click="removeTimeNode(course, tIndex)">
                                             <el-icon>
-                                                <EpClose/>
+                                                <ep-close/>
                                             </el-icon>
                                         </el-button>
                                     </div>
                                     <el-button type="primary" size="small" @click="addTimeNode(course)">
                                         <el-icon>
-                                            <EpPlus/>
+                                            <ep-plus/>
                                         </el-icon>
                                         添加时间节点
                                     </el-button>
@@ -792,19 +792,19 @@
                     <div class="action-bar">
                         <el-button type="primary" size="large" @click="addCourse">
                             <el-icon>
-                                <EpPlus/>
+                                <ep-plus/>
                             </el-icon>
                             添加课程
                         </el-button>
                         <el-button type="success" size="large" @click="generateConfig">
                             <el-icon>
-                                <EpDocument/>
+                                <ep-document/>
                             </el-icon>
                             生成配置文件
                         </el-button>
                         <el-button color="#e6a23c" size="large" @click="triggerImport">
                             <el-icon>
-                                <EpUpload/>
+                                <ep-upload/>
                             </el-icon>
                             导入配置
                         </el-button>
@@ -825,7 +825,7 @@
                     <div class="output-actions">
                         <el-button @click="copyConfig" class="full-width-btn">
                             <el-icon>
-                                <EpCopyDocument/>
+                                <ep-copy-document/>
                             </el-icon>
                             复制配置
                         </el-button>
@@ -833,7 +833,7 @@
                     <div class="download-btn-container">
                         <el-button type="success" @click="downloadConfig" class="full-width-btn">
                             <el-icon>
-                                <EpDownload/>
+                                <ep-download/>
                             </el-icon>
                             下载 config.json
                         </el-button>
@@ -844,12 +844,12 @@
     </div>
 </div>
 
-<!-- Vue 3 -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<!-- Element Plus -->
-<script src="https://unpkg.com/element-plus"></script>
-<!-- Element Plus Icons -->
-<script src="https://unpkg.com/@element-plus/icons-vue"></script>
+<!-- Vue 3 (global build) -->
+<script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
+<!-- Element Plus (global build) -->
+<script src="https://unpkg.com/element-plus@2.7.5/dist/index.full.min.js"></script>
+<!-- Element Plus Icons (IIFE build, provides global ElementPlusIconsVue) -->
+<script src="https://unpkg.com/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js"></script>
 
 <script>
     const {createApp, reactive, ref, watch, onMounted, nextTick} = Vue;
