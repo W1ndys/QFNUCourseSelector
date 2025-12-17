@@ -175,4 +175,7 @@ config.json
 
 # Cursor 配置文件
 .cursorrules
+
+# Claude 相关文件
 .spec-workflow
+.claude
