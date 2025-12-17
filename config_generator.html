@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QFNU 选课脚本配置文件生成器</title>
     <!-- Element Plus CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css"/>
     <!-- Custom Styles -->
     <style>
         * {
@@ -19,10 +19,9 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
-            background-image:
-                radial-gradient(circle at 30% 20%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 70% 80%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 90% 10%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+            background-image: radial-gradient(circle at 30% 20%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 70% 80%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 90% 10%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
         }
 
         @media (max-width: 768px) {
@@ -69,10 +68,9 @@
             backdrop-filter: blur(20px);
             padding: 40px;
             border-radius: 22px;
-            box-shadow:
-                0 10px 40px rgba(0, 0, 0, 0.08),
-                0 2px 10px rgba(0, 0, 0, 0.04),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08),
+            0 2px 10px rgba(0, 0, 0, 0.04),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
             animation: fadeIn 0.5s ease-out;
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
@@ -488,548 +486,671 @@
         .download-btn-container {
             margin-top: 15px;
         }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .move-btn-group .el-button {
+            padding: 5px 10px;
+        }
+
+        .remove-course-btn {
+            float: none;
+            margin-left: 0;
+        }
     </style>
 </head>
 
 <body>
-    <div id="app">
-        <div class="main-layout">
-            <div class="left-panel">
-                <div class="container">
-                    <h1 class="header">
-                        <el-icon class="header-icon"><EpSetting /></el-icon>
-                        QFNU 选课脚本配置文件生成器
-                    </h1>
+<div id="app">
+    <div class="main-layout">
+        <div class="left-panel">
+            <div class="container">
+                <h1 class="header">
+                    <el-icon class="header-icon">
+                        <EpSetting/>
+                    </el-icon>
+                    QFNU 选课脚本配置文件生成器
+                </h1>
 
-                    <el-form :model="form" label-position="top">
-                <el-row :gutter="20">
-                    <el-col :span="12" :xs="24">
-                        <el-form-item label="学号 (user_account)">
-                            <el-input v-model="form.user_account" placeholder="请输入学号" clearable>
-                                <template #prefix>
-                                    <el-icon><EpUser /></el-icon>
-                                </template>
-                            </el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12" :xs="24">
-                        <el-form-item label="密码 (user_password)">
-                            <el-input v-model="form.user_password" type="password" placeholder="请输入教务系统密码"
-                                show-password>
-                                <template #prefix>
-                                    <el-icon><EpLock /></el-icon>
-                                </template>
-                            </el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
+                <el-form :model="form" label-position="top">
+                    <el-row :gutter="20">
+                        <el-col :span="12" :xs="24">
+                            <el-form-item label="学号 (user_account)">
+                                <el-input v-model="form.user_account" placeholder="请输入学号" clearable>
+                                    <template #prefix>
+                                        <el-icon>
+                                            <EpUser/>
+                                        </el-icon>
+                                    </template>
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12" :xs="24">
+                            <el-form-item label="密码 (user_password)">
+                                <el-input v-model="form.user_password" type="password" placeholder="请输入教务系统密码"
+                                          show-password>
+                                    <template #prefix>
+                                        <el-icon>
+                                            <EpLock/>
+                                        </el-icon>
+                                    </template>
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
 
-                <el-row :gutter="20">
-                    <el-col :span="12" :xs="24">
-                        <el-form-item label="启动时间 (选填)">
-                            <el-time-picker v-model="form.start_time" placeholder="选择启动时间" value-format="HH:mm:ss"
-                                class="full-width">
-                                <template #prefix>
-                                    <el-icon><EpClock /></el-icon>
-                                </template>
-                            </el-time-picker>
-                            <div class="help-text">设置程序自动启动的时间，格式 HH:MM:SS，不填则直接启动</div>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12" :xs="24">
-                        <el-form-item label="飞书 Webhook (选填)">
-                            <el-input v-model="form.feishu_webhook"
-                                placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/...">
-                                <template #prefix>
-                                    <el-icon><EpMessage /></el-icon>
-                                </template>
-                            </el-input>
-                            <div class="help-text">用于接收选课结果通知，不填则不发送通知</div>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="12" :xs="24">
+                            <el-form-item label="启动时间 (选填)">
+                                <el-time-picker v-model="form.start_time" placeholder="选择启动时间"
+                                                value-format="HH:mm:ss"
+                                                class="full-width">
+                                    <template #prefix>
+                                        <el-icon>
+                                            <EpClock/>
+                                        </el-icon>
+                                    </template>
+                                </el-time-picker>
+                                <div class="help-text">设置程序自动启动的时间，格式 HH:MM:SS，不填则直接启动</div>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12" :xs="24">
+                            <el-form-item label="飞书 Webhook (选填)">
+                                <el-input v-model="form.feishu_webhook"
+                                          placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/...">
+                                    <template #prefix>
+                                        <el-icon>
+                                            <EpMessage/>
+                                        </el-icon>
+                                    </template>
+                                </el-input>
+                                <div class="help-text">用于接收选课结果通知，不填则不发送通知</div>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
 
-                <el-row :gutter="20">
-                    <el-col :span="24">
-                        <el-form-item label="选课轮次关键词 (选填)">
-                            <el-input v-model="form.target_round_keyword"
-                                placeholder="例如：2022级选课">
-                                <template #prefix>
-                                    <el-icon><EpSearch /></el-icon>
-                                </template>
-                            </el-input>
-                            <div class="help-text">
-                                程序扫描选课轮次的时候，会优先处理选课轮次名称里包含预设关键词的选课轮次，如果该字段为空或未设置，则默认按顺序获取所有选课轮次执行
-                            </div>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-
-                <transition-group name="list" tag="div">
-                    <el-card v-for="(course, index) in form.courses" :key="course.key" class="course-card">
-                        <template #header>
-                            <div class="card-header">
-                                <span>课程 #{{ index + 1 }}</span>
-                                <el-button class="remove-course-btn" type="danger" link @click="removeCourse(index)">
-                                    <el-icon><EpDelete /></el-icon> 删除课程
-                                </el-button>
-                            </div>
-                        </template>
-
-                        <el-row :gutter="20">
-                            <el-col :span="8" :xs="24">
-                                <el-form-item label="课程名称">
-                                    <el-input v-model="course.course_name" placeholder="例如：高等数学">
-                                        <template #prefix>
-                                            <el-icon><EpReading /></el-icon>
-                                        </template>
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8" :xs="24">
-                                <el-form-item label="课程编号">
-                                    <el-input v-model="course.course_id" placeholder="例如：g20062389">
-                                        <template #prefix>
-                                            <el-icon><EpKey /></el-icon>
-                                        </template>
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="8" :xs="24">
-                                <el-form-item label="教师姓名">
-                                    <el-input v-model="course.teacher_name" placeholder="例如：张三">
-                                        <template #prefix>
-                                            <el-icon><EpAvatar /></el-icon>
-                                        </template>
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-
-                        <el-form-item label="选课模式">
-                            <el-radio-group v-model="course.mode">
-                                <el-radio label="search">
-                                    <el-icon class="radio-icon"><EpSearch /></el-icon>搜索模式 (推荐)
-                                </el-radio>
-                                <el-radio label="id">
-                                    <el-icon class="radio-icon"><EpLink /></el-icon>直接 ID 模式
-                                </el-radio>
-                            </el-radio-group>
-                        </el-form-item>
-
-                        <div v-if="course.mode === 'id'">
-                            <el-row :gutter="20">
-                                <el-col :span="12" :xs="24">
-                                    <el-form-item label="jx02id">
-                                        <el-input v-model="course.jx02id" placeholder="课程唯一标识 ID">
-                                            <template #prefix>
-                                                <el-icon><EpLink /></el-icon>
-                                            </template>
-                                        </el-input>
-                                    </el-form-item>
-                                </el-col>
-                                <el-col :span="12" :xs="24">
-                                    <el-form-item label="jx0404id">
-                                        <el-input v-model="course.jx0404id" placeholder="课程唯一标识 ID">
-                                            <template #prefix>
-                                                <el-icon><EpLink /></el-icon>
-                                            </template>
-                                        </el-input>
-                                    </el-form-item>
-                                </el-col>
-                            </el-row>
-                            <el-alert title="提示：ID 模式需要通过抓包获取 jx02id 和 jx0404id，适用于已知课程 ID 的高级用户。推荐使用搜索模式" type="info" show-icon
-                                :closable="false" />
-                        </div>
-
-                        <div v-else>
-                            <el-alert title="推荐使用搜索模式，只需填写上课时间即可自动匹配课程" type="success" show-icon
-                                :closable="false" class="alert-margin">
-                                <template #icon>
-                                    <el-icon><EpStar /></el-icon>
-                                </template>
-                            </el-alert>
-                            <el-row :gutter="20">
-                                <el-col :span="12" :xs="24">
-                                    <el-form-item label="搜索星期 (week_day)">
-                                        <el-select v-model="course.week_day" placeholder="请选择" class="full-width">
-                                            <el-option v-for="d in 7" :key="d"
-                                                :label="'星期' + ['一','二','三','四','五','六','日'][d-1]"
-                                                :value="String(d)"></el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                </el-col>
-                                <el-col :span="12" :xs="24">
-                                    <el-form-item label="搜索节次范围 (class_period)">
-                                        <el-select v-model="course.class_period" placeholder="请选择" class="full-width">
-                                            <el-option v-for="p in ['1-2','3-4','5-6','7-8','9-11','12-13']" :key="p"
-                                                :label="p" :value="p"></el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                </el-col>
-                            </el-row>
-
-                            <el-form-item label="详细上课时间 (class_times)">
-                                <div v-for="(time, tIndex) in course.class_times" :key="tIndex" class="time-node-row">
-                                    <el-select v-model="time.week" placeholder="周次" size="small" class="time-select-week">
-                                        <el-option v-for="i in 20" :key="i" :label="i" :value="String(i)"></el-option>
-                                    </el-select>
-                                    <el-select v-model="time.week_day" placeholder="星期" size="small"
-                                        class="time-select-day">
-                                        <el-option v-for="d in 7" :key="d"
-                                            :label="'星期' + ['一','二','三','四','五','六','日'][d-1]"
-                                            :value="String(d)"></el-option>
-                                    </el-select>
-                                    <el-select v-model="time.class_period" placeholder="节次" size="small"
-                                        class="time-select-period">
-                                        <el-option v-for="i in 13" :key="i" :label="String(i).padStart(2, '0')"
-                                            :value="String(i).padStart(2, '0')"></el-option>
-                                    </el-select>
-                                    <el-button type="danger" circle size="small"
-                                        @click="removeTimeNode(course, tIndex)">
-                                        <el-icon><EpClose /></el-icon>
-                                    </el-button>
-                                </div>
-                                <el-button type="primary" size="small" @click="addTimeNode(course)">
-                                    <el-icon><EpPlus /></el-icon> 添加时间节点
-                                </el-button>
-                                <div class="time-node-help">
-                                    请至少添加一个时间节点用于精确匹配课程。如果目标课程是分段课程，建议每段配置一节课的时间。
+                    <el-row :gutter="20">
+                        <el-col :span="24">
+                            <el-form-item label="选课轮次关键词 (选填)">
+                                <el-input v-model="form.target_round_keyword"
+                                          placeholder="例如：2022级选课">
+                                    <template #prefix>
+                                        <el-icon>
+                                            <EpSearch/>
+                                        </el-icon>
+                                    </template>
+                                </el-input>
+                                <div class="help-text">
+                                    程序扫描选课轮次的时候，会优先处理选课轮次名称里包含预设关键词的选课轮次，如果该字段为空或未设置，则默认按顺序获取所有选课轮次执行
                                 </div>
                             </el-form-item>
-                        </div>
-                    </el-card>
-                </transition-group>
+                        </el-col>
+                    </el-row>
 
-                <div class="action-bar">
-                    <el-button type="primary" size="large" @click="addCourse">
-                        <el-icon><EpPlus /></el-icon> 添加课程
-                    </el-button>
-                    <el-button type="success" size="large" @click="generateConfig">
-                        <el-icon><EpDocument /></el-icon> 生成配置文件
-                    </el-button>
-                    <el-button color="#e6a23c" size="large" @click="triggerImport">
-                        <el-icon><EpUpload /></el-icon> 导入配置
-                    </el-button>
-                    <input type="file" ref="fileInput" class="file-input" accept=".json" @change="handleImport">
-                </div>
+                    <transition-group name="list" tag="div">
+                        <el-card v-for="(course, index) in form.courses" :key="course.key" class="course-card">
+                            <template #header>
+                                <div class="card-header">
+                                    <span>课程 #{{ index + 1 }}</span>
 
-                
-                            </el-form>
-                </div>
+                                    <div class="header-actions">
+                                        <el-button-group class="move-btn-group">
+                                            <el-button
+                                                    size="small"
+                                                    :disabled="index === 0"
+                                                    @click="moveCourseUp(index)"
+                                                    title="上移"
+                                            >
+                                                <el-icon>
+                                                    <EpArrowUp/>
+                                                </el-icon>
+                                            </el-button>
+                                            <el-button
+                                                    size="small"
+                                                    :disabled="index === form.courses.length - 1"
+                                                    @click="moveCourseDown(index)"
+                                                    title="下移"
+                                            >
+                                                <el-icon>
+                                                    <EpArrowDown/>
+                                                </el-icon>
+                                            </el-button>
+                                        </el-button-group>
+
+                                        <el-button class="remove-course-btn" type="danger" link
+                                                   @click="removeCourse(index)">
+                                            <el-icon>
+                                                <EpDelete/>
+                                            </el-icon>
+                                            删除课程
+                                        </el-button>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <el-row :gutter="20">
+                                <el-col :span="8" :xs="24">
+                                    <el-form-item label="课程名称">
+                                        <el-input v-model="course.course_name" placeholder="例如：高等数学">
+                                            <template #prefix>
+                                                <el-icon>
+                                                    <EpReading/>
+                                                </el-icon>
+                                            </template>
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="8" :xs="24">
+                                    <el-form-item label="课程编号">
+                                        <el-input v-model="course.course_id" placeholder="例如：g20062389">
+                                            <template #prefix>
+                                                <el-icon>
+                                                    <EpKey/>
+                                                </el-icon>
+                                            </template>
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="8" :xs="24">
+                                    <el-form-item label="教师姓名">
+                                        <el-input v-model="course.teacher_name" placeholder="例如：张三">
+                                            <template #prefix>
+                                                <el-icon>
+                                                    <EpAvatar/>
+                                                </el-icon>
+                                            </template>
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+
+                            <el-form-item label="选课模式">
+                                <el-radio-group v-model="course.mode">
+                                    <el-radio label="search">
+                                        <el-icon class="radio-icon">
+                                            <EpSearch/>
+                                        </el-icon>
+                                        搜索模式 (推荐)
+                                    </el-radio>
+                                    <el-radio label="id">
+                                        <el-icon class="radio-icon">
+                                            <EpLink/>
+                                        </el-icon>
+                                        直接 ID 模式
+                                    </el-radio>
+                                </el-radio-group>
+                            </el-form-item>
+
+                            <div v-if="course.mode === 'id'">
+                                <el-row :gutter="20">
+                                    <el-col :span="12" :xs="24">
+                                        <el-form-item label="jx02id">
+                                            <el-input v-model="course.jx02id" placeholder="课程唯一标识 ID">
+                                                <template #prefix>
+                                                    <el-icon>
+                                                        <EpLink/>
+                                                    </el-icon>
+                                                </template>
+                                            </el-input>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12" :xs="24">
+                                        <el-form-item label="jx0404id">
+                                            <el-input v-model="course.jx0404id" placeholder="课程唯一标识 ID">
+                                                <template #prefix>
+                                                    <el-icon>
+                                                        <EpLink/>
+                                                    </el-icon>
+                                                </template>
+                                            </el-input>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+                                <el-alert
+                                        title="提示：ID 模式需要通过抓包获取 jx02id 和 jx0404id，适用于已知课程 ID 的高级用户。推荐使用搜索模式"
+                                        type="info" show-icon
+                                        :closable="false"/>
+                            </div>
+
+                            <div v-else>
+                                <el-alert title="推荐使用搜索模式，只需填写上课时间即可自动匹配课程" type="success"
+                                          show-icon
+                                          :closable="false" class="alert-margin">
+                                    <template #icon>
+                                        <el-icon>
+                                            <EpStar/>
+                                        </el-icon>
+                                    </template>
+                                </el-alert>
+                                <el-row :gutter="20">
+                                    <el-col :span="12" :xs="24">
+                                        <el-form-item label="搜索星期 (week_day)">
+                                            <el-select v-model="course.week_day" placeholder="请选择"
+                                                       class="full-width">
+                                                <el-option v-for="d in 7" :key="d"
+                                                           :label="'星期' + ['一','二','三','四','五','六','日'][d-1]"
+                                                           :value="String(d)"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12" :xs="24">
+                                        <el-form-item label="搜索节次范围 (class_period)">
+                                            <el-select v-model="course.class_period" placeholder="请选择"
+                                                       class="full-width">
+                                                <el-option v-for="p in ['1-2','3-4','5-6','7-8','9-11','12-13']"
+                                                           :key="p"
+                                                           :label="p" :value="p"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+
+                                <el-form-item label="详细上课时间 (class_times)">
+                                    <div v-for="(time, tIndex) in course.class_times" :key="tIndex"
+                                         class="time-node-row">
+                                        <el-select v-model="time.week" placeholder="周次" size="small"
+                                                   class="time-select-week">
+                                            <el-option v-for="i in 20" :key="i" :label="i"
+                                                       :value="String(i)"></el-option>
+                                        </el-select>
+                                        <el-select v-model="time.week_day" placeholder="星期" size="small"
+                                                   class="time-select-day">
+                                            <el-option v-for="d in 7" :key="d"
+                                                       :label="'星期' + ['一','二','三','四','五','六','日'][d-1]"
+                                                       :value="String(d)"></el-option>
+                                        </el-select>
+                                        <el-select v-model="time.class_period" placeholder="节次" size="small"
+                                                   class="time-select-period">
+                                            <el-option v-for="i in 13" :key="i" :label="String(i).padStart(2, '0')"
+                                                       :value="String(i).padStart(2, '0')"></el-option>
+                                        </el-select>
+                                        <el-button type="danger" circle size="small"
+                                                   @click="removeTimeNode(course, tIndex)">
+                                            <el-icon>
+                                                <EpClose/>
+                                            </el-icon>
+                                        </el-button>
+                                    </div>
+                                    <el-button type="primary" size="small" @click="addTimeNode(course)">
+                                        <el-icon>
+                                            <EpPlus/>
+                                        </el-icon>
+                                        添加时间节点
+                                    </el-button>
+                                    <div class="time-node-help">
+                                        请至少添加一个时间节点用于精确匹配课程。如果目标课程是分段课程，建议每段配置一节课的时间。
+                                    </div>
+                                </el-form-item>
+                            </div>
+                        </el-card>
+                    </transition-group>
+
+                    <div class="action-bar">
+                        <el-button type="primary" size="large" @click="addCourse">
+                            <el-icon>
+                                <EpPlus/>
+                            </el-icon>
+                            添加课程
+                        </el-button>
+                        <el-button type="success" size="large" @click="generateConfig">
+                            <el-icon>
+                                <EpDocument/>
+                            </el-icon>
+                            生成配置文件
+                        </el-button>
+                        <el-button color="#e6a23c" size="large" @click="triggerImport">
+                            <el-icon>
+                                <EpUpload/>
+                            </el-icon>
+                            导入配置
+                        </el-button>
+                        <input type="file" ref="fileInput" class="file-input" accept=".json" @change="handleImport">
+                    </div>
+
+
+                </el-form>
             </div>
+        </div>
 
-            <div class="right-panel">
-                <div class="container">
-                    <div class="output-area">
-                        <h3>配置输出</h3>
-                        <el-input v-model="outputJson" type="textarea" :rows="25" readonly
-                            placeholder='点击"生成配置"按钮后，配置内容将显示在这里'></el-input>
-                        <div class="output-actions">
-                            <el-button @click="copyConfig" class="full-width-btn">
-                                <el-icon><EpCopyDocument /></el-icon> 复制配置
-                            </el-button>
-                        </div>
-                        <div class="download-btn-container">
-                            <el-button type="success" @click="downloadConfig" class="full-width-btn">
-                                <el-icon><EpDownload /></el-icon> 下载 config.json
-                            </el-button>
-                        </div>
+        <div class="right-panel">
+            <div class="container">
+                <div class="output-area">
+                    <h3>配置输出</h3>
+                    <el-input v-model="outputJson" type="textarea" :rows="25" readonly
+                              placeholder='点击"生成配置"按钮后，配置内容将显示在这里'></el-input>
+                    <div class="output-actions">
+                        <el-button @click="copyConfig" class="full-width-btn">
+                            <el-icon>
+                                <EpCopyDocument/>
+                            </el-icon>
+                            复制配置
+                        </el-button>
+                    </div>
+                    <div class="download-btn-container">
+                        <el-button type="success" @click="downloadConfig" class="full-width-btn">
+                            <el-icon>
+                                <EpDownload/>
+                            </el-icon>
+                            下载 config.json
+                        </el-button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Vue 3 -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <!-- Element Plus -->
-    <script src="https://unpkg.com/element-plus"></script>
-    <!-- Element Plus Icons -->
-    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+<!-- Vue 3 -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- Element Plus -->
+<script src="https://unpkg.com/element-plus"></script>
+<!-- Element Plus Icons -->
+<script src="https://unpkg.com/@element-plus/icons-vue"></script>
 
-    <script>
-        const { createApp, reactive, ref, watch, onMounted, nextTick } = Vue;
+<script>
+    const {createApp, reactive, ref, watch, onMounted, nextTick} = Vue;
 
-        const app = createApp({
-            setup() {
-                const form = reactive({
-                    user_account: '',
-                    user_password: '',
-                    feishu_webhook: '',
-                    start_time: '',
-                    target_round_keyword: '',
-                    courses: []
-                });
+    const app = createApp({
+        setup() {
+            const form = reactive({
+                user_account: '',
+                user_password: '',
+                feishu_webhook: '',
+                start_time: '',
+                target_round_keyword: '',
+                courses: []
+            });
 
-                const outputJson = ref('');
-                const fileInput = ref(null);
+            const outputJson = ref('');
+            const fileInput = ref(null);
 
-                // Initialize a unique key counter for list rendering
-                let keyCounter = 0;
+            // Initialize a unique key counter for list rendering
+            let keyCounter = 0;
 
-                const createCourse = (data = null) => {
-                    const defaultCourse = {
-                        key: keyCounter++,
-                        course_name: '',
-                        course_id: '',
-                        teacher_name: '',
-                        mode: 'search',
-                        jx02id: '',
-                        jx0404id: '',
-                        week_day: '',
-                        class_period: '',
-                        class_times: [{ week: '', week_day: '', class_period: '' }]
+            const createCourse = (data = null) => {
+                const defaultCourse = {
+                    key: keyCounter++,
+                    course_name: '',
+                    course_id: '',
+                    teacher_name: '',
+                    mode: 'search',
+                    jx02id: '',
+                    jx0404id: '',
+                    week_day: '',
+                    class_period: '',
+                    class_times: [{week: '', week_day: '', class_period: ''}]
+                };
+
+                if (data) {
+                    return {
+                        ...defaultCourse,
+                        ...data,
+                        key: keyCounter++ // Ensure new key even for imported data
                     };
+                }
+                return defaultCourse;
+            };
 
-                    if (data) {
-                        return {
-                            ...defaultCourse,
-                            ...data,
-                            key: keyCounter++ // Ensure new key even for imported data
-                        };
-                    }
-                    return defaultCourse;
-                };
+            const addCourse = () => {
+                form.courses.push(createCourse());
+            };
 
-                const addCourse = () => {
-                    form.courses.push(createCourse());
-                };
+            const removeCourse = (index) => {
+                form.courses.splice(index, 1);
+            };
 
-                const removeCourse = (index) => {
+            const moveCourseUp = (index) => {
+                if (index > 0) {
+                    const temp = form.courses[index];
                     form.courses.splice(index, 1);
-                };
+                    form.courses.splice(index - 1, 0, temp);
+                }
+            };
 
-                const addTimeNode = (course) => {
-                    course.class_times.push({ week: '', week_day: '', class_period: '' });
-                };
+            const moveCourseDown = (index) => {
+                if (index < form.courses.length - 1) {
+                    const temp = form.courses[index];
+                    form.courses.splice(index, 1); // 删除当前位置
+                    form.courses.splice(index + 1, 0, temp); // 插入到后一个位置
+                }
+            };
 
-                const removeTimeNode = (course, index) => {
-                    course.class_times.splice(index, 1);
-                };
+            const addTimeNode = (course) => {
+                course.class_times.push({week: '', week_day: '', class_period: ''});
+            };
 
-                const generateConfig = () => {
-                    // Validate required fields
-                    if (!form.user_account || !form.user_password) {
-                        ElementPlus.ElMessage.warning('请填写学号和密码');
+            const removeTimeNode = (course, index) => {
+                course.class_times.splice(index, 1);
+            };
+
+            const generateConfig = () => {
+                // Validate required fields
+                if (!form.user_account || !form.user_password) {
+                    ElementPlus.ElMessage.warning('请填写学号和密码');
+                    return;
+                }
+
+                for (let i = 0; i < form.courses.length; i++) {
+                    const c = form.courses[i];
+                    if (!c.course_name || !c.course_id || !c.teacher_name) {
+                        ElementPlus.ElMessage.warning(`课程 #${i + 1} 信息不完整（需填写名称、编号、教师）`);
                         return;
                     }
-
-                    for (let i = 0; i < form.courses.length; i++) {
-                        const c = form.courses[i];
-                        if (!c.course_name || !c.course_id || !c.teacher_name) {
-                            ElementPlus.ElMessage.warning(`课程 #${i + 1} 信息不完整（需填写名称、编号、教师）`);
+                    if (c.mode === 'id') {
+                        if (!c.jx02id || !c.jx0404id) {
+                            ElementPlus.ElMessage.warning(`课程 #${i + 1} ID模式需填写 jx02id 和 jx0404id`);
                             return;
                         }
-                        if (c.mode === 'id') {
-                            if (!c.jx02id || !c.jx0404id) {
-                                ElementPlus.ElMessage.warning(`课程 #${i + 1} ID模式需填写 jx02id 和 jx0404id`);
-                                return;
-                            }
-                        } else {
-                            if (!c.week_day || !c.class_period) {
-                                ElementPlus.ElMessage.warning(`课程 #${i + 1} 搜索模式需填写搜索星期和节次范围`);
-                                return;
-                            }
-                            const validTimes = c.class_times.filter(t => t.week && t.week_day && t.class_period);
-                            if (validTimes.length === 0) {
-                                ElementPlus.ElMessage.warning(`课程 #${i + 1} 搜索模式需至少填写一个完整的时间节点`);
-                                return;
-                            }
-                        }
-                    }
-
-                    // Deep copy to avoid modifying reactive state during processing
-                    const configToExport = {
-                        user_account: form.user_account,
-                        user_password: form.user_password,
-                        feishu_webhook: form.feishu_webhook,
-                        start_time: form.start_time,
-                        target_round_keyword: form.target_round_keyword,
-                        courses: form.courses.map(c => {
-                            // Filter incomplete time nodes
-                            const validTimes = c.class_times.filter(t => t.week && t.week_day && t.class_period);
-
-                            const courseData = {
-                                course_name: c.course_name,
-                                course_id: c.course_id,
-                                teacher_name: c.teacher_name,
-                                jx02id: "",
-                                jx0404id: "",
-                                week_day: "",
-                                class_period: "",
-                                class_times: []
-                            };
-
-                            if (c.mode === 'id') {
-                                courseData.jx02id = c.jx02id;
-                                courseData.jx0404id = c.jx0404id;
-                            } else {
-                                courseData.week_day = c.week_day;
-                                courseData.class_period = c.class_period;
-                                courseData.class_times = validTimes;
-                            }
-                            return courseData;
-                        })
-                    };
-
-                    outputJson.value = JSON.stringify(configToExport, null, 2);
-                    ElementPlus.ElMessage.success('配置生成成功！');
-                };
-
-                
-                const copyConfig = () => {
-                    if (!outputJson.value) {
-                        ElementPlus.ElMessage.warning('请先生成配置内容');
-                        return;
-                    }
-                    navigator.clipboard.writeText(outputJson.value).then(() => {
-                        ElementPlus.ElMessage.success('复制成功');
-                    }).catch(() => {
-                        ElementPlus.ElMessage.error('复制失败，请手动复制');
-                    });
-                };
-
-                const downloadConfig = () => {
-                    if (!outputJson.value) {
-                        ElementPlus.ElMessage.warning('请先生成配置内容');
-                        return;
-                    }
-                    const blob = new Blob([outputJson.value], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'config.json';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                };
-
-                const triggerImport = () => {
-                    fileInput.value.click();
-                };
-
-                const handleImport = (event) => {
-                    const file = event.target.files[0];
-                    if (!file) return;
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        try {
-                            const config = JSON.parse(e.target.result);
-                            form.user_account = config.user_account || '';
-                            form.user_password = config.user_password || '';
-                            form.feishu_webhook = config.feishu_webhook || '';
-                            form.start_time = config.start_time || '';
-                            form.target_round_keyword = config.target_round_keyword || '';
-
-                            form.courses = [];
-                            if (config.courses && Array.isArray(config.courses)) {
-                                config.courses.forEach(c => {
-                                    // Infer mode
-                                    let mode = 'search';
-                                    if (c.jx02id || c.jx0404id) {
-                                        mode = 'id';
-                                    }
-
-                                    form.courses.push(createCourse({
-                                        ...c,
-                                        mode: mode
-                                    }));
-                                });
-                            }
-                            ElementPlus.ElMessage.success('导入成功');
-                            generateConfig(); // Auto generate preview
-                        } catch (err) {
-                            console.error(err);
-                            ElementPlus.ElMessage.error('导入失败：文件格式错误');
-                        }
-                        event.target.value = ''; // Reset input
-                    };
-                    reader.readAsText(file);
-                };
-
-                // Cache Logic
-                const saveToCache = () => {
-                    const dataToCache = {
-                        user_account: form.user_account,
-                        user_password: form.user_password,
-                        feishu_webhook: form.feishu_webhook,
-                        start_time: form.start_time,
-                        target_round_keyword: form.target_round_keyword,
-                        courses: form.courses
-                    };
-                    localStorage.setItem('qfnu_course_config_v2', JSON.stringify(dataToCache));
-                };
-
-                const loadFromCache = () => {
-                    const cached = localStorage.getItem('qfnu_course_config_v2');
-                    if (cached) {
-                        try {
-                            const data = JSON.parse(cached);
-                            form.user_account = data.user_account || '';
-                            form.user_password = data.user_password || '';
-                            form.feishu_webhook = data.feishu_webhook || '';
-                            form.start_time = data.start_time || '';
-                            form.target_round_keyword = data.target_round_keyword || '';
-                            if (data.courses && Array.isArray(data.courses)) {
-                                data.courses.forEach(c => {
-                                    // Ensure key is unique
-                                    c.key = keyCounter++;
-                                    form.courses.push(c);
-                                });
-                            } else {
-                                addCourse(); // Default empty course if no courses in cache
-                            }
-                        } catch (e) {
-                            console.error('Cache load failed', e);
-                            addCourse(); // Default empty course on error
-                        }
                     } else {
-                        // Attempt to load legacy cache
-                        const legacyCache = localStorage.getItem('qfnu_course_config');
-                        if (legacyCache) {
-                            // Simple migration logic could go here, or just ignore
+                        if (!c.week_day || !c.class_period) {
+                            ElementPlus.ElMessage.warning(`课程 #${i + 1} 搜索模式需填写搜索星期和节次范围`);
+                            return;
                         }
-                        addCourse(); // Default empty course
+                        const validTimes = c.class_times.filter(t => t.week && t.week_day && t.class_period);
+                        if (validTimes.length === 0) {
+                            ElementPlus.ElMessage.warning(`课程 #${i + 1} 搜索模式需至少填写一个完整的时间节点`);
+                            return;
+                        }
                     }
+                }
+
+                // Deep copy to avoid modifying reactive state during processing
+                const configToExport = {
+                    user_account: form.user_account,
+                    user_password: form.user_password,
+                    feishu_webhook: form.feishu_webhook,
+                    start_time: form.start_time,
+                    target_round_keyword: form.target_round_keyword,
+                    courses: form.courses.map(c => {
+                        // Filter incomplete time nodes
+                        const validTimes = c.class_times.filter(t => t.week && t.week_day && t.class_period);
+
+                        const courseData = {
+                            course_name: c.course_name,
+                            course_id: c.course_id,
+                            teacher_name: c.teacher_name,
+                            jx02id: "",
+                            jx0404id: "",
+                            week_day: "",
+                            class_period: "",
+                            class_times: []
+                        };
+
+                        if (c.mode === 'id') {
+                            courseData.jx02id = c.jx02id;
+                            courseData.jx0404id = c.jx0404id;
+                        } else {
+                            courseData.week_day = c.week_day;
+                            courseData.class_period = c.class_period;
+                            courseData.class_times = validTimes;
+                        }
+                        return courseData;
+                    })
                 };
 
-                // Watch for changes to save cache
-                watch(form, () => {
-                    saveToCache();
-                }, { deep: true });
+                outputJson.value = JSON.stringify(configToExport, null, 2);
+                ElementPlus.ElMessage.success('配置生成成功！');
+            };
 
-                onMounted(() => {
-                    loadFromCache();
+
+            const copyConfig = () => {
+                if (!outputJson.value) {
+                    ElementPlus.ElMessage.warning('请先生成配置内容');
+                    return;
+                }
+                navigator.clipboard.writeText(outputJson.value).then(() => {
+                    ElementPlus.ElMessage.success('复制成功');
+                }).catch(() => {
+                    ElementPlus.ElMessage.error('复制失败，请手动复制');
                 });
+            };
 
-                return {
-                    form,
-                    outputJson,
-                    fileInput,
-                    addCourse,
-                    removeCourse,
-                    addTimeNode,
-                    removeTimeNode,
-                    generateConfig,
-                    copyConfig,
-                    downloadConfig,
-                    triggerImport,
-                    handleImport
+            const downloadConfig = () => {
+                if (!outputJson.value) {
+                    ElementPlus.ElMessage.warning('请先生成配置内容');
+                    return;
+                }
+                const blob = new Blob([outputJson.value], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'config.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            const triggerImport = () => {
+                fileInput.value.click();
+            };
+
+            const handleImport = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const config = JSON.parse(e.target.result);
+                        form.user_account = config.user_account || '';
+                        form.user_password = config.user_password || '';
+                        form.feishu_webhook = config.feishu_webhook || '';
+                        form.start_time = config.start_time || '';
+                        form.target_round_keyword = config.target_round_keyword || '';
+
+                        form.courses = [];
+                        if (config.courses && Array.isArray(config.courses)) {
+                            config.courses.forEach(c => {
+                                // Infer mode
+                                let mode = 'search';
+                                if (c.jx02id || c.jx0404id) {
+                                    mode = 'id';
+                                }
+
+                                form.courses.push(createCourse({
+                                    ...c,
+                                    mode: mode
+                                }));
+                            });
+                        }
+                        ElementPlus.ElMessage.success('导入成功');
+                        generateConfig(); // Auto generate preview
+                    } catch (err) {
+                        console.error(err);
+                        ElementPlus.ElMessage.error('导入失败：文件格式错误');
+                    }
+                    event.target.value = ''; // Reset input
                 };
-            }
-        });
+                reader.readAsText(file);
+            };
 
-        // Register Element Plus Icons with prefix to avoid conflicts (e.g. <Search> vs <search>)
-        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-            app.component(`Ep${key}`, component);
+            // Cache Logic
+            const saveToCache = () => {
+                const dataToCache = {
+                    user_account: form.user_account,
+                    user_password: form.user_password,
+                    feishu_webhook: form.feishu_webhook,
+                    start_time: form.start_time,
+                    target_round_keyword: form.target_round_keyword,
+                    courses: form.courses
+                };
+                localStorage.setItem('qfnu_course_config_v2', JSON.stringify(dataToCache));
+            };
+
+            const loadFromCache = () => {
+                const cached = localStorage.getItem('qfnu_course_config_v2');
+                if (cached) {
+                    try {
+                        const data = JSON.parse(cached);
+                        form.user_account = data.user_account || '';
+                        form.user_password = data.user_password || '';
+                        form.feishu_webhook = data.feishu_webhook || '';
+                        form.start_time = data.start_time || '';
+                        form.target_round_keyword = data.target_round_keyword || '';
+                        if (data.courses && Array.isArray(data.courses)) {
+                            data.courses.forEach(c => {
+                                // Ensure key is unique
+                                c.key = keyCounter++;
+                                form.courses.push(c);
+                            });
+                        } else {
+                            addCourse(); // Default empty course if no courses in cache
+                        }
+                    } catch (e) {
+                        console.error('Cache load failed', e);
+                        addCourse(); // Default empty course on error
+                    }
+                } else {
+                    // Attempt to load legacy cache
+                    const legacyCache = localStorage.getItem('qfnu_course_config');
+                    if (legacyCache) {
+                        // Simple migration logic could go here, or just ignore
+                    }
+                    addCourse(); // Default empty course
+                }
+            };
+
+            // Watch for changes to save cache
+            watch(form, () => {
+                saveToCache();
+            }, {deep: true});
+
+            onMounted(() => {
+                loadFromCache();
+            });
+
+            return {
+                form,
+                outputJson,
+                fileInput,
+                addCourse,
+                removeCourse,
+                moveCourseUp,
+                moveCourseDown,
+                addTimeNode,
+                removeTimeNode,
+                generateConfig,
+                copyConfig,
+                downloadConfig,
+                triggerImport,
+                handleImport
+            };
         }
+    });
 
-        app.use(ElementPlus);
-        app.mount('#app');
-    </script>
+    // Register Element Plus Icons with prefix to avoid conflicts (e.g. <Search> vs <search>)
+    for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+        app.component(`Ep${key}`, component);
+    }
+
+    app.use(ElementPlus);
+    app.mount('#app');
+</script>
 </body>
 
 </html>
